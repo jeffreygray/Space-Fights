@@ -1,0 +1,22 @@
+package edu.virginia.engine.display;
+
+import java.awt.Point;
+
+public interface IClickable {
+	
+	/*checks to see if a click that has occurred is valid and handles it appropriately*/
+	abstract void handleClick(Point clickPoint);
+	
+	/*checks to see if a press that has occurred is valid and handles it appropriately*/
+	abstract void handlePress(Point pressPoint);
+	
+	/*checks to see if a release that has occurred is valid and handles it appropriately*/
+	abstract void handleRelease(Point releasePoint);
+	
+	/* checks to see if a given drag occurred within this display object and handles it */
+	abstract void handleDrag(Point dragPoint);
+	
+	/*checks certain things when a mouse move occurs and handles it, like hovering*/
+	abstract void handleMove(Point movePoint);
+
+}

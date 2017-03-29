@@ -1,0 +1,191 @@
+package edu.virginia.engine.display;
+
+import java.awt.Graphics;
+import java.awt.Point;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
+import java.util.ArrayList;
+
+import edu.virginia.engine.lighting.Light;
+
+public class GameScene extends DisplayObjectContainer implements KeyListener,
+		MouseListener, MouseMotionListener {
+
+	/* The Game object that this scene is currently being displayed within */
+	private Game gameRef;
+
+	/* The JPanel for this scene */
+	private GameScenePanel scenePanel;
+
+	/* The Camera for this scene */
+	private Camera camera;
+	
+	/* The lights in this scene */
+	private ArrayList<Light> lights;
+
+	public GameScene(String sceneId, String backgroundFileName, Game gameRef) {
+		super(sceneId, backgroundFileName, null);
+
+		setGameRef(gameRef);
+		setScenePanel(new GameScenePanel(this));
+
+		/* Use an absolute layout */
+		scenePanel.setLayout(null);
+		this.camera = new Camera(gameRef.getMainFrame(), scenePanel);
+
+		/* add MouseListener for each Scene */
+		getScenePanel().addMouseListener(this);
+		getScenePanel().addMouseMotionListener(this);
+		
+		/* Instantiate the lights */
+		lights = new ArrayList<Light>();
+	}
+	
+	@Override
+	public void draw(Graphics g){
+		super.draw(g);
+	}
+
+	protected void setGame(Game gameRef) {
+		this.gameRef = gameRef;
+	}
+
+	protected boolean isCurrentScene() {
+		return gameRef != null;
+	}
+
+	public Camera getCamera() {
+		return this.camera;
+	}
+
+	public void nextFrame(Graphics g) {
+		if (gameRef != null) {
+			gameRef.nextFrame(g);
+		}
+	}
+
+	public Game getGameRef() {
+		return this.gameRef;
+	}
+
+	public void setGameRef(Game game) {
+		this.gameRef = game;
+	}
+
+	public void setScenePanel(GameScenePanel scenePanel) {
+		this.scenePanel = scenePanel;
+	}
+
+	public GameScenePanel getScenePanel() {
+		if (this.scenePanel == null) {
+			scenePanel = new GameScenePanel(this);
+		}
+		return scenePanel;
+	}
+
+	@Override
+	public void mouseClicked(MouseEvent e) {
+
+		/* Actual click location is dependent on the camera. Calculate it here. */
+		Point adjustedMouseLocation = new Point(e.getPoint().x
+				+ (int) this.camera.getX(), e.getPoint().y
+				+ (int) this.camera.getY());
+
+		/* handle the click with the adjusted mouse location */
+		this.handleClick(adjustedMouseLocation);
+
+	}
+
+	@Override
+	public void mouseEntered(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void mouseExited(MouseEvent arg0) {
+		// TODO Auto-generated method stub
+
+	}
+
+	@Override
+	public void mousePressed(MouseEvent e) {
+		/* Actual press location is dependent on the camera. Calculate it here. */
+		Point adjustedMouseLocation = new Point(e.getPoint().x
+				+ (int) this.camera.getX(), e.getPoint().y
+				+ (int) this.camera.getY());
+
+		/* handle the press with the adjusted mouse location */
+		this.handlePress(adjustedMouseLocation);
+	}
+
+	@Override
+	public void mouseReleased(MouseEvent e) {
+		/*
+		 * Actual release location is dependent on the camera. Calculate it
+		 * here.
+		 */
+		Point adjustedMouseLocation = new Point(e.getPoint().x
+				+ (int) this.camera.getX(), e.getPoint().y
+				+ (int) this.camera.getY());
+
+		/* handle the release with the adjusted mouse location */
+		this.handleRelease(adjustedMouseLocation);
+
+	}
+
+	@Override
+	public void mouseDragged(MouseEvent e) {
+		Point adjustedMouseLocation = new Point(e.getPoint().x
+				+ (int) this.camera.getX(), e.getPoint().y
+				+ (int) this.camera.getY());
+
+		/* handle the release with the adjusted mouse location */
+		this.handleDrag(adjustedMouseLocation);
+	}
+	
+	@Override
+	public void mouseMoved(MouseEvent e) {
+		Point adjustedMouseLocation = new Point(e.getPoint().x
+				+ (int) this.camera.getX(), e.getPoint().y
+				+ (int) this.camera.getY());
+
+		/* handle the release with the adjusted mouse location */
+		this.handleMove(adjustedMouseLocation);
+	}
+	
+	public void addLight(Light light){
+		if(light == null) return;
+		
+		if(!lights.contains(light)) lights.add(light);
+	}
+	
+	public void removeLight(Light light){
+		if(light == null) return;
+		
+		if(lights.contains(light)) lights.remove(light);
+	}
+	
+	public void applyLighting(){
+		super.applyLighting(lights);
+	}
+
+	@Override
+	public void keyPressed(KeyEvent arg0) {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void keyReleased(KeyEvent arg0) {
+		// TODO Auto-generated method stub
+	}
+
+	@Override
+	public void keyTyped(KeyEvent arg0) {
+		// TODO Auto-generated method stub
+	}
+
+}

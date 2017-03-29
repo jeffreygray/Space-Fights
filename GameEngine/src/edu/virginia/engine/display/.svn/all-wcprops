@@ -1,0 +1,77 @@
+K 25
+svn:wc:ra_dav:version-url
+V 76
+/svn/rashi/!svn/ver/348/trunk/rashi/Code/gui/src/edu/virginia/engine/display
+END
+Camera.java
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/rashi/!svn/ver/340/trunk/rashi/Code/gui/src/edu/virginia/engine/display/Camera.java
+END
+AnimatedSpriteWithPhysics.java
+K 25
+svn:wc:ra_dav:version-url
+V 107
+/svn/rashi/!svn/ver/205/trunk/rashi/Code/gui/src/edu/virginia/engine/display/AnimatedSpriteWithPhysics.java
+END
+AnimatedSprite.java
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/svn/rashi/!svn/ver/205/trunk/rashi/Code/gui/src/edu/virginia/engine/display/AnimatedSprite.java
+END
+Game.java
+K 25
+svn:wc:ra_dav:version-url
+V 86
+/svn/rashi/!svn/ver/348/trunk/rashi/Code/gui/src/edu/virginia/engine/display/Game.java
+END
+DisplayObject.java
+K 25
+svn:wc:ra_dav:version-url
+V 95
+/svn/rashi/!svn/ver/348/trunk/rashi/Code/gui/src/edu/virginia/engine/display/DisplayObject.java
+END
+Alignment.java
+K 25
+svn:wc:ra_dav:version-url
+V 90
+/svn/rashi/!svn/ver/97/trunk/rashi/Code/gui/src/edu/virginia/engine/display/Alignment.java
+END
+DisplayObjectContainer.java
+K 25
+svn:wc:ra_dav:version-url
+V 104
+/svn/rashi/!svn/ver/344/trunk/rashi/Code/gui/src/edu/virginia/engine/display/DisplayObjectContainer.java
+END
+Animation.java
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/svn/rashi/!svn/ver/205/trunk/rashi/Code/gui/src/edu/virginia/engine/display/Animation.java
+END
+IClickable.java
+K 25
+svn:wc:ra_dav:version-url
+V 92
+/svn/rashi/!svn/ver/340/trunk/rashi/Code/gui/src/edu/virginia/engine/display/IClickable.java
+END
+Sprite.java
+K 25
+svn:wc:ra_dav:version-url
+V 88
+/svn/rashi/!svn/ver/340/trunk/rashi/Code/gui/src/edu/virginia/engine/display/Sprite.java
+END
+GameScene.java
+K 25
+svn:wc:ra_dav:version-url
+V 91
+/svn/rashi/!svn/ver/346/trunk/rashi/Code/gui/src/edu/virginia/engine/display/GameScene.java
+END
+GameScenePanel.java
+K 25
+svn:wc:ra_dav:version-url
+V 96
+/svn/rashi/!svn/ver/348/trunk/rashi/Code/gui/src/edu/virginia/engine/display/GameScenePanel.java
+END

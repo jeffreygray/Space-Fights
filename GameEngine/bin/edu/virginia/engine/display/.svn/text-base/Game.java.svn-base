@@ -1,0 +1,208 @@
+package edu.virginia.engine.display;
+
+import java.awt.AlphaComposite;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
+
+import javax.swing.JComponent;
+import javax.swing.JFrame;
+import javax.swing.Timer;
+
+import edu.virginia.engine.events.general.Event;
+import edu.virginia.engine.events.general.IEventListener;
+import edu.virginia.engine.popups.PopupManager;
+import edu.virginia.engine.tween.TweenJuggler;
+
+/*
+ * Highest level class for creating a game in Java.
+ * @author floryan
+ * */
+public class Game extends DisplayObjectContainer implements ActionListener,
+		IEventListener {
+
+	/* Frames per second this game runs at */
+	private int FRAMES_PER_SEC = 50;
+
+	/* The main JFrame that holds this game */
+	private JFrame mainFrame;
+
+	/* A main panel that holds the game stuff */
+	private GameScene currentScene;
+
+	/* Timer that this game runs on */
+	private Timer gameTimer;
+	
+	/* Singleton */
+	private static Game instance = null;
+
+	public Game(String gameId, int width, int height) {
+		super(gameId);
+		setUpMainFrame(gameId, width, height);
+
+		/*
+		 * Create the juggler which handles tweens. Singleton so no need to set
+		 * to anything
+		 */
+		new TweenJuggler();
+		new PopupManager(this);
+		
+		instance = this;
+	}
+	
+	public void setFramesPerSecond(int fps){
+		if(fps > 0) this.FRAMES_PER_SEC = fps;
+	}
+	
+	public static Game getInstance(){return instance;}
+
+	public void setUpMainFrame(String gameId, int width, int height) {
+		this.mainFrame = new JFrame();
+		getMainFrame().setTitle(gameId);
+		getMainFrame().setResizable(false);
+		//getMainFrame().setUndecorated(true);
+		getMainFrame().setVisible(true);
+		getMainFrame().setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		getMainFrame().setBounds(50, 50, width, height);
+		getMainFrame().setIgnoreRepaint(true);
+		((JComponent)getMainFrame().getContentPane()).setOpaque(false);
+		
+		getMainFrame().addWindowListener(new WindowAdapter() {
+			public void windowClosing(WindowEvent e) {
+				// ClientGUI.this.client.sendMessage(new
+				// ChatMessage(ClientGUI.this.user,"bye")); // send to the
+				// server
+				//MainFrameController.getInstance().logout();
+				System.exit(0);
+			}
+		});
+	}
+
+	/**
+	 * Starts the game
+	 */
+	public void start() {
+		if (gameTimer == null) {
+			gameTimer = new Timer(1000 / FRAMES_PER_SEC, this);
+			gameTimer.start();
+		} else {
+			gameTimer.start();
+		}
+	}
+
+	/**
+	 * Stops the animation.
+	 */
+	public void stop() {
+		pause();
+		gameTimer = null;
+	}
+
+	public void pause() {
+		if (gameTimer != null) {
+			gameTimer.stop();
+		}
+	}
+	
+	public void exitGame(){
+		stop();
+		this.mainFrame.setVisible(false);
+		this.mainFrame.dispose();
+	}
+	
+	/**
+	 * Close the window
+	 * */
+	public void closeGame(){
+		this.stop();
+		if(this.getMainFrame() != null){
+			this.getMainFrame().setVisible(false);
+			this.getMainFrame().dispose();
+		}
+	}
+
+	public void setCurrentScene(GameScene newScene) {
+
+		if (currentScene != null) {
+			this.getMainFrame().removeKeyListener(currentScene);
+			this.getMainFrame().removeMouseListener(currentScene);
+			this.getMainFrame().remove(currentScene.getScenePanel());
+		}
+
+		this.removeAllChildren();
+		this.currentScene = newScene;
+		this.addChild(currentScene);
+		this.getMainFrame().setTitle(currentScene.getId());
+		this.getMainFrame().add(getCurrentScene().getScenePanel());
+		this.getMainFrame().addKeyListener(currentScene);
+		this.getMainFrame().addMouseListener(currentScene);
+		this.getMainFrame().setFocusable(true);
+		this.getMainFrame().requestFocusInWindow();
+	}
+
+	/**
+	 * Called once per frame. updates the game, redraws the screen, etc. May
+	 * need to optimize this if games get too slow.
+	 * */
+	@Override
+	public void actionPerformed(ActionEvent e) {
+		repaintGame();
+	}
+	
+	/**
+	 * Forces a repaint
+	 * */
+	public void repaintGame(){
+		if(currentScene != null){
+			currentScene.getScenePanel().validate();
+			currentScene.getScenePanel().repaint();
+		}
+	}
+
+	protected void nextFrame(Graphics g) {
+
+		try {
+			/* Update all objects on the stage as well as all tweens */
+			this.update();
+			TweenJuggler.nextFrame();
+			PopupManager.nextFrame();
+
+			/* Draw everything on the screen */
+			this.draw(g);
+		} catch (Exception e) {
+			System.out
+					.println("Exception in nextFrame of game. Stopping game (no frames will be drawn anymore");
+			stop();
+			e.printStackTrace();
+		}
+	}
+	
+	@Override
+	public void draw(Graphics g){
+		/* Apply this objects transparency */
+		((Graphics2D)g).setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
+				1.0f));
+		
+		super.draw(g);
+	}
+
+	public JFrame getMainFrame() {
+		return this.mainFrame;
+	}
+
+	public GameScene getCurrentScene() {
+		if (this.currentScene == null) {
+			System.out.println("GameScene currentScene in GameScene == null");
+		}
+		return this.currentScene;
+	}
+
+	@Override
+	public void handleEvent(Event e) {
+		// TODO Auto-generated method stub
+
+	}
+}

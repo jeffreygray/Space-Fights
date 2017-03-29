@@ -1,0 +1,16 @@
+package edu.virginia.engine.display;
+
+public class Alignment {
+	public static final String RIGHT_ALIGNED = "Alignment:RIGHT_ALIGNED";
+	public static final String BOTTOM_RIGHT_ALIGNED = "Alignment:BOTTOM_RIGHT_ALIGNED";
+	public static final String BOTTOM_ALIGNED = "Alignment:BOTTOM_ALIGNED";
+	public static final String BOTTOM_LEFT_ALIGNED = "Alignment:BOTTOM_LEFT_ALIGNED";
+	public static final String LEFT_ALIGNED = "Alignment:LEFT_ALIGNED";
+	public static final String TOP_LEFT_ALIGNED = "Alignment:TOP_LEFT_ALIGNED";
+	public static final String TOP_ALIGNED = "Alignment:TOP_ALIGNED";
+	public static final String TOP_RIGHT_ALIGNED = "Alignment:TOP_RIGHT_ALIGNED";
+	public static final String HORIZONTAL_CENTER_ALIGNED = "Alignment:HORIZONTAL_CENTER_ALIGNED";
+	public static final String VERTICAL_CENTER_ALIGNED = "Alignment:VERTICAL_CENTER_ALIGNED";
+	public static final String CENTER_ALIGNED = "Alignment:CENTER_ALIGNED";
+
+}

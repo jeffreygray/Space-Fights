@@ -1,0 +1,47 @@
+package edu.virginia.engine.display;
+
+import java.awt.Graphics;
+
+import javax.swing.JPanel;
+
+@SuppressWarnings("serial")
+public class GameScenePanel extends JPanel {
+
+	/* The scene associated with this panel */
+	private GameScene sceneRef;
+
+	/**
+	 * Constructor
+	 * */
+	public GameScenePanel(GameScene sceneRef) {
+		this.setLayout(null);
+		this.setSceneRef(sceneRef);
+		this.setBounds(sceneRef.getHitbox());
+		this.setDoubleBuffered(true);
+		this.setIgnoreRepaint(true);
+		this.setOpaque(false);
+		
+		sceneRef.getGameRef().getMainFrame().createBufferStrategy(2);
+	}
+
+	public GameScene getSceneRef() {
+		return sceneRef;
+	}
+
+	public void setSceneRef(GameScene sceneRef) {
+		this.sceneRef = sceneRef;
+	}
+	
+	@Override
+	public void paintComponent(Graphics g) {
+		super.paintComponent(g);
+		sceneRef.nextFrame(g);
+		g.dispose();
+	}
+
+	@Override
+	public String toString() {
+		return sceneRef.getId() + " (width = " + this.getWidth()
+				+ ", height = " + this.getHeight();
+	}
+}

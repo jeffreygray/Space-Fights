@@ -1,0 +1,38 @@
+package edu.virginia.engine.display;
+
+public class Animation {
+	private String id;
+	private int startFrame;
+	private int endFrame;
+
+	public Animation(String id, int startFrame, int endFrame) {
+		setId(id);
+		setStartFrame(startFrame);
+		setEndFrame(endFrame);
+	}
+
+	private void setId(String id) {
+		this.id = id;
+	}
+
+	private void setStartFrame(int startFrame) {
+		this.startFrame = startFrame;
+	}
+
+	private void setEndFrame(int endFrame) {
+		this.endFrame = endFrame;
+	}
+
+	public String getId() {
+		return this.id;
+
+	}
+
+	public int getStartFrame() {
+		return this.startFrame;
+	}
+
+	public int getEndFrame() {
+		return this.endFrame;
+	}
+}

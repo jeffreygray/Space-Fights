@@ -1,0 +1,264 @@
+package edu.virginia.engine.display;
+
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.geom.Point2D;
+import java.awt.geom.Rectangle2D;
+
+import edu.virginia.engine.physics.Bounciness;
+import edu.virginia.engine.physics.Drag;
+import edu.virginia.engine.physics.Gravity;
+import edu.virginia.engine.physics.Velocity;
+
+public class AnimatedSpriteWithPhysics extends AnimatedSprite {
+
+	private Point2D actualPosition;
+	private Velocity velocity = new Velocity();
+	private Gravity gravity = new Gravity();
+	private Drag drag = new Drag();
+	private Bounciness bounciness = new Bounciness();
+	private boolean collidable = false;
+
+	public AnimatedSpriteWithPhysics(String id, String fileName, Point position) {
+		super(id, fileName, position);
+		setActualPosition(position.getX(), position.getY());
+	}
+
+	@Override
+	public void update() {
+		super.update();
+		updateVelocity();
+	}
+
+	private void updateVelocity() {
+		applyGravity();
+		updatePosition();
+		if (collidable) {
+			applyBounce();
+		}
+		applyDrag();
+	}
+
+	private void updatePosition() {
+		Rectangle2D actualHitbox = new Rectangle.Double(getActualPosition()
+				.getX(), getActualPosition().getY(), getHitbox().getWidth(),
+				getHitbox().getHeight());
+		Rectangle2D newHitbox = getFutureHitbox(actualHitbox, getVelocity(), 10);
+		setActualPosition(newHitbox.getX(), newHitbox.getY());
+
+		Point newPosition = new Point((int) getActualPosition().getX(),
+				(int) getActualPosition().getY());
+		this.setLocation(newPosition);
+	}
+
+	private Rectangle2D getFutureHitbox(Rectangle2D currentHitbox,
+			Velocity velocity, int accuracy) {
+		double newX = currentHitbox.getX() + velocity.getXVelocity();
+		double newY = currentHitbox.getY() + velocity.getYVelocity();
+		Rectangle2D hitbox = new Rectangle.Double(newX, newY,
+				currentHitbox.getWidth(), currentHitbox.getHeight());
+		AnimatedSpriteWithPhysics collider = getCollider(hitbox);
+		if (isCollidable() && collider != null) {
+			double xHitboxPosition = currentHitbox.getX();
+			double xVelocityOffset = velocity.getXVelocity();
+			for (int i = 0; i < accuracy; i++) {
+				xVelocityOffset /= 2.0;
+				hitbox = new Rectangle2D.Double(xHitboxPosition,
+						currentHitbox.getY(), currentHitbox.getWidth(),
+						currentHitbox.getHeight());
+				collider = getCollider(hitbox);
+				if (collider != null) {
+					xHitboxPosition -= xVelocityOffset;
+				} else {
+					xHitboxPosition += xVelocityOffset;
+				}
+			}
+			if (collider != null) {
+				xHitboxPosition -= xVelocityOffset;
+			}
+
+			double yHitboxPosition = currentHitbox.getY();
+			double yVelocityOffset = velocity.getYVelocity();
+			for (int i = 0; i < accuracy; i++) {
+				yVelocityOffset /= 2.0;
+				hitbox = new Rectangle2D.Double(currentHitbox.getX(),
+						yHitboxPosition, currentHitbox.getWidth(),
+						currentHitbox.getHeight());
+				collider = getCollider(hitbox);
+				if (collider != null) {
+					yHitboxPosition -= yVelocityOffset;
+				} else {
+					yHitboxPosition += yVelocityOffset;
+				}
+			}
+			if (collider != null) {
+				yHitboxPosition -= yVelocityOffset;
+			}
+
+			hitbox = new Rectangle2D.Double(xHitboxPosition, yHitboxPosition,
+					currentHitbox.getHeight(), currentHitbox.getWidth());
+		}
+		return hitbox;
+	}
+
+	private void applyBounce() {
+		Rectangle2D hitbox = getHitbox();
+		Velocity velocity = getVelocity();
+		Bounciness bounciness = getBounciness();
+		double futureX = hitbox.getX() + velocity.getXVelocity();
+		double futureY = hitbox.getY() + velocity.getYVelocity();
+		Rectangle2D futureHitbox = new Rectangle2D.Double(futureX, futureY,
+				hitbox.getWidth(), hitbox.getHeight());
+		AnimatedSpriteWithPhysics collider = getCollider(futureHitbox);
+		if (collider != null) {
+			Rectangle2D horizontalCollisionBox = new Rectangle2D.Double(
+					futureX, hitbox.getY(), hitbox.getWidth(),
+					hitbox.getHeight());
+			Rectangle2D verticalCollisionBox = new Rectangle2D.Double(
+					hitbox.getX(), futureY, hitbox.getWidth(),
+					hitbox.getHeight());
+			updatePosition();
+			if (horizontalCollisionBox.intersects(collider.getHitbox())) {
+				velocity.setXVelocity(velocity.getXVelocity()
+						* -bounciness.getXBounciness());
+			}
+			if (verticalCollisionBox.intersects(collider.getHitbox())) {
+				velocity.setYVelocity(velocity.getYVelocity()
+						* -bounciness.getYBounciness());
+			}
+		}
+	}
+
+	private AnimatedSpriteWithPhysics getCollider(Rectangle2D hitbox) {
+		DisplayObject currentLayer = this;
+		do {
+			if (!currentLayer.hasParent()) {
+				return null;
+			}
+			currentLayer = currentLayer.getParent();
+		} while (!(currentLayer instanceof GameScene));
+		GameScene gameScene = (GameScene) currentLayer;
+		// @TODO should get children and children of children
+		for (DisplayObject child : gameScene.getChildren()) {
+			if (Math.abs(this.getHitbox().getX() - child.getHitbox().getX()) <= Math
+					.max(this.getHitbox().getWidth(), child.getHitbox()
+							.getWidth())
+					&& Math.abs(this.getHitbox().getY()
+							- child.getHitbox().getY()) <= Math.max(this
+							.getHitbox().getHeight(), child.getHitbox()
+							.getHeight()) && !this.equals(child)) {
+				if (child instanceof AnimatedSpriteWithPhysics
+						&& ((AnimatedSpriteWithPhysics) child).isCollidable()
+						&& hitbox.intersects(child.getHitbox())) {
+					return (AnimatedSpriteWithPhysics) child;
+				}
+			}
+		}
+		return null;
+	}
+
+	private void applyGravity() {
+		Gravity gravity = getGravity();
+		Velocity velocity = getVelocity();
+		double newXVelocity = velocity.getXVelocity() + gravity.getXGravity();
+		double newYVelocity = velocity.getYVelocity() + gravity.getYGravity();
+		Rectangle2D hitbox = getHitbox();
+		Rectangle2D horizontalCollisionBox = new Rectangle.Double(hitbox.getX()
+				+ newXVelocity, hitbox.getY(), hitbox.getWidth(),
+				hitbox.getHeight());
+		Rectangle2D verticalCollisionBox = new Rectangle.Double(hitbox.getX(),
+				hitbox.getY() + newYVelocity, hitbox.getWidth(),
+				hitbox.getHeight());
+		if (getCollider(horizontalCollisionBox) != null) {
+			velocity.setXVelocity(gravity.getXGravity());
+		} else {
+			velocity.setXVelocity(velocity.getXVelocity()
+					+ gravity.getXGravity());
+		}
+		if (getCollider(verticalCollisionBox) != null) {
+			velocity.setYVelocity(gravity.getYGravity());
+		} else {
+			velocity.setYVelocity(velocity.getYVelocity()
+					+ gravity.getYGravity());
+		}
+	}
+
+	private void applyDrag() {
+		Drag drag = getDrag();
+		Velocity velocity = getVelocity();
+		if (velocity.getXVelocity() != 0) {
+			if (velocity.getXVelocity() > 0) {
+				velocity.setXVelocity(Math.max(
+						velocity.getXVelocity() - drag.getXDrag(), 0));
+			} else if (velocity.getXVelocity() < 0) {
+				velocity.setXVelocity(Math.min(
+						velocity.getXVelocity() + drag.getXDrag(), 0));
+			}
+		}
+		if (velocity.getYVelocity() != 0) {
+			if (velocity.getYVelocity() > 0) {
+				velocity.setYVelocity(Math.max(
+						velocity.getYVelocity() - drag.getYDrag(), 0));
+			} else if (velocity.getYVelocity() < 0) {
+				velocity.setYVelocity(Math.min(
+						velocity.getYVelocity() + drag.getYDrag(), 0));
+			}
+		}
+	}
+
+	public void addThrust(double xThrust, double yThrust) {
+		Velocity velocity = getVelocity();
+		double newXVelocity = velocity.getXVelocity() + xThrust;
+		double newYVelocity = velocity.getYVelocity() + yThrust;
+		Rectangle2D hitbox = getHitbox();
+		Rectangle2D horizontalCollisionBox = new Rectangle.Double(hitbox.getX()
+				+ newXVelocity, hitbox.getY(), hitbox.getWidth(),
+				hitbox.getHeight());
+		Rectangle2D verticalCollisionBox = new Rectangle.Double(hitbox.getX(),
+				hitbox.getY() + newYVelocity, hitbox.getWidth(),
+				hitbox.getHeight());
+		if (getCollider(horizontalCollisionBox) != null) {
+			velocity.setXVelocity(xThrust);
+		} else {
+			velocity.setXVelocity(velocity.getXVelocity() + xThrust);
+		}
+		if (getCollider(verticalCollisionBox) != null) {
+			velocity.setYVelocity(yThrust);
+		} else {
+			velocity.setYVelocity(velocity.getYVelocity() + yThrust);
+		}
+	}
+
+	public Point2D getActualPosition() {
+		return this.actualPosition;
+	}
+
+	public void setActualPosition(double x, double y) {
+		this.actualPosition = new Point.Double(x, y);
+	}
+
+	public Velocity getVelocity() {
+		return this.velocity;
+	}
+
+	public Gravity getGravity() {
+		return this.gravity;
+	}
+
+	public Drag getDrag() {
+		return this.drag;
+	}
+
+	public Bounciness getBounciness() {
+		return this.bounciness;
+	}
+
+	public boolean isCollidable() {
+		return this.collidable;
+	}
+
+	public void setCollidable(boolean collidable) {
+		this.collidable = collidable;
+	}
+
+}

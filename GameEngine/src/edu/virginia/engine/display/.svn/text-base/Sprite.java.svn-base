@@ -1,0 +1,25 @@
+package edu.virginia.engine.display;
+
+import java.awt.Point;
+import java.awt.image.BufferedImage;
+
+public class Sprite extends DisplayObjectContainer {
+
+	public Sprite(String id) {
+		super(id);
+	}
+
+	public Sprite(String id, String imageFileName, Point position) {
+		super(id, imageFileName, position);
+	}
+
+	public Sprite(String id, BufferedImage image, Point position) {
+		super(id, image, position);
+	}
+	
+
+	@Override
+	public void update() {
+		super.update();
+	}
+}

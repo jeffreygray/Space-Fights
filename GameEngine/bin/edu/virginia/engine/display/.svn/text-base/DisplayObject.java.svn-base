@@ -1,0 +1,734 @@
+package edu.virginia.engine.display;
+
+import java.awt.AlphaComposite;
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.Rectangle;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+
+import javax.imageio.ImageIO;
+import javax.swing.JComponent;
+import javax.swing.JPanel;
+
+import edu.virginia.engine.events.general.EventDispatcher;
+import edu.virginia.engine.events.mouse.MouseEvent;
+import edu.virginia.engine.lighting.Light;
+
+/*
+ * A very basic display object for a java based gaming engine
+ * @author floryan
+ * */
+public class DisplayObject extends EventDispatcher implements IClickable {
+
+	/* All DisplayObject have a unique id */
+	private String id;
+
+	/* The image that is displayed by this object */
+	private BufferedImage displayImage;
+	
+	/* Image can be either visible or invisible */
+	private boolean visible = true;
+
+	/* display object properties regarding position and scale */
+	private Point position = new Point(0,0);
+
+	/* The point around which this DisplayObject scales and rotates */
+	private Point pivotPoint = new Point(0, 0);
+
+	/* The scale factors of this image */
+	private double scaleX = 1.0;
+	private double scaleY = 1.0;
+
+	/* The rotation of this image */
+	private double rotation;
+
+	/* Transparency of this display object */
+	private float alpha = 1.0f;
+
+	/* display object container in which this is stored */
+	private DisplayObjectContainer parent;
+
+	/* A JPanel that will hold any UI components associated with this object */
+	private JPanel uiLayer = null;
+
+	/*
+	 * Constructors: can pass in the id OR the id and image's file path and
+	 * position OR the id and a buffered image and position
+	 */
+	public DisplayObject(String id) {
+		this.setId(id);
+		this.setLocation(new Point(0, 0));
+	}
+
+	public DisplayObject(String id, String fileName) {
+		this.setId(id);
+		this.setImage(fileName);
+		this.setLocation(new Point(0, 0));
+	}
+
+	public DisplayObject(String id, String fileName, Point position) {
+		this.setId(id);
+		this.setImage(fileName);
+		this.setLocation(position);
+	}
+
+	public DisplayObject(String id, BufferedImage image, Point position) {
+		this.setId(id);
+		this.setImage(image);
+		this.setLocation(position);
+	}
+
+	public void setId(String id) {
+		this.id = id;
+	}
+
+	public String getId() {
+		return id;
+	}
+
+
+	public void setLocation(Point position) {
+		if (position == null) return;
+		
+		this.position = new Point(position.x, position.y);
+		
+	}
+	
+	public Point getLocation(){
+		return new Point(position.x, position.y);
+	}
+	
+	/**
+	 * Two getters. returns the x and y position of the object
+	 * */
+	public int getX(){return position.x;}
+	public int getY(){return position.y;}
+	public void setX(int newX){position.setLocation(newX, position.y);}
+	public void setY(int newY){position.setLocation(position.x, newY);}
+
+	/**
+	 * Returns the hitbox of this object in LOCAL coordinates. Must be compared to a point in this objects coordinate
+	 * system
+	 * */
+	protected Rectangle getLocalHitbox(){
+		/* Upper right corner of local hitbox IF no parents have a scaling factor */
+		double upperRightX = -1 * pivotPoint.x * this.getScaleX();
+		double upperRightY = -1 * pivotPoint.y * this.getScaleY();
+		
+		/* Take parent scales into account */
+		DisplayObject parent = this.getParent();
+		while(parent != null){
+			Point parentPivot = this.ancestorToLocal(parent, parent.getPivot());
+			upperRightX = upperRightX - ((upperRightX - parentPivot.x)*(1.0 - parent.getScaleX()));
+			upperRightY = upperRightY - ((upperRightY - parentPivot.y)*(1.0 - parent.getScaleY()));
+			parent = parent.getParent();
+		}
+		
+		return new Rectangle((int)upperRightX, (int)upperRightY, getScaledWidth(), getScaledHeight());
+	}
+	
+	/**
+	 * Returns the hitbox of this object in the parent's coordinate system. Most of the time you want this one.
+	 * */
+	public Rectangle getHitbox(){
+		Rectangle local = getLocalHitbox();
+		
+		return new Rectangle(local.x + getX(), local.y + getY(), getScaledWidth(), getScaledHeight());
+	}
+
+	/**
+	 * Getters and setters for the pivot point
+	 * */
+	public Point getPivot() {
+		return pivotPoint;
+	}
+
+	public int getPivotX() {
+		return pivotPoint.x;
+	}
+
+	public int getPivotY() {
+		return pivotPoint.y;
+	}
+
+	public void setPivotX(int newX) {
+		pivotPoint.x = newX;
+	}
+
+	public void setPivotY(int newY) {
+		pivotPoint.y = newY;
+	}
+	
+	public void setPivot(Point newPivot) {
+		pivotPoint = newPivot;
+	}
+	
+	/**
+	 * Sets pivot to middle of this object
+	 * */
+	public void setPivotToCenter(){
+		this.setPivotX(this.getUnscaledWidth()/2);
+		this.setPivotY(this.getUnscaledHeight()/2);
+	}
+
+	/* Returns the unscaled width and height of this display object */
+	public int getUnscaledWidth() {
+		if(displayImage == null) return 0;
+		return displayImage.getWidth();
+	}
+
+	public int getUnscaledHeight() {
+		if(displayImage == null) return 0;
+		return displayImage.getHeight();
+	}
+
+	public BufferedImage getDisplayImage() {
+		return this.displayImage;
+	}
+
+	protected void setImage(String imageName) {
+		if (imageName == null) {
+			return;
+		}
+		displayImage = readImage(imageName);
+		if (displayImage == null) {
+			System.err.println("[DisplayObject.setImage] ERROR: " + imageName + " does not exist!");
+		}
+	}
+
+	public void rotate(double rotation) {
+		this.rotation = rotation;
+	}
+
+	/**
+	 * Helper function that simply reads an image from the given image name
+	 * (looks in resources\\) and returns the bufferedimage for that filename
+	 * */
+	public BufferedImage readImage(String imageName) {
+		BufferedImage image = null;
+		try {
+			String file = ("resources" + File.separator + imageName);
+			image = ImageIO.read(new File(file));
+		} catch (IOException e1) {
+			String[] imageParts = imageName.split("\\.");
+			try {
+				String fileName = "resources" + File.separator + imageParts[0]+ "_0." + imageParts[1];
+				image = ImageIO.read(new File(fileName));
+			} catch (IOException e) {
+				return null;
+			}
+		}
+		return image;
+	}
+
+	public void setImage(BufferedImage image) {
+		if(image == null) return;
+		
+		displayImage = image;
+	}
+
+	public String toString() {
+
+		return this.id + " (x = " + getX() + ", y = "
+				+ getY() + ") Width: " + getUnscaledWidth()
+				+ ", Height: " + getUnscaledHeight();
+	}
+
+	/**
+	 * Invoked on every frame before drawing. Used to update this display
+	 * objects state before the draw occurs. Should be overridden if necessary
+	 * to update objects appropriately.
+	 * */
+	protected void update() {
+		
+	}
+
+	/**
+	 * Draws this image. This should be overloaded if a display object should
+	 * draw to the screen differently. This method is automatically invoked on
+	 * every frame.
+	 * */
+	protected void draw(Graphics g) {
+		
+		if(!this.visible) return;
+		if (displayImage != null) {
+			
+			/*
+			 * Get the graphics and apply this objects transformations
+			 * (rotation, etc.)
+			 */
+			Graphics2D g2d = (Graphics2D) g;
+			applyTransformations(g2d);
+
+			/* Actually draw the image, perform the pivot point translation here */
+			g2d.drawImage(displayImage, -1 * pivotPoint.x, -1 * pivotPoint.y,
+					(int) (getUnscaledWidth()),
+					(int) (getUnscaledHeight()), null);
+			
+			/* Paint the ui layer //TODO: DOESN"T SEEM TO WORK :( */
+			/* Note: This seems to cause repaint to occur recursively which kills the code!! */
+//			if(uiLayer != null){
+//				uiLayer.validate();
+//				uiLayer.repaint();
+//			}
+			
+			/*
+			 * undo the transformations so this doesn't affect other display
+			 * objects
+			 */
+			reverseTransformations(g2d);
+		}
+	}
+
+	/**
+	 * Applies transformations for this display object to the given graphics
+	 * object
+	 * */
+	private float oldAlpha = 0.0f; //only needed because cannot divide by 0, so hard to undo for this special case
+	protected void applyTransformations(Graphics2D g2d) {
+
+		/* Apply this object's rotation, position and scale */
+		g2d.translate(position.x, position.y);
+
+		g2d.rotate(Math.toRadians(getRotation()));
+
+		g2d.scale(this.scaleX, this.scaleY);
+		
+		/* get current alpha */
+		float curAlpha = ((AlphaComposite)g2d.getComposite()).getAlpha();
+		oldAlpha = curAlpha;
+
+		/* Apply this objects transparency */
+		g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
+				curAlpha*alpha));
+		
+	}
+
+	/**
+	 * Reverses transformations for this display object to the given graphics
+	 * object
+	 * */
+	protected void reverseTransformations(Graphics2D g2d) {
+
+		/*
+		 * Apply this object's rotation, position and scale transformations in
+		 * reverse
+		 */
+		/* Note that we are reversing the effects of the transformations here */
+
+		/* Put the transparency back */
+		/* get current alpha */
+		
+		g2d.setComposite(AlphaComposite.getInstance(AlphaComposite.SRC_OVER,
+				oldAlpha));
+
+		g2d.scale(1 / this.scaleX, 1 / this.scaleY);
+
+		g2d.rotate(-1 * Math.toRadians(getRotation()));
+
+		g2d.translate(-1 * position.x, -1 * position.y);
+
+	}
+
+	protected double getRotation() {
+		return this.rotation;
+	}
+
+	public DisplayObjectContainer getParent() {
+		return this.parent;
+	}
+
+	public boolean hasParent() {
+		return this.parent != null;
+	}
+
+	/**
+	 * Returns true iff the this DisplayObject is a descendent of the given
+	 * DisplayObject somewhere along the line of the display tree.
+	 * */
+	public boolean isDescendentOf(DisplayObject parent) {
+		if(parent == null) return false;
+		if(!this.hasParent()) return false;
+		if(this.getParent() == parent) return true;
+
+		return getParent().isDescendentOf(parent);
+	}
+
+	private void setParent(DisplayObjectContainer displayObjectContainer) {
+		if (displayObjectContainer == null) {
+			//System.out
+			//	.println("DisplayObjectContainer displayObjectContainer in DisplayObject.setParent(DisplayObjectContainer) == null");
+			return;
+		}
+		this.parent = displayObjectContainer;
+	}
+
+	/* Getters and Setters for scale */
+	public double getScaleX() {
+		return scaleX;
+	}
+
+	public double getScaleY() {
+		return scaleY;
+	}
+	
+	/**
+	 * These two methods return the TOTAL scale accumulated from all this object's parent's (including it's own)
+	 * be careful when using this value as most implemented features are recursive and build this value one level
+	 * at a time. This is a way to quickly get the total accumulated scale if needed for some special cases.
+	 * For example, this is used when figuring out the actual scaledWidth of an object
+	 * */
+	protected double getTotalScaleX(){
+		if(!this.hasParent()) return this.scaleX;
+		return this.scaleX * this.getParent().getTotalScaleX();
+	}
+	protected double getTotalScaleY(){
+		if(!this.hasParent()) return this.scaleY;
+		return this.scaleY * this.getParent().getTotalScaleY();
+	}
+	
+
+	/**
+	 * Sets the scale in the x direction. notice that this is just a member variable. We provide two methods that use this:
+	 * getUnscaledWidth() \\gets the original width of the display image for this object
+	 * getScaledWidth() \\gets the width with scale taken into account for this object
+	 * */
+	public void setScaleX(double scaleX) {
+		this.scaleX = scaleX;
+	}
+
+	/**
+	 * Sets the scale in the y direction. notice that this is just a member variable. We provide two methods that use this:
+	 * getUnscaledHeight() \\gets the original height of the display image for this object
+	 * getScaledHeight() \\gets the height with scale taken into account for this object
+	 * */
+	public void setScaleY(double scaleY) {
+		this.scaleY = scaleY;
+	}
+
+	/**
+	 * Returns the scaled width of this image
+	 * */
+	public int getScaledWidth() {
+		return (int) ((double)getUnscaledWidth() * this.getTotalScaleX());
+	}
+
+	/**
+	 * Returns the scaled height of this image
+	 * */
+	public int getScaledHeight() {
+		return (int) ((double)getUnscaledHeight() * this.getTotalScaleY());
+	}
+
+	/**
+	 * Sets the transparency of this display object
+	 * 
+	 * @param alpha
+	 *            : must be between 0 and 1
+	 * */
+	public void setAlpha(float alpha) {
+		if (alpha < 0.0f || alpha > 1.0f)
+			return;
+		this.alpha = alpha;
+	}
+
+	public float getAlpha() {
+		return alpha;
+	}
+	
+	/**
+	 * Returns alpha as an int (0-255)
+	 * */
+	public int getIntAlpha(){
+		return (int)(255.0 * alpha);
+	}
+
+	/**
+	 * handles a valid click that occurs on this display object. Simply throws
+	 * an event letting listeners know that a click occurred
+	 * */
+	private void onClick(Point clickPoint) {
+		dispatchEvent(new MouseEvent(MouseEvent.OBJECT_CLICKED, this,
+				clickPoint));
+	}
+
+	@Override
+	public void handleClick(Point clickPoint) {		
+		Point newClickPoint = parentToLocal(clickPoint);
+
+		if (contains(newClickPoint))
+			onClick(newClickPoint);
+	}
+	
+	/**
+	 * Translates a given point in the direct parent's coordinate system
+	 * down into this objects coordinate system
+	 * */
+	protected Point parentToLocal(Point parentPoint){
+		/* create a translated click point */
+		Point newClickPoint = new Point();
+		newClickPoint.x = parentPoint.x - this.getX();
+		newClickPoint.y = parentPoint.y - this.getY();
+		return newClickPoint;
+	}
+	
+	/**
+	 * Similar to method above (parentToLocal) but can be used to translate any
+	 * ancestor's local point into this object's local point
+	 * */
+	protected Point ancestorToLocal(DisplayObject ancestor, Point ancestorPoint){
+		/* If params not valid, just return null */
+		if(ancestor == null || ancestorPoint == null) return null;
+		if(!this.isDescendentOf(ancestor)) return null;
+		
+		/* Base case, ancestor is direct parent */
+		if(this.getParent() == ancestor) return parentToLocal(ancestorPoint);
+		
+		/* Translate point down one parent at a time recursively */
+		return parentToLocal(this.getParent().ancestorToLocal(ancestor, ancestorPoint));
+	}
+
+	/**
+	 * handles a valid press that occurs on this display object. Simply throws
+	 * an event letting listeners know that a press occurred
+	 * */
+	private void onPress(Point pressPoint) {
+		dispatchEvent(new MouseEvent(MouseEvent.OBJECT_PRESSED, this,
+				pressPoint));
+	}
+
+	@Override
+	public void handlePress(Point pressPoint) {
+		Point newPressPoint = parentToLocal(pressPoint);
+		if (contains(newPressPoint))
+			onPress(newPressPoint);
+	}
+
+	/**
+	 * handles a valid release that occurs on this display object. Simply throws
+	 * an event letting listeners know that a release occurred
+	 * */
+	private void onRelease(Point releasePoint) {
+		dispatchEvent(new MouseEvent(MouseEvent.OBJECT_RELEASED, this,
+				releasePoint));
+	}
+
+	@Override
+	public void handleRelease(Point releasePoint) {
+		Point newReleasePoint = parentToLocal(releasePoint);
+		if (contains(newReleasePoint))
+			onRelease(newReleasePoint);
+	}
+
+	/**
+	 * handles a valid drag that occurs on this display object. Simply throws
+	 * an event letting listeners know that a release occurred
+	 * */
+	private void onDrag(Point dragPoint) {
+		dispatchEvent(new MouseEvent(MouseEvent.OBJECT_DRAGGED, this, dragPoint));
+	}
+
+	@Override
+	public void handleDrag(Point dragPoint) {
+		Point newDragPoint = parentToLocal(dragPoint);
+		if (contains(newDragPoint))
+			onDrag(newDragPoint);
+	}
+	
+	/**
+	 * handles mouse moves. Checks to see 
+	 * */
+	private boolean mouseEntered = false; //true iff mouse has entered this display objects area
+	private void onMouseHover(Point mousePoint){
+		if(!mouseEntered){
+			mouseEntered = true;
+			dispatchEvent(new MouseEvent(MouseEvent.MOUSE_ENTERED, this, mousePoint));
+		}
+	}
+	
+	private void onMouseNotHover(Point mousePoint){
+		if(mouseEntered){
+			mouseEntered = false;
+			dispatchEvent(new MouseEvent(MouseEvent.MOUSE_EXITED, this, mousePoint));
+		}
+	}
+	
+	@Override
+	public void handleMove(Point movePoint) {
+		Point newMovePoint = parentToLocal(movePoint);
+		if (contains(newMovePoint))
+			onMouseHover(newMovePoint);
+		else
+			onMouseNotHover(newMovePoint);
+	}
+
+	/**
+	 * returns true iff the given local point is within this DO
+	 * */
+	public boolean contains(Point localPoint) {
+		if (getLocalHitbox() == null || localPoint == null)
+			return false;
+		
+		return (getLocalHitbox().contains(localPoint));
+	}
+
+	/**
+	 * Method invoked automatically anytime a display object is added to any
+	 * display object container
+	 * */
+	protected void onAddedToStage(DisplayObjectContainer parent) {
+		/* Set the parent */
+		setParent(parent);
+
+		if(uiLayer == null) this.initUILayer();
+		if (uiLayer != null) {
+			GameScene scene = this.getGameScene();
+			if (scene != null && !uiLayer.isAncestorOf(scene.getScenePanel()))
+				scene.getScenePanel().add(uiLayer);
+		}
+	}
+
+	/**
+	 * Invoke automatically anytime a display object is removed from any display
+	 * object container
+	 * */
+	protected void onRemovedFromStage(DisplayObjectContainer formerParent) {
+
+		/* if uiLayer is not null, remove it from the parent panel of the scene */
+		if (uiLayer != null) {
+			GameScene scene = this.getGameScene();
+			if (scene != null)
+				scene.getScenePanel().remove(uiLayer);
+		}
+
+		/* Remember that this object has no parent now */
+		setParent(null);
+	}
+
+	/**
+	 * Returns the scene associated with this display object (if one exists).
+	 * One exists iff this object is currently part of a display list below a
+	 * GameScene object
+	 * */
+	protected GameScene getGameScene() {
+		//System.out.println("In getGameScene: " + this.toString());
+		if (this instanceof GameScene)
+			return (GameScene) this;
+
+		if (this.hasParent())
+			return parent.getGameScene();
+
+		return null;
+	}
+
+	/**
+	 * LocalToGlobal: This method returns the global coordinates of this object
+	 * */
+	public Point localToGlobal() {
+		if (!this.hasParent())
+			return new Point(getX(), getY());
+
+		Point parentGlobalPoint = this.parent.localToGlobal();
+
+		return new Point(parentGlobalPoint.x + getX(), parentGlobalPoint.y
+				+ getY());
+	}
+
+	/**
+	 * GlobalToLocal: This method returns the given point (given in the global coordinate system)
+	 * and converts it into a point in this objects local coordinate system.
+	 * */
+	public Point globalToLocal(Point globalPoint) {
+		Point thisGlobal = this.localToGlobal();
+		return new Point(globalPoint.x - thisGlobal.x, globalPoint.y
+				- thisGlobal.y);
+	}
+
+	/**
+	 * Initializes the uiLayer, should only be invoked from addComponent (see
+	 * below)
+	 * */
+	private void initUILayer() {
+
+		if (uiLayer == null) {
+			uiLayer = new JPanel();
+			uiLayer.setLayout(null);
+			uiLayer.setOpaque(false);
+
+			/* Get the global position where this panel should be placed */
+			Point globalPos = this.localToGlobal();
+
+			uiLayer.setBounds(globalPos.x, globalPos.y, getUnscaledWidth(),
+					getUnscaledHeight());
+
+			GameScene scene = this.getGameScene();
+			if (scene != null)
+				scene.getScenePanel().add(uiLayer);
+		}
+	}
+
+	/**
+	 * Functions for adding and removing UI to/from a display object
+	 * */
+	public void addComponent(JComponent component) {
+		Rectangle bounds = component.getBounds();
+		int x = bounds.x;
+		int y = bounds.y;
+		int width = bounds.width;
+		int height = bounds.height;
+		addComponent(component, x, y, width, height);
+	}
+	
+	public void addComponent(JComponent component, int xLoc, int yLoc){
+		addComponent(component, xLoc, yLoc, component.getBounds().width, component.getBounds().height);
+	}
+
+	public void addComponent(JComponent component, int xLoc, int yLoc,
+			int width, int height) {
+
+		/*
+		 * If this is the first component, then we need to init and add the
+		 * JPanel first
+		 */
+		initUILayer(); // note that this method does nothing if uiLayer is not
+						// null
+
+		/* Now, we can add the component */
+		if (component == null)
+			return;
+
+		component.setLayout(null);
+		component.setBounds(new Rectangle(xLoc, yLoc, width, height));
+		//uiLayer.add(component);
+		this.getGameScene().getScenePanel().add(component);
+	}
+
+	public void removeComponent(JComponent component) {
+		initUILayer();
+
+		uiLayer.remove(component);
+	}
+	
+	public void removeAllComponents(){
+		//TODO fill this method
+	}
+	
+	/**
+	 * Applies the given lights to this display object
+	 * */
+	protected void applyLighting(ArrayList<Light> lights){
+		if(lights == null) return;
+		
+		for(Light light : lights){
+			light.applyLight(this);
+		}
+	}
+	
+	public void setVisible(boolean visible){this.visible = visible;}
+	public boolean getVisible(){return this.visible;}
+
+}

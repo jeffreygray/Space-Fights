@@ -1,0 +1,317 @@
+package edu.virginia.engine.display;
+
+import java.awt.Graphics;
+import java.awt.Graphics2D;
+import java.awt.Point;
+import java.awt.image.BufferedImage;
+import java.util.ArrayList;
+
+import edu.virginia.engine.lighting.Light;
+
+public class DisplayObjectContainer extends DisplayObject {
+
+	/* List of children of this container */
+	private ArrayList<DisplayObject> children;
+
+	/*
+	 * Constructor Requires id and image and position for image, it accepts
+	 * either file name or the image itself and position Also accepts only an ID
+	 */
+	public DisplayObjectContainer(String id) {
+		super(id);
+		children = new ArrayList<DisplayObject>();
+	}
+	
+	public DisplayObjectContainer(String id, String imageFileName) {
+
+		super(id, imageFileName, new Point(0,0));
+
+		/* Init array list */
+		children = new ArrayList<DisplayObject>();
+	}
+
+	public DisplayObjectContainer(String id, String imageFileName,
+			Point position) {
+
+		super(id, imageFileName, position);
+
+		/* Init array list */
+		children = new ArrayList<DisplayObject>();
+	}
+
+	public DisplayObjectContainer(String id, BufferedImage image, Point position) {
+
+		super(id, image, position);
+
+		/* Init array list */
+		children = new ArrayList<DisplayObject>();
+	}
+
+	/* Adding and removing children */
+	public void addChild(DisplayObject child) {
+		addChild(child, -1);
+	}
+	
+	/**
+	 * Adds the given child at the specified index. Adds child to end of list if index is out of bounds
+	 * */
+	public void addChild(DisplayObject child, int index){
+		/* If this child is anywhere on the parental line of this object, then it will create a loop */
+		if (this.isDescendentOf(child)) {
+			System.out
+					.println("DisplayObject child in DisplayObjectContainer.java is a descendent of (this).");
+			return;
+		}
+		if (child == null) {
+			System.out
+					.println("DisplayObject child in DisplayObjectContainer.addChild(DisplayObject) == null");
+			return;
+		}
+		
+		if (!contains(child)){
+			if(index >= 0 && index < children.size())
+				children.add(index, child);
+			else
+				children.add(child);
+		}
+		
+		child.onAddedToStage(this);
+	}
+	
+	/**
+	 * Returns the index this child is in the children list of this
+	 * container. Returns -1 if given child is not a child of this object
+	 * */
+	public int getChildIndex(DisplayObject child){
+		if(child == null) return -1;
+		
+		for(int i=0; i<children.size(); i++){
+			if(children.get(i) == child) return i;
+		}
+		return -1;
+	}
+
+	public void removeChild(DisplayObject child) {
+		if (contains(child)){
+			child.onRemovedFromStage(this);;
+			children.remove(child);
+		}
+	}
+
+	public void removeAllChildren() {
+		if (children == null)
+			return;
+
+		while(children.size() > 0) removeChild(children.get(0));
+	}
+
+	public boolean contains(DisplayObject child) {
+		return children.contains(child);
+	}
+	
+	public boolean contains(String childId){
+		return getChildById(childId) != null;
+	}
+	
+	/**
+	 * Returns the display object that is a child of this container and has the given id
+	 * returns the first instance if multiple ids exist. does a deep search through the display hierarchy
+	 * */
+	public DisplayObject getChildById(String objectId){
+		
+		/*Loop through children*/
+		for(DisplayObject child: children){
+			
+			/*if id matches, return it*/
+			if(child.getId().equals(objectId)) return child;
+			
+			/*if we can look deeper in display tree, then do so*/
+			if(child instanceof DisplayObjectContainer){
+				DisplayObject deeperChild = ((DisplayObjectContainer)child).getChildById(objectId);
+				if(deeperChild != null) return deeperChild;
+			}
+		}
+		/*return null if child is not found*/
+		return null;
+	}
+
+	/*
+	 * Returns number of children
+	 */
+	public int numChildren() {
+		if (children != null)
+			return children.size();
+		return -1;
+	}
+
+	/**
+	 * Updates this object, then updates all of it's children "recursively"
+	 * */
+	protected void update() {
+		/* update this display object first */
+		super.update();
+
+		/* then update all of it's children one at a time */
+		if (children != null) {
+			for (DisplayObject obj : children) {
+				if (obj != null)
+					obj.update();
+			}
+		}
+	}
+
+	/**
+	 * Draws this object, then draws all of it's children "recursively" (<-- why is this in quotes?)
+	 * */
+	protected void draw(Graphics g) {
+		if(!this.getVisible()) return;
+		
+		/* draw this display object first */
+		super.draw(g);
+		
+		Graphics2D g2d = (Graphics2D) g;
+		this.applyTransformations(g2d);
+		
+		/* then draw all of it's children one at a time */
+		if (children != null) {
+			for (DisplayObject obj : children) {
+				if (obj != null)
+					obj.draw(g);
+			}
+		}
+		
+		this.reverseTransformations(g2d);
+	}
+	
+	/**
+	 * Overrides click handling of display objects so that we can recursively check for clicks
+	 * through the display tree.
+	 * */
+	@Override
+	public void handleClick(Point clickPoint) {
+		
+		/*First see if we were clicked*/
+		super.handleClick(clickPoint);
+		
+		Point newClickPoint = parentToLocal(clickPoint);
+		
+		/*then check all children*/
+		for(int i=0; i<children.size(); i++){
+			DisplayObject child = children.get(i);
+			if(child != null){
+				child.handleClick(newClickPoint);
+			}
+		}
+	}
+	
+	/**
+	 * Overrides press handling of display objects so that we can recursively check for presses
+	 * through the display tree.
+	 * */
+	@Override
+	public void handlePress(Point pressPoint) {
+		
+		if(this.getId().equals("TRAIN_CARD_INDEX_2"))
+			System.out.println("STOP");
+		
+		/*First see if we were pressed*/
+		super.handlePress(pressPoint);
+
+		Point newPressPoint = parentToLocal(pressPoint);
+		
+		/*then check all children*/
+		for(int i=0; i<children.size(); i++){
+			DisplayObject child = children.get(i);
+			if(child != null)
+				child.handlePress(newPressPoint);
+		}
+	}
+	
+	/**
+	 * Overrides release handling of display objects so that we can recursively check for releases
+	 * through the display tree.
+	 * */
+	@Override
+	public void handleRelease(Point releasePoint) {
+		/*First see if we were released*/
+		super.handleRelease(releasePoint);
+
+		Point newReleasePoint = parentToLocal(releasePoint);
+		
+		/*then check all children*/
+		for(int i=0; i<children.size(); i++){
+			DisplayObject child = children.get(i);
+			if(child != null)
+				child.handleRelease(newReleasePoint);
+		}
+	}
+	
+	/**
+	 * Overrides drag handling of display objects so that we can recursively check for drags
+	 * through the display tree.
+	 * */
+	@Override
+	public void handleDrag(Point dragPoint) {
+		/*First see if we were released*/
+		super.handleDrag(dragPoint);
+
+		Point newDragPoint = parentToLocal(dragPoint);
+		
+		/*then check all children*/
+		for(int i=0; i<children.size(); i++){
+			DisplayObject child = children.get(i);
+			if(child != null)
+				child.handleDrag(newDragPoint);
+		}
+	}
+	
+	/**
+	 * Overrides mouse move handling of display objects so that we can recursively check for hovers
+	 * through the display tree.
+	 * */
+	@Override
+	public void handleMove(Point movePoint) {
+		/*First see if we were released*/
+		super.handleMove(movePoint);
+
+		Point newMovePoint = parentToLocal(movePoint);
+		
+		/*then check all children*/
+		for(int i=0; i<children.size(); i++){
+			DisplayObject child = children.get(i);
+			if(child != null)
+				child.handleMove(newMovePoint);
+		}
+	}
+	
+	
+	public ArrayList<DisplayObject> getChildren() {
+		return this.children;
+	}
+	
+	/**
+	 * Applies the given lights to this display object
+	 * */
+	@Override
+	protected void applyLighting(ArrayList<Light> lights){
+		super.applyLighting(lights);
+		
+		/*then check all children*/
+		for(int i=0; i<children.size(); i++){
+			DisplayObject child = children.get(i);
+			if(child != null)
+				child.applyLighting(lights);
+		}
+	}
+	
+	public String toString(){
+		
+		String toReturn = super.toString();
+		
+		for(DisplayObject child:children){
+			toReturn += "\n\t" + child.toString();
+		}
+		
+		return toReturn;
+	}
+}
