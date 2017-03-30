@@ -171,9 +171,9 @@ public class DisplayObject extends EventDispatcher {
 			 * (rotation, etc.)
 			 */
 			Graphics2D g2d = (Graphics2D) g;
-			g2d.draw(hitbox);
+			//g2d.draw(hitbox);
 
-			g2d.drawRect(this.getPosition().x-2, this.getPosition().y-2, 4, 4);
+			//g2d.drawRect(this.getPosition().x-2, this.getPosition().y-2, 4, 4);
 			applyTransformations(g2d);
 
 			/* Actually draw the image, perform the pivot point translation here */
@@ -188,7 +188,7 @@ public class DisplayObject extends EventDispatcher {
 			 */
 			
 			reverseTransformations(g2d);
-			g2d.drawOval(this.getPivotPoint().x+this.getPosition().x-4, this.getPivotPoint().y+this.getPosition().y-4, 8, 8);
+			//g2d.drawOval(this.getPivotPoint().x+this.getPosition().x-4, this.getPivotPoint().y+this.getPosition().y-4, 8, 8);
 
 		}
 	}
@@ -275,7 +275,7 @@ public class DisplayObject extends EventDispatcher {
 
 	/**
 	 * Sets the rotation of the object in degrees
-	 * @param rotation
+	 * @param rotation the number of degrees to rotate the image by
 	 */
 	public void setRotation(double rotation) {
 		this.rotation = rotation%360;

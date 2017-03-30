@@ -10,7 +10,7 @@ public class PhysicsSprite extends AnimatedSprite {
 	private double m, xa, ya, xv, yv;
 	private double x = 0, y = 0;
 	
-	public PhysicsSprite(String id, String[] imageFileName, int mass, int xvel, int xaccel, int yvel, int yaccel, int energy) {
+	public PhysicsSprite(String id, String[] imageFileName, double mass, double xvel, double xaccel, double yvel, double yaccel, int energy) {
 		super(id, imageFileName);
 		m = mass;
 		xa = xaccel;
@@ -20,7 +20,7 @@ public class PhysicsSprite extends AnimatedSprite {
 		nrg = energy;
 	}
 	
-	public PhysicsSprite(String id, String imageFileName, int mass, int xvel, int xaccel, int yvel, int yaccel, int energy) {
+	public PhysicsSprite(String id, String imageFileName, double mass, double xvel, double xaccel, double yvel, double yaccel, int energy) {
 		super(id, imageFileName);
 		m = mass;
 		xa = xaccel;
@@ -37,10 +37,10 @@ public class PhysicsSprite extends AnimatedSprite {
 		 * int rounding forced by the Point class (which determines the physical position on screen) */
 		xv += xa;
 		yv += ya;
-		x += xv;
-		y += yv;
-		position.x = (int) Math.round(x);
-		position.y = (int) Math.round(y);
+		setX(getX() + xv);
+		setY(getY() + yv);
+		position.x = (int) Math.round(getX());
+		position.y = (int) Math.round(getY());
 		super.update(pressedKeys);
 	}
 	
@@ -103,8 +103,24 @@ public class PhysicsSprite extends AnimatedSprite {
 	@Override
 	public void setPosition(double x, double y) {
 		super.setPosition(x, y);
-		this.x = x;
+		this.setX(x);
+		this.setY(y);
+	}
+
+	public double getY() {
+		return y;
+	}
+
+	public void setY(double y) {
 		this.y = y;
+	}
+
+	public double getX() {
+		return x;
+	}
+
+	public void setX(double x) {
+		this.x = x;
 	}
 
 }
