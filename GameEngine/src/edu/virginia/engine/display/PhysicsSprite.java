@@ -8,6 +8,7 @@ public class PhysicsSprite extends AnimatedSprite {
 	private static int gravity = 2;
 	public int nrg;
 	private double m, xa, ya, xv, yv;
+	private double x = 0, y = 0;
 	
 	public PhysicsSprite(String id, String[] imageFileName, int mass, int xvel, int xaccel, int yvel, int yaccel, int energy) {
 		super(id, imageFileName);
@@ -17,7 +18,6 @@ public class PhysicsSprite extends AnimatedSprite {
 		xv = xvel;
 		yv = yvel;
 		nrg = energy;
-		
 	}
 	
 	public PhysicsSprite(String id, String imageFileName, int mass, int xvel, int xaccel, int yvel, int yaccel, int energy) {
@@ -32,10 +32,15 @@ public class PhysicsSprite extends AnimatedSprite {
 	
 	@Override
 	public void update(ArrayList<String> pressedKeys) {
+		/* each frame, update is called and changes velocity by acceleration and position by velocity.
+		 * the fields x and y are floating points to allow the storage of post-decimal values before the
+		 * int rounding forced by the Point class (which determines the physical position on screen) */
 		xv += xa;
 		yv += ya;
-		position.x += Math.round(xv);
-		position.y += Math.round(yv);
+		x += xv;
+		y += yv;
+		position.x = (int) Math.round(x);
+		position.y = (int) Math.round(y);
 		super.update(pressedKeys);
 	}
 	
@@ -51,16 +56,16 @@ public class PhysicsSprite extends AnimatedSprite {
 		return xa;
 	}
 
-	public void setXa(int xa) {
-		this.xa = xa;
+	public void setXa(double d) {
+		this.xa = d;
 	}
 
 	public double getYa() {
 		return ya;
 	}
 
-	public void setYa(int ya) {
-		this.ya = ya;
+	public void setYa(double d) {
+		this.ya = d;
 	}
 
 	public double getXv() {
@@ -93,6 +98,13 @@ public class PhysicsSprite extends AnimatedSprite {
 
 	public void setM(int m) {
 		this.m = m;
+	}
+	
+	@Override
+	public void setPosition(double x, double y) {
+		super.setPosition(x, y);
+		this.x = x;
+		this.y = y;
 	}
 
 }

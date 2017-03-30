@@ -35,7 +35,7 @@ public class LabSixGame  extends Game {
 	public LabSixGame() {
 		super("Lab Six: The InbeTWEENers", 1200, 700);
 		String[] images = {"mario_0.png", "mario_1.png", "mario_2.png", "mario_3.png"};
-		mario = new PhysicsSprite("mario", images, 10, 0, 0, 0, PhysicsSprite.getGravity());
+		mario = new PhysicsSprite("mario", images, 10, 0, 0, 0, PhysicsSprite.getGravity(), 0);
 		scene = new Sprite("scene");
 		coin1 = new Sprite("coin1", "coin.png");
 		coin2 = new Sprite("coin2", "coin.png");
