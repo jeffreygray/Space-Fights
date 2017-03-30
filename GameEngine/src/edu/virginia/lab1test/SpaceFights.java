@@ -11,7 +11,7 @@ import edu.virginia.engine.display.*;
 public class SpaceFights extends Game {
 	Sprite scene;
 	PhysicsSprite ship;
-	int speed = 2;
+	double shipAccel = 0.8;
 	final int MAX_SPEED = 10;
 
 	public SpaceFights() {
@@ -19,8 +19,11 @@ public class SpaceFights extends Game {
 		String shipImage[] = {"ship.png"};
 		ship = new PhysicsSprite("ship", "ship.png", 0, 0, 0, 0, 0, 1000);
 		scene = new Sprite("scene");
-		ship.setPivotPoint(Math.round(ship.getWidth()/2), Math.round(ship.getHeight()/2));
+		
 		ship.setPosition(700, 350);
+		ship.setScaleX(0.8);
+		ship.setScaleY(0.7);
+		ship.setPivotPoint(ship.getWidth()/2, ship.getHeight()/2);
 		
 		scene.addChild(ship);
 	}
@@ -29,32 +32,30 @@ public class SpaceFights extends Game {
 	public void update(ArrayList<String> pressedKeys) {
 		if(scene != null) { // makes sure we loaded everything 
 			Point shipPos = ship.getPosition();
+			double rotation = ship.getRotation()-90; // will save resources by not making method calls
 			double xv = ship.getXv();
 			double yv = ship.getYv();
 			ship.setXa(0);
 			ship.setYa(0);
-			if(pressedKeys.contains("Up")) {
+			if(pressedKeys.contains("Up") && Math.hypot(xv, yv) < MAX_SPEED) {
 //				System.out.println(ship.getRotation());
 				//System.out.println("BEFORE XV: " + xv +"\t YV: " + yv);
-				ship.setYa(-(int) (Math.sin(Math.toRadians(ship.getRotation()+90)) * speed * .6));
-				ship.setXa((int) (-Math.cos(Math.toRadians(ship.getRotation()+90)) * speed * .6));
-				System.out.println("XV: " + xv +"\t YV: " + yv);
+				ship.setYa(Math.sin(Math.toRadians(rotation)) * shipAccel);
+				ship.setXa(Math.cos(Math.toRadians(rotation)) * shipAccel);
+				//System.out.println("XV: " + xv +"\t YV: " + yv);
 //				System.out.println(-Math.cos(Math.toRadians(ship.getRotation()+90)));
 			}
-			
-			if(pressedKeys.contains("Down")) {
-				ship.setYa((int) (Math.sin(Math.toRadians(ship.getRotation()+90)) * speed * .6));
-				ship.setXa(-(int) (-Math.cos(Math.toRadians(ship.getRotation()+90)) * speed * .6));
+			if(pressedKeys.contains("Down") && Math.hypot(xv, yv) < MAX_SPEED) {
+				ship.setYa(-Math.sin(Math.toRadians(rotation)) * shipAccel);
+				ship.setXa(-Math.cos(Math.toRadians(rotation)) * shipAccel);
 				System.out.println("XV: " + xv +"\t YV: " + yv);
-
 			}
-			
 			if(pressedKeys.contains("Left")) {
-				ship.setRotation(ship.getRotation()-3);
+				ship.setRotation(ship.getRotation()-5);
 			}
 			
 			if(pressedKeys.contains("Right")) {
-				ship.setRotation(ship.getRotation()+3);
+				ship.setRotation(ship.getRotation()+5);
 			}
 			
 			if(pressedKeys.contains("L")){
@@ -63,28 +64,36 @@ public class SpaceFights extends Game {
 			}
 				
 			if(pressedKeys.contains("Space")) {
-
 				ship.setPosition(700, 350);
-				ship.setXa(0);
-				ship.setXv(0);
+				xv = 0;
+				yv = 0;
 				ship.setYa(0);
-				ship.setYv(0);
+				ship.setXa(0);
 			}
 		
-
+			ship.setXv(xv*0.99); // the 0.99 here and in next line act as "drag", slowing the ship down slightly over time
+			ship.setYv(yv*0.99);
 			
-			ship.setXv(xv);
-			ship.setYv(yv);
-			ship.setScaleX(0.8);
-			ship.setScaleY(0.8);
 			scene.update(pressedKeys);
 			
 			shipPos = ship.getPosition();
-			if(ship.getPosition().x < 0 || shipPos.x > 1400-ship.getWidth())
+			if(shipPos.x < 0) {
+				ship.setXPosition(0);
 				ship.setXv(-ship.getXv());
-			if(shipPos.y < 0 || shipPos.y > 700-ship.getHeight())
+			}
+			else if(shipPos.x > 1400-ship.getWidth()) {
+				ship.setXPosition(1400-ship.getWidth());
+				ship.setXv(-ship.getXv());
+			}
+			if(shipPos.y < 0){
+				ship.setYPosition(0);
 				ship.setYv(-ship.getYv());
-			
+			}
+			else if(shipPos.y > 700-ship.getHeight()) {
+				ship.setYPosition(700-ship.getHeight());
+				ship.setYv(-ship.getYv());
+			}
+				
 		}
 	}
 	

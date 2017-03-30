@@ -186,8 +186,10 @@ public class DisplayObject extends EventDispatcher {
 			 * undo the transformations so this doesn't affect other display
 			 * objects
 			 */
-			g2d.drawOval(this.getPivotPoint().x-2, this.getPivotPoint().y-2, 4, 4);
+			
 			reverseTransformations(g2d);
+			g2d.drawOval(this.getPivotPoint().x+this.getPosition().x-4, this.getPivotPoint().y+this.getPosition().y-4, 8, 8);
+
 		}
 	}
 
