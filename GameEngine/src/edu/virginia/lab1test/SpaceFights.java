@@ -34,23 +34,44 @@ public class SpaceFights extends Game {
 			ship.setXa(0);
 			ship.setYa(0);
 			if(pressedKeys.contains("Up")) {
-				System.out.println(ship.getRotation());
+//				System.out.println(ship.getRotation());
 				//System.out.println("BEFORE XV: " + xv +"\t YV: " + yv);
-				ship.setYa(-(int) (Math.sin(Math.toRadians(ship.getRotation()+90)) * speed));
-				ship.setXa((int) (-Math.cos(Math.toRadians(ship.getRotation()+90)) * speed));
+				ship.setYa(-(int) (Math.sin(Math.toRadians(ship.getRotation()+90)) * speed * .6));
+				ship.setXa((int) (-Math.cos(Math.toRadians(ship.getRotation()+90)) * speed * .6));
 				System.out.println("XV: " + xv +"\t YV: " + yv);
-				System.out.println(-Math.cos(Math.toRadians(ship.getRotation()+90)));
+//				System.out.println(-Math.cos(Math.toRadians(ship.getRotation()+90)));
 			}
-			if(pressedKeys.contains("Down") && yv < MAX_SPEED)
-				yv += speed;
-			if(pressedKeys.contains("Left"))
-				ship.setRotation(ship.getRotation()-1);
-			if(pressedKeys.contains("Right")) 
+			
+			if(pressedKeys.contains("Down")) {
+				ship.setYa((int) (Math.sin(Math.toRadians(ship.getRotation()+90)) * speed * .6));
+				ship.setXa(-(int) (-Math.cos(Math.toRadians(ship.getRotation()+90)) * speed * .6));
+				System.out.println("XV: " + xv +"\t YV: " + yv);
+
+			}
+			
+			if(pressedKeys.contains("Left")) {
+				ship.setRotation(ship.getRotation()-3);
+			}
+			
+			if(pressedKeys.contains("Right")) {
 				ship.setRotation(ship.getRotation()+3);
-			if(pressedKeys.contains("L"))
+			}
+			
+			if(pressedKeys.contains("L")){
 				ship.setNrg(ship.getNrg()-5);
-				System.out.println(ship.getNrg());
+//				System.out.println(ship.getNrg());
+			}
 				
+			if(pressedKeys.contains("Space")) {
+
+				ship.setPosition(700, 350);
+				ship.setXa(0);
+				ship.setXv(0);
+				ship.setYa(0);
+				ship.setYv(0);
+			}
+		
+
 			
 			ship.setXv(xv);
 			ship.setYv(yv);
