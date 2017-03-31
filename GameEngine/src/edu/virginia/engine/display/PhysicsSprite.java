@@ -105,6 +105,7 @@ public class PhysicsSprite extends AnimatedSprite {
 
 	public void setY(double y) {
 		this.y = y;
+		this.position.y = (int) y;
 	}
 
 	public double getX() {
@@ -113,6 +114,7 @@ public class PhysicsSprite extends AnimatedSprite {
 
 	public void setX(double x) {
 		this.x = x;
+		this.position.x = (int) x;
 	}
 
 }
