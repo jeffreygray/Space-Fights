@@ -4,34 +4,33 @@ package edu.virginia.engine.display;
 
 import java.util.ArrayList;
 
+import edu.virginia.engine.controller.GamePad;
+
 public class PhysicsSprite extends AnimatedSprite {
 	private static int gravity = 2;
-	public int nrg;
 	private double m, xa, ya, xv, yv;
 	private double x = 0, y = 0;
 	
-	public PhysicsSprite(String id, String[] imageFileName, double mass, double xvel, double xaccel, double yvel, double yaccel, int energy) {
+	public PhysicsSprite(String id, String[] imageFileName, double mass, double xvel, double xaccel, double yvel, double yaccel) {
 		super(id, imageFileName);
 		m = mass;
 		xa = xaccel;
 		ya = yaccel;
 		xv = xvel;
 		yv = yvel;
-		nrg = energy;
 	}
 	
-	public PhysicsSprite(String id, String imageFileName, double mass, double xvel, double xaccel, double yvel, double yaccel, int energy) {
+	public PhysicsSprite(String id, String imageFileName, double mass, double xvel, double xaccel, double yvel, double yaccel) {
 		super(id, imageFileName);
 		m = mass;
 		xa = xaccel;
 		ya = yaccel;
 		xv = xvel;
 		yv = yvel;
-		nrg = energy;
 	}
 	
 	@Override
-	public void update(ArrayList<String> pressedKeys) {
+	public void update(ArrayList<String> pressedKeys, ArrayList<GamePad> controllers) {
 		/* each frame, update is called and changes velocity by acceleration and position by velocity.
 		 * the fields x and y are floating points to allow the storage of post-decimal values before the
 		 * int rounding forced by the Point class (which determines the physical position on screen) */
@@ -41,16 +40,9 @@ public class PhysicsSprite extends AnimatedSprite {
 		setY(getY() + yv);
 		position.x = (int) Math.round(getX());
 		position.y = (int) Math.round(getY());
-		super.update(pressedKeys);
+		super.update(pressedKeys, controllers);
 	}
 	
-	public int getNrg() {
-		return nrg;
-	}
-	
-	public void setNrg(int energy) {
-		this.nrg = energy;
-	}
 
 	public double getXa() {
 		return xa;
@@ -113,6 +105,7 @@ public class PhysicsSprite extends AnimatedSprite {
 
 	public void setY(double y) {
 		this.y = y;
+		this.position.y = (int) y;
 	}
 
 	public double getX() {
@@ -121,6 +114,7 @@ public class PhysicsSprite extends AnimatedSprite {
 
 	public void setX(double x) {
 		this.x = x;
+		this.position.x = (int) x;
 	}
 
 }

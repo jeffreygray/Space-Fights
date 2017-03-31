@@ -2,6 +2,8 @@ package edu.virginia.engine.display;
 
 import java.util.ArrayList;
 
+import edu.virginia.engine.controller.GamePad;
+
 /**
  * Nothing in this class (yet) because there is nothing specific to a Sprite yet that a DisplayObject
  * doesn't already do. Leaving it here for convenience later. you will see!
@@ -17,7 +19,7 @@ public class Sprite extends DisplayObjectContainer {
 	}
 	
 	@Override
-	public void update(ArrayList<String> pressedKeys) {
-		super.update(pressedKeys);
+	public void update(ArrayList<String> pressedKeys, ArrayList<GamePad> controllers) {
+		super.update(pressedKeys, controllers);
 	}
 }

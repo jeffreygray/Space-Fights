@@ -12,6 +12,7 @@ import java.util.ArrayList;
 
 import javax.imageio.ImageIO;
 
+import edu.virginia.engine.controller.GamePad;
 import edu.virginia.engine.events.EventDispatcher;
 
 /**
@@ -143,8 +144,9 @@ public class DisplayObject extends EventDispatcher {
 	 * Invoked on every frame before drawing. Used to update this display
 	 * objects state before the draw occurs. Should be overridden if necessary
 	 * to update objects appropriately.
+	 * @param controllers 
 	 * */
-	protected void update(ArrayList<String> pressedKeys) {
+	protected void update(ArrayList<String> pressedKeys, ArrayList<GamePad> controllers) {
 		if(this.getDisplayImage() != null) {
 			if(scaleX > 0 && scaleY > 0)
 				hitbox.setBounds(position.x, position.y, (int) Math.abs(this.getDisplayImage().getWidth()*scaleX), (int) Math.abs(this.getDisplayImage().getHeight()*scaleY));

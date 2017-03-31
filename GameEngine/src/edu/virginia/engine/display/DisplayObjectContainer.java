@@ -4,6 +4,8 @@ import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
 
+import edu.virginia.engine.controller.GamePad;
+
 public class DisplayObjectContainer extends DisplayObject {
 	
 	private ArrayList<DisplayObject> children;
@@ -31,10 +33,10 @@ public class DisplayObjectContainer extends DisplayObject {
 	}
 	
 	@Override
-	protected void update(ArrayList<String> pressedKeys) {
-		super.update(pressedKeys);
+	protected void update(ArrayList<String> pressedKeys, ArrayList<GamePad> controllers) {
+		super.update(pressedKeys, controllers);
 		for(DisplayObject child: children) {
-			child.update(pressedKeys);
+			child.update(pressedKeys, controllers);
 		}
 	}
 	

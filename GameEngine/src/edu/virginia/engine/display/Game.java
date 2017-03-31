@@ -14,12 +14,14 @@ import java.util.ArrayList;
 import javax.swing.JFrame;
 import javax.swing.Timer;
 
+import edu.virginia.engine.controller.GamePad;
+import net.java.games.input.*;
 
 /**
  * Highest level class for creating a game in Java.
  * 
  * */
-public class Game extends DisplayObject implements ActionListener, KeyListener{
+public class Game extends DisplayObject implements ActionListener, KeyListener {
 
 	/* Frames per second this game runs at */
 	private int FRAMES_PER_SEC = 60;
@@ -32,6 +34,9 @@ public class Game extends DisplayObject implements ActionListener, KeyListener{
 	
 	/* The JPanel for this game */
 	private GameScenePanel scenePanel;
+	
+	/* Connected Game Controllers */
+	private ArrayList<GamePad> controllers;
 
 	public Game(String gameId, int width, int height) {
 		super(gameId);
@@ -42,6 +47,24 @@ public class Game extends DisplayObject implements ActionListener, KeyListener{
 		
 		/* Use an absolute layout */
 		scenePanel.setLayout(null);
+		 
+		/* Search for and add any controllers that are connected */
+		controllers = new ArrayList<GamePad>();
+		ControllerEnvironment ce = ControllerEnvironment.getDefaultEnvironment(); 
+		Controller[] cs = ce.getControllers(); 
+		for (int i = 0; i < cs.length; i++) {
+			Controller controller = cs[i];
+			if (
+                    controller.getType() == Controller.Type.STICK || 
+                    controller.getType() == Controller.Type.GAMEPAD || 
+                    controller.getType() == Controller.Type.WHEEL ||
+                    controller.getType() == Controller.Type.FINGERSTICK
+               )
+            {
+				System.out.println("Found Controller: " + controller.getName() + ", " + controller.getType() ); 
+				controllers.add(new GamePad(controller));
+            }
+		}	
 	}
 	
 	
@@ -131,8 +154,11 @@ public class Game extends DisplayObject implements ActionListener, KeyListener{
 	protected void nextFrame(Graphics g) {
 
 		try {
+			/* Poll for any wireless controller buttons that are pressed down */
+			pollControllers();
+			
 			/* Update all objects on the stage */
-			this.update(pressedKeys);
+			this.update(pressedKeys, controllers);
 
 			/* Draw everything on the screen */
 			this.draw(g);
@@ -141,6 +167,15 @@ public class Game extends DisplayObject implements ActionListener, KeyListener{
 					.println("Exception in nextFrame of game. Stopping game (no frames will be drawn anymore");
 			stop();
 			e.printStackTrace();
+		}
+	}
+	
+	/**
+	 * Searches all known controllers (ps3, etc.) and adds any pressed buttons to pressed keys
+	 * */
+	private void pollControllers(){
+		for(GamePad controller : controllers){
+			controller.update();
 		}
 	}
 	

@@ -3,6 +3,8 @@ package edu.virginia.engine.display;
 import java.awt.image.BufferedImage;
 import java.util.ArrayList;
 
+import edu.virginia.engine.controller.GamePad;
+
 public class AnimatedSprite extends Sprite {
 
 	private ArrayList<Sprite> spriteSheet;
@@ -50,7 +52,7 @@ public class AnimatedSprite extends Sprite {
 	}
 	
 	@Override
-	public void update(ArrayList<String> pressedKeys) {
+	public void update(ArrayList<String> pressedKeys, ArrayList<GamePad> controllers) {
 		count++;
 		if(count%speed == 0) {
 			currFrame++;
@@ -58,7 +60,7 @@ public class AnimatedSprite extends Sprite {
 				currFrame = startInd;
 			this.setImage(spriteNames.get(currFrame));
 		}
-		super.update(pressedKeys);
+		super.update(pressedKeys, controllers);
 	}
 
 	public int getCurrFrame() {
