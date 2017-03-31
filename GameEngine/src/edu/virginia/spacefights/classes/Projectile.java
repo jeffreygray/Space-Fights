@@ -16,7 +16,7 @@ public class Projectile extends PhysicsSprite {
 
 	public Projectile(String id, String imageFileName, double xPos, double yPos, double angle) {
 		// id, filename, mass, xvelcity, xacceleration, yvel, yaccel, nrg 
-		super(id, imageFileName, 0, Math.cos(Math.toRadians(angle))*muzzleVelocity, 0, Math.sin(Math.toRadians(angle))*muzzleVelocity, 0, 0);
+		super(id, imageFileName, 0, Math.cos(Math.toRadians(angle))*muzzleVelocity, 0, Math.sin(Math.toRadians(angle))*muzzleVelocity, 0);
 		/*remove this line after get real projectile ~
 		 */
 		this.setScaleY(0.15);
