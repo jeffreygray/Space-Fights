@@ -29,6 +29,15 @@ public class PhysicsSprite extends AnimatedSprite {
 		yv = yvel;
 	}
 	
+	public PhysicsSprite(String id, String imageFileName) {
+		super(id, imageFileName);
+		m = 0;
+		xv = 0;
+		yv = 0;
+		xa = 0;
+		ya = 0;
+	}
+	
 	@Override
 	public void update(ArrayList<String> pressedKeys, ArrayList<GamePad> controllers) {
 		/* each frame, update is called and changes velocity by acceleration and position by velocity.

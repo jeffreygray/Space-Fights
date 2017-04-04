@@ -17,6 +17,7 @@ import edu.virginia.engine.events.Event;
 import edu.virginia.engine.util.GameClock;
 import edu.virginia.spacefights.classes.Projectile;
 import edu.virginia.spacefights.classes.Ship;
+import edu.virginia.spacefights.classes.ShipType;
 
 public class SpaceFights extends Game {
 	Sprite scene, plat1;
@@ -28,8 +29,8 @@ public class SpaceFights extends Game {
 
 	public SpaceFights() {
 		super("Space Fights", 1200, 700);
-		player1 = new Ship("ship", "ship.png", 10, 5, 1500, 1);
-		player2 = new Ship("ship", "ship.png", 10, 5, 1500, 2);
+		player1 = new Ship(ShipType.Rhino, 1);
+		player2 = new Ship(ShipType.Vulture, 2);
 		
 		scene = new Sprite("scene", "background.png");
 		scene.setScaleX(1);
