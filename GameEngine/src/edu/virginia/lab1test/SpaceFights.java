@@ -9,13 +9,10 @@ import java.util.ArrayList;
 
 import edu.virginia.engine.controller.GamePad;
 import edu.virginia.engine.display.Game;
-import edu.virginia.engine.display.PhysicsSprite;
 import edu.virginia.engine.display.Sprite;
 import edu.virginia.engine.events.CollisionEvent;
 import edu.virginia.engine.events.CollisionManager;
 import edu.virginia.engine.events.Event;
-import edu.virginia.engine.util.GameClock;
-import edu.virginia.spacefights.classes.Projectile;
 import edu.virginia.spacefights.classes.Ship;
 import edu.virginia.spacefights.classes.ShipType;
 
