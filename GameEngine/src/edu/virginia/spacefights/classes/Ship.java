@@ -110,8 +110,8 @@ public class Ship extends PhysicsSprite {
 		}
 		
 		// Regen the nrg over time
-		if(nrg < 1500) 
-			nrg += 200/60; 
+		if(nrg < type.getNrgCap()) 
+			nrg += type.getNrgRecharge()/60; 
 		
 		super.update(pressedKeys, controllers);
 		// need to update each projectile by looping through this ship's list of active projectiles
@@ -138,6 +138,10 @@ public class Ship extends PhysicsSprite {
 	
 	public void setNrg(int energy) {
 		this.nrg = energy;
+	}
+
+	public ShipType getShipType() {
+		return type;
 	}
 
 }

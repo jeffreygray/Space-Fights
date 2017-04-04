@@ -89,8 +89,8 @@ public class SpaceFights extends Game {
 			
 			// adjusts the scale of the player nrg bars based on current nrg levels
 			// ~ move to Ship class?
-			p1nrgFront.setScaleX(player1.getNrg()/1500.0);
-			p2nrgFront.setScaleX(player2.getNrg()/1500.0);
+			p1nrgFront.setScaleX((double) player1.getNrg()/player1.getShipType().getNrgCap());
+			p2nrgFront.setScaleX((double) player2.getNrg()/player2.getShipType().getNrgCap());
 				
 			Point shipPos = player1.getPosition();
 			if(shipPos.x < 0) {
