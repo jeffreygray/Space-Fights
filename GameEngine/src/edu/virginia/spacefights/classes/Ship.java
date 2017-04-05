@@ -3,6 +3,8 @@ package edu.virginia.spacefights.classes;
 import java.awt.Graphics;
 import java.util.ArrayList;
 
+import com.sun.glass.ui.CommonDialogs.Type;
+
 import edu.virginia.engine.controller.GamePad;
 import edu.virginia.engine.display.PhysicsSprite;
 import edu.virginia.engine.util.GameClock;
@@ -10,29 +12,38 @@ import edu.virginia.engine.util.GameClock;
 public class Ship extends PhysicsSprite {
 
 	private int nrg;
+	private int nrgCap;
 	private int player;
 	private double max_speed;
 	private double rotate_speed;
 	private double thrust;
 	private GameClock clock;
+	private int shotCost;
+	private int shotCD;
+	private ShipType type;
 	private ArrayList<Projectile> projectiles = new ArrayList<Projectile>();
 	
 	/* 
-	 * THis will be if we want to use animated ship sprites
+	 * This will be if we want to use animated ship sprites
 	public Ship(String id, String[] imageFileName, double mass, double xvel, double xaccel, double yvel, double yaccel, double energy) {
 		super(id, imageFileName, mass, xvel, xaccel, yvel, yaccel, energy);
 		// TODO Auto-generated constructor stub
 	} */
-
-	/* I would like to shorten this constructor by having all of the values determined through a switch-case based on what class of ship it should be 
-	 * The playerNumber field will be used to determine which GamePad to listen to */
-	public Ship(String id, String imageFileName, double maxSpeed, double rotateSpeed, int energy, int playerNumber) {
-		super(id, imageFileName, 0.0, 0.0, 0.0, 0.0, 0.0);
-		nrg = energy;
+	
+	/**
+	 * Creates a new ship of ship class <code>type</code> for player <code>playerNumber</code>
+	 * @param type The ship class to which this new ship will belong (e.g. Vulture)
+	 * @param playerNumber An integer representing which gamepad will control this ship
+	 */
+	public Ship(ShipType type, int playerNumber) {
+		super(""+playerNumber, type.getImageName());
+		nrgCap = type.getNrgCap();
+		nrg = nrgCap;
 		player = playerNumber;
 		max_speed = 10;
 		rotate_speed = 5;
-		thrust = 0.8;
+		thrust = type.getThrust();
+		this.type = type;
 		clock = new GameClock();
 	}
 	
@@ -62,8 +73,8 @@ public class Ship extends PhysicsSprite {
 			if(pressedKeys.contains("Right")) {
 				this.setRotation(this.getRotation()+rotate_speed);
 			}
-			if(pressedKeys.contains("Space") && clock.getElapsedTime() >= 333 && nrg >= 200) {
-				nrg = Math.max(nrg-200, 0);
+			if(pressedKeys.contains("Space") && clock.getElapsedTime() >= type.getCooldown() && nrg >= type.getFiringCost()) {
+				nrg = nrg - type.getFiringCost();
 				clock.resetGameClock();
 				double x = this.getX() + this.getPivotPoint().x + Math.cos(rotationInRads)*this.getHeight()/2;
 				double y = this.getY() + this.getPivotPoint().y + Math.sin(rotationInRads)*this.getWidth()/2;
@@ -86,8 +97,8 @@ public class Ship extends PhysicsSprite {
 			if(pressedKeys.contains("NumPad-3")) {
 				this.setRotation(this.getRotation()+5);
 			}
-			if(pressedKeys.contains("Ctrl") && clock.getElapsedTime() >= 333 && nrg >= 200) {
-				nrg = Math.max(nrg-200, 0);
+			if(pressedKeys.contains("Ctrl") && clock.getElapsedTime() >= type.getCooldown() && nrg >= type.getFiringCost()) {
+				nrg = nrg-type.getFiringCost();
 				clock.resetGameClock();
 				double x = this.getX() + this.getPivotPoint().x + Math.cos(rotationInRads)*this.getHeight()/2;
 				double y = this.getY() + this.getPivotPoint().y + Math.sin(rotationInRads)*this.getWidth()/2;
@@ -99,8 +110,8 @@ public class Ship extends PhysicsSprite {
 		}
 		
 		// Regen the nrg over time
-		if(nrg < 1500) 
-			nrg += 200/60; 
+		if(nrg < type.getNrgCap()) 
+			nrg += type.getNrgRecharge()/60; 
 		
 		super.update(pressedKeys, controllers);
 		// need to update each projectile by looping through this ship's list of active projectiles
@@ -127,6 +138,10 @@ public class Ship extends PhysicsSprite {
 	
 	public void setNrg(int energy) {
 		this.nrg = energy;
+	}
+
+	public ShipType getShipType() {
+		return type;
 	}
 
 }

@@ -9,14 +9,12 @@ import java.util.ArrayList;
 
 import edu.virginia.engine.controller.GamePad;
 import edu.virginia.engine.display.Game;
-import edu.virginia.engine.display.PhysicsSprite;
 import edu.virginia.engine.display.Sprite;
 import edu.virginia.engine.events.CollisionEvent;
 import edu.virginia.engine.events.CollisionManager;
 import edu.virginia.engine.events.Event;
-import edu.virginia.engine.util.GameClock;
-import edu.virginia.spacefights.classes.Projectile;
 import edu.virginia.spacefights.classes.Ship;
+import edu.virginia.spacefights.classes.ShipType;
 
 public class SpaceFights extends Game {
 	Sprite scene, plat1;
@@ -28,8 +26,8 @@ public class SpaceFights extends Game {
 
 	public SpaceFights() {
 		super("Space Fights", 1200, 700);
-		player1 = new Ship("ship", "ship.png", 10, 5, 1500, 1);
-		player2 = new Ship("ship", "ship.png", 10, 5, 1500, 2);
+		player1 = new Ship(ShipType.Rhino, 1);
+		player2 = new Ship(ShipType.Vulture, 2);
 		
 		scene = new Sprite("scene", "background.png");
 		scene.setScaleX(1);
@@ -88,8 +86,8 @@ public class SpaceFights extends Game {
 			
 			// adjusts the scale of the player nrg bars based on current nrg levels
 			// ~ move to Ship class?
-			p1nrgFront.setScaleX(player1.getNrg()/1500.0);
-			p2nrgFront.setScaleX(player2.getNrg()/1500.0);
+			p1nrgFront.setScaleX((double) player1.getNrg()/player1.getShipType().getNrgCap());
+			p2nrgFront.setScaleX((double) player2.getNrg()/player2.getShipType().getNrgCap());
 				
 			Point shipPos = player1.getPosition();
 			if(shipPos.x < 0) {
