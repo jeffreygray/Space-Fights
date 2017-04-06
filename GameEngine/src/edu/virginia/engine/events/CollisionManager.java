@@ -7,6 +7,7 @@ import edu.virginia.engine.tweening.TweenEvent;
 import edu.virginia.engine.tweening.TweenJuggler;
 import edu.virginia.engine.tweening.TweenableParam;
 import edu.virginia.engine.util.SoundManager;
+import edu.virginia.spacefights.classes.Ship;
 
 public class CollisionManager implements IEventListener {
 	
@@ -38,6 +39,16 @@ public class CollisionManager implements IEventListener {
 			tween.animate(TweenableParam.ALPHA, 1, 0, 200000, Function.LINEAR);
 			
 			TweenJuggler.getInstance().add(tween);
+			break;
+		case CollisionEvent.DEATH:
+			System.out.println("IN COLLISION MANAGER");
+			Ship s = (Ship) (event.getSource());
+			// add explosion, sound and other death effects
+			s.setPosition(0,0);
+			s.setNrg(s.getShipType().getNrgCap());
+			s.setRotation(0);
+			s.setXv(0);
+			s.setYv(0);
 		}
 	}
 

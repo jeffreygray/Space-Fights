@@ -7,13 +7,19 @@ import com.sun.glass.ui.CommonDialogs.Type;
 
 import edu.virginia.engine.controller.GamePad;
 import edu.virginia.engine.display.PhysicsSprite;
+import edu.virginia.engine.events.CollisionEvent;
+import edu.virginia.engine.events.Event;
 import edu.virginia.engine.util.GameClock;
 
 public class Ship extends PhysicsSprite {
 
 	private int nrg;
 	private int nrgCap;
-	private int player;
+	private int playerNum;
+	public int getPlayerNum() {
+		return playerNum;
+	}
+
 	private double max_speed;
 	private double rotate_speed;
 	private double thrust;
@@ -39,7 +45,7 @@ public class Ship extends PhysicsSprite {
 		super(""+playerNumber, type.getImageName());
 		nrgCap = type.getNrgCap();
 		nrg = nrgCap;
-		player = playerNumber;
+		playerNum = playerNumber;
 		max_speed = 10;
 		rotate_speed = 5;
 		thrust = type.getThrust();
@@ -57,7 +63,7 @@ public class Ship extends PhysicsSprite {
 		/* currently handling different player controls with keyboard. Final should be able to simply query 
 		 * the buttons pressed on this player's GamePad. i.e. playerController = controllers.get(player)
 		 */
-		if(player == 1) {
+		if(playerNum == 1) {
 			if(pressedKeys.contains("Up") && Math.hypot(this.getXv(), this.getYv()) < max_speed) {
 				this.setXa(Math.cos(rotationInRads) * thrust);
 				this.setYa(Math.sin(rotationInRads) * thrust);
@@ -79,22 +85,22 @@ public class Ship extends PhysicsSprite {
 				double x = this.getX() + this.getPivotPoint().x + Math.cos(rotationInRads)*this.getHeight()/2;
 				double y = this.getY() + this.getPivotPoint().y + Math.sin(rotationInRads)*this.getWidth()/2;
 				
-				projectiles.add(new Projectile("bullet", "coin.png", x, y, this.getRotation()-90));
+				projectiles.add(new Projectile(ProjectileType.Bullet, x, y, this.getRotation()-90));
 			}
-		} else if(player == 2) {
-			if(pressedKeys.contains("NumPad-5") && Math.hypot(this.getXv(), this.getYv()) < max_speed) {
+		} else if(playerNum == 2) {
+			if(pressedKeys.contains("W") && Math.hypot(this.getXv(), this.getYv()) < max_speed) {
 				this.setXa(Math.cos(rotationInRads) * thrust);
 				this.setYa(Math.sin(rotationInRads) * thrust);
 			}
-			if(pressedKeys.contains("NumPad-2") && Math.hypot(this.getXv(), this.getYv()) < max_speed) {
+			if(pressedKeys.contains("S") && Math.hypot(this.getXv(), this.getYv()) < max_speed) {
 				this.setXa(-Math.cos(rotationInRads) * thrust);
 				this.setYa(-Math.sin(rotationInRads) * thrust);
 				//System.out.println("XV: " + xv +"\t YV: " + yv);
 			}
-			if(pressedKeys.contains("NumPad-1")) {
+			if(pressedKeys.contains("A")) {
 				this.setRotation(this.getRotation()-5);
 			}
-			if(pressedKeys.contains("NumPad-3")) {
+			if(pressedKeys.contains("D")) {
 				this.setRotation(this.getRotation()+5);
 			}
 			if(pressedKeys.contains("Ctrl") && clock.getElapsedTime() >= type.getCooldown() && nrg >= type.getFiringCost()) {
@@ -105,7 +111,16 @@ public class Ship extends PhysicsSprite {
 				
 				// each projectile will be genrated and store in projectiles and associated with source ship.
 				// this may allow us to avoid friendly fire, if desired
-				projectiles.add(new Projectile("bullet", "coin.png", x, y, this.getRotation()-90));
+				projectiles.add(new Projectile(ProjectileType.Bullet, x, y, this.getRotation()-90));
+			} if(pressedKeys.contains("Shift") && clock.getElapsedTime() >= type.getSpecialCD() && nrg >= type.getSpecialCost()) {
+				nrg = nrg-type.getSpecialCost();
+				clock.resetGameClock();
+				double x = this.getX() + this.getPivotPoint().x + Math.cos(rotationInRads)*this.getHeight()/2;
+				double y = this.getY() + this.getPivotPoint().y + Math.sin(rotationInRads)*this.getWidth()/2;
+				
+				// each projectile will be genrated and store in projectiles and associated with source ship.
+				// this may allow us to avoid friendly fire, if desired
+				projectiles.add(new Projectile(ProjectileType.Laser, x, y, this.getRotation()-90));
 			}
 		}
 		
@@ -123,7 +138,7 @@ public class Ship extends PhysicsSprite {
 				projectiles.remove(i);
 		}
 	}
-	
+
 	@Override
 	public void draw(Graphics g) {
 		super.draw(g);
@@ -137,11 +152,22 @@ public class Ship extends PhysicsSprite {
 	}
 	
 	public void setNrg(int energy) {
-		this.nrg = energy;
+		System.out.println("Setting nrg");
+		if(energy <= 0) {
+			// player dies
+			System.out.println("NRG < 0");
+			this.dispatchEvent(new Event(CollisionEvent.DEATH, this));
+		}
+		else 
+			this.nrg = energy;
 	}
 
 	public ShipType getShipType() {
 		return type;
+	}
+	
+	public ArrayList<Projectile> getProjectiles() {
+		return projectiles;
 	}
 
 }

@@ -5,6 +5,7 @@ import edu.virginia.engine.display.DisplayObject;
 public class CollisionEvent extends Event {
 	public static final String COIN = "found a coin";
 	public static final String PLATFORM = "colliding with platform";
+	public static final String DEATH = "you ded boi";
 	private DisplayObject obj;
 
 	public CollisionEvent(String type, DisplayObject src) {
