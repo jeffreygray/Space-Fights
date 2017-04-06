@@ -13,6 +13,7 @@ import edu.virginia.engine.display.Sprite;
 import edu.virginia.engine.events.CollisionEvent;
 import edu.virginia.engine.events.CollisionManager;
 import edu.virginia.engine.events.Event;
+import edu.virginia.spacefights.classes.Projectile;
 import edu.virginia.spacefights.classes.Ship;
 import edu.virginia.spacefights.classes.ShipType;
 
@@ -21,6 +22,7 @@ public class SpaceFights extends Game {
 	Ship player1, player2;
 	Sprite p1nrgFront, p1nrgBack, p2nrgFront, p2nrgBack;
 	ArrayList<Sprite> platforms = new ArrayList<Sprite>();
+	ArrayList<Ship> players = new ArrayList<Ship>();
 	CollisionManager collisionManager;
 
 
@@ -72,10 +74,13 @@ public class SpaceFights extends Game {
 
 		
 		platforms.add(plat1);
-		
-		player1.addEventListener(collisionManager, CollisionEvent.PLATFORM);
-		player2.addEventListener(collisionManager, CollisionEvent.PLATFORM);
 
+		players.add(player1);
+		players.add(player2);
+		for(Ship player : players) {
+			player.addEventListener(collisionManager, CollisionEvent.PLATFORM);
+			player.addEventListener(collisionManager, CollisionEvent.DEATH);
+		}
 
 	}
 
@@ -83,7 +88,6 @@ public class SpaceFights extends Game {
 	public void update(ArrayList<String> pressedKeys, ArrayList<GamePad> controllers) {
 		if(scene != null) { // makes sure we loaded everything 
 			scene.update(pressedKeys, controllers);
-			
 			// adjusts the scale of the player nrg bars based on current nrg levels
 			// ~ move to Ship class?
 			p1nrgFront.setScaleX((double) player1.getNrg()/player1.getShipType().getNrgCap());
@@ -109,67 +113,76 @@ public class SpaceFights extends Game {
 			
 			// collisions p1
 			for(Sprite plat: platforms) {
-				if(player1.collidesWith(plat)) {
-					player1.dispatchEvent(new Event(CollisionEvent.PLATFORM, player1));
-					
-					Rectangle mHB = player1.getHitbox();
-					Rectangle pHB = plat.getHitbox();
-					Rectangle overlap = mHB.intersection(pHB);
-					
-					if(overlap.width < overlap.height) {
-						// coming from side; which side?
-						if(mHB.x > pHB.x) {  // collision with right side of platform
-							if(player1.getScaleX() > 0) // facing right
-								player1.setPosition(pHB.getX() + pHB.getWidth(), player1.getPosition().y);
-							else
-								player1.setPosition(pHB.getX() + pHB.getWidth() + mHB.getWidth(), player1.getPosition().y);
+				for(Ship player: players) {
+					if(player.collidesWith(plat)) {
+						player.dispatchEvent(new Event(CollisionEvent.PLATFORM, player));
+						
+						Rectangle mHB = player.getHitbox();
+						Rectangle pHB = plat.getHitbox();
+						Rectangle overlap = mHB.intersection(pHB);
+						
+						if(overlap.width < overlap.height) {
+							// coming from side; which side?
+							if(mHB.x > pHB.x) {  // collision with right side of platform
+								if(player.getScaleX() > 0) // facing right
+									player.setPosition(pHB.getX() + pHB.getWidth(), player.getPosition().y);
+								else
+									player.setPosition(pHB.getX() + pHB.getWidth() + mHB.getWidth(), player.getPosition().y);
+								
+							}
+							else player.setPosition(pHB.getX() - mHB.getWidth(), player.getPosition().y); // on left side
+							System.out.println("LR WALL HIT");
+							player.setXv(-0.8*player.getXv()); // Dampen is currently 0.8, can change later
+						} else {
+							// coming from top or bottom
+							if(mHB.y < pHB.y) {
+								player.setPosition(player.getPosition().x, pHB.getY() - mHB.getHeight()); //above
+							}
+							else player.setPosition(player.getPosition().x, pHB.getY() + pHB.getHeight()); // below
+							player.setYv(-0.8*player.getYv());
+						}
+					}
+					for(Projectile p: player.getProjectiles()) {
+						if(p.collidesWith(plat)) {
+							p.dispatchEvent(new Event(CollisionEvent.PLATFORM, p));
 							
+							Rectangle mHB = p.getHitbox();
+							Rectangle pHB = plat.getHitbox();
+							Rectangle overlap = mHB.intersection(pHB);
+							
+							if(overlap.width < overlap.height) {
+								// coming from side; which side?
+								if(mHB.x > pHB.x) {  // collision with right side of platform
+									if(p.getScaleX() > 0) // facing right
+										p.setPosition(pHB.getX() + pHB.getWidth(), p.getPosition().y);
+									else
+										p.setPosition(pHB.getX() + pHB.getWidth() + mHB.getWidth(), p.getPosition().y);
+									
+								}
+								else p.setPosition(pHB.getX() - mHB.getWidth(), p.getPosition().y); // on left side
+								System.out.println("LR WALL HIT");
+								p.setXv(-p.getXv()); // Dampen is currently 0.8, can change later
+							} else {
+								// coming from top or bottom
+								if(mHB.y < pHB.y) {
+									p.setPosition(p.getPosition().x, pHB.getY() - mHB.getHeight()); //above
+								}
+								else p.setPosition(p.getPosition().x, pHB.getY() + pHB.getHeight()); // below
+								p.setYv(-p.getYv());
+							}
+						} 
+						// for each player, check if this projectile collides with it
+						for(Ship s:players) {
+							// checks with collision with enemies
+							if(p.collidesWith(s) && s.getPlayerNum() != player.getPlayerNum()) {
+								s.setNrg(s.getNrg()-p.getDamage());
+								p.setRemove(true);
+							}
 						}
-						else player1.setPosition(pHB.getX() - mHB.getWidth(), player1.getPosition().y); // on left side
-						System.out.println("LR WALL HIT");
-						player1.setXv(0);
-					} else {
-						// coming from top or bottom
-						if(mHB.y < pHB.y) {
-							player1.setPosition(player1.getPosition().x, pHB.getY() - mHB.getHeight()); //above
-						}
-						else player1.setPosition(player1.getPosition().x, pHB.getY() + pHB.getHeight()); // below
-						player1.setYv(0);
 					}
 				}
 			}
 			
-			for(Sprite plat: platforms) { // p2 collisions
-				if(player2.collidesWith(plat)) {
-					player2.dispatchEvent(new Event(CollisionEvent.PLATFORM, player2));
-					
-					Rectangle mHB = player2.getHitbox();
-					Rectangle pHB = plat.getHitbox();
-					Rectangle overlap = mHB.intersection(pHB);
-					
-					if(overlap.width < overlap.height) {
-						// coming from side; which side?
-						if(mHB.x > pHB.x) {  // collision with right side of platform
-							if(player2.getScaleX() > 0) // facing right
-								player2.setPosition(pHB.getX() + pHB.getWidth(), player2.getPosition().y);
-							else
-								player2.setPosition(pHB.getX() + pHB.getWidth() + mHB.getWidth(), player1.getPosition().y);
-							
-						}
-						else player2.setPosition(pHB.getX() - mHB.getWidth(), player2.getPosition().y); // on left side
-						System.out.println("LR WALL HIT");
-						player2.setXv(0);
-					} else {
-						// coming from top or bottom
-						if(mHB.y < pHB.y) {
-							player2.setPosition(player2.getPosition().x, pHB.getY() - mHB.getHeight()); //above
-						}
-						else player2.setPosition(player2.getPosition().x, pHB.getY() + pHB.getHeight()); // below
-						player2.setYv(0);
-					}
-				}
-			}
-
 			p1nrgBack.setPosition(shipPos.x-player1.getWidth()/2, shipPos.y-player1.getHeight()/3);
 			
 			shipPos = player2.getPosition();
