@@ -17,6 +17,8 @@ import edu.virginia.engine.events.Event;
 import edu.virginia.spacefights.classes.Projectile;
 import edu.virginia.spacefights.classes.Ship;
 import edu.virginia.spacefights.classes.ShipType;
+import edu.virginia.engine.util.SoundManager;
+
 
 public class SpaceFights extends Game {
 	static int gameWidth = 1800;
@@ -117,7 +119,7 @@ public class SpaceFights extends Game {
 		
 			
 		}
-
+		SoundManager.playMusic("sound.wav");
 	}
 
 	@Override
