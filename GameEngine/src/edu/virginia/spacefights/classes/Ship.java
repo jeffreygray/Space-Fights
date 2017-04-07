@@ -7,6 +7,7 @@ import com.sun.glass.ui.CommonDialogs.Type;
 
 import edu.virginia.engine.controller.GamePad;
 import edu.virginia.engine.display.PhysicsSprite;
+import edu.virginia.engine.display.Sprite;
 import edu.virginia.engine.events.CollisionEvent;
 import edu.virginia.engine.events.Event;
 import edu.virginia.engine.util.GameClock;
@@ -16,17 +17,12 @@ public class Ship extends PhysicsSprite {
 	private int nrg;
 	private int nrgCap;
 	private int playerNum;
-	public int getPlayerNum() {
-		return playerNum;
-	}
-
 	private double max_speed;
 	private double rotate_speed;
 	private double thrust;
 	private GameClock clock;
-	private int shotCost;
-	private int shotCD;
 	private ShipType type;
+	private Sprite nrgFront, nrgBack;
 	private ArrayList<Projectile> projectiles = new ArrayList<Projectile>();
 	
 	/* 
@@ -46,19 +42,27 @@ public class Ship extends PhysicsSprite {
 		nrgCap = type.getNrgCap();
 		nrg = nrgCap;
 		playerNum = playerNumber;
-		max_speed = 9;
+		max_speed = 10;
 		rotate_speed = 4;
 		thrust = type.getThrust();
 		this.type = type;
 		clock = new GameClock();
+		
+		nrgFront = new Sprite("nrgFront", "frontNRG.png");
+		nrgBack = new Sprite("nrgBack", "rearNRG.png");
+		
+
+		nrgBack.setScaleY(-0.8);
+		nrgBack.setScaleX(0.6);
+		nrgBack.addChild(nrgFront);
 	}
 	
 	@Override
 	public void update(ArrayList<String> pressedKeys, ArrayList<GamePad> controllers) {
 		this.setXa(0);
 		this.setYa(0);
-		this.setXv(getXv()*.995);
-		this.setYv(getYv()*.995);
+		this.setXv(getXv()*0.99);
+		this.setYv(getYv()*0.99);
 		double rotationInRads = Math.toRadians(this.getRotation()-90);
 		/* currently handling different player controls with keyboard. Final should be able to simply query 
 		 * the buttons pressed on this player's GamePad. i.e. playerController = controllers.get(player)
@@ -133,10 +137,51 @@ public class Ship extends PhysicsSprite {
 				projectiles.add(new Projectile(ProjectileType.Laser, x, y, this.getRotation()-90));
 			}
 		}
+		else if(playerNum == 3) {
+			if(pressedKeys.contains("NumPad-5") && Math.hypot(this.getXv(), this.getYv()) < max_speed) {
+				this.setXa(Math.cos(rotationInRads) * thrust);
+				this.setYa(Math.sin(rotationInRads) * thrust);
+			}
+			if(pressedKeys.contains("NumPad-2") && Math.hypot(this.getXv(), this.getYv()) < max_speed) {
+				this.setXa(-Math.cos(rotationInRads) * thrust);
+				this.setYa(-Math.sin(rotationInRads) * thrust);
+				//System.out.println("XV: " + xv +"\t YV: " + yv);
+			}
+			if(pressedKeys.contains("NumPad-1")) {
+				this.setRotation(this.getRotation()-5);
+			}
+			if(pressedKeys.contains("NumPad-3")) {
+				this.setRotation(this.getRotation()+5);
+			}
+			if(pressedKeys.contains("Back Quote") && clock.getElapsedTime() >= type.getCooldown() && nrg >= type.getFiringCost()) {
+				nrg = nrg-type.getFiringCost();
+				clock.resetGameClock();
+				double x = this.getX() + this.getPivotPoint().x + Math.cos(rotationInRads)*this.getHeight()/2;
+				double y = this.getY() + this.getPivotPoint().y + Math.sin(rotationInRads)*this.getWidth()/2;
+				
+				// each projectile will be genrated and store in projectiles and associated with source ship.
+				// this may allow us to avoid friendly fire, if desired
+				projectiles.add(new Projectile(ProjectileType.Bullet, x, y, this.getRotation()-90));
+			} if(pressedKeys.contains("Q") && clock.getElapsedTime() >= type.getSpecialCD() && nrg >= type.getSpecialCost()) {
+				nrg = nrg-type.getSpecialCost();
+				clock.resetGameClock();
+				double x = this.getX() + this.getPivotPoint().x + Math.cos(rotationInRads)*this.getHeight()/2;
+				double y = this.getY() + this.getPivotPoint().y + Math.sin(rotationInRads)*this.getWidth()/2;
+				
+				// each projectile will be genrated and store in projectiles and associated with source ship.
+				// this may allow us to avoid friendly fire, if desired
+				projectiles.add(new Projectile(ProjectileType.Laser, x, y, this.getRotation()-90));
+			}
+		}
 		
+		
+
+		nrgFront.setScaleX((double) nrg / type.getNrgCap());
 		// Regen the nrg over time
 		if(nrg < type.getNrgCap()) 
 			nrg += type.getNrgRecharge()/60; 
+		nrgBack.setPosition(getPosition().x - getWidth() / 2, getPosition().y - getHeight() / 3);
+
 		
 		super.update(pressedKeys, controllers);
 		// need to update each projectile by looping through this ship's list of active projectiles
@@ -155,6 +200,7 @@ public class Ship extends PhysicsSprite {
 		// again, projectiles are not currently built into the display tree, so need to manually loop
 		for(Projectile p : projectiles)
 			p.draw(g);
+		nrgBack.draw(g);
 	}
 	
 	public int getNrg() {
@@ -179,5 +225,10 @@ public class Ship extends PhysicsSprite {
 	public ArrayList<Projectile> getProjectiles() {
 		return projectiles;
 	}
+	
+	public int getPlayerNum() {
+		return playerNum;
+	}
+
 
 }
