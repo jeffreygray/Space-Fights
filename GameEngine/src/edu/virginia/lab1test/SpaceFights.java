@@ -163,6 +163,7 @@ public class SpaceFights extends Game {
 			 */
 
 			for(Ship player: players) {
+				
 				for(Sprite plat: platforms) {
 					if (player.collidesWith(plat)) {
 						player.dispatchEvent(new Event(CollisionEvent.PLATFORM, player));
