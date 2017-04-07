@@ -205,6 +205,8 @@ public class SpaceFights extends Game {
 					for (Projectile p : player.getProjectiles()) {
 						if (p.collidesWith(plat)) {
 							p.dispatchEvent(new Event(CollisionEvent.PLATFORM, p));
+							//SoundManager.playMusic("bullet.wav");
+
 							if (!p.isHasBounce()) {
 								p.setRemove(true);
 							}
