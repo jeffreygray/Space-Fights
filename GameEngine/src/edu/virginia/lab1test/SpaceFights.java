@@ -18,8 +18,8 @@ import edu.virginia.spacefights.classes.Ship;
 import edu.virginia.spacefights.classes.ShipType;
 
 public class SpaceFights extends Game {
-	static int gameWidth = 1800;
-	static int gameHeight = 990;
+	static int gameWidth = 1500;
+	static int gameHeight = 900;
 	Sprite scene, plat1;
 	Ship player1, player2;
 	Sprite p1nrgFront, p1nrgBack, p2nrgFront, p2nrgBack;
@@ -44,9 +44,10 @@ public class SpaceFights extends Game {
 		plat1 = new Sprite("plat1", "platformSpace.png");
 		collisionManager = new CollisionManager();
 		
+		double p1Scale = 1.15;
 		player1.setPosition(800, 350);
-		player1.setScaleX(0.8);
-		player1.setScaleY(0.65);
+		player1.setScaleX(0.8 * p1Scale);
+		player1.setScaleY(0.65 * p1Scale);
 
 		player2.setPosition(300,150);
 		player2.setScaleX(0.8);

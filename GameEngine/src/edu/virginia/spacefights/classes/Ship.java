@@ -63,7 +63,7 @@ public class Ship extends PhysicsSprite {
 		/* currently handling different player controls with keyboard. Final should be able to simply query 
 		 * the buttons pressed on this player's GamePad. i.e. playerController = controllers.get(player)
 		 */
-		if(playerNum == 2) {
+		if(playerNum == 1) {
 			if(pressedKeys.contains("Up") && Math.hypot(this.getXv(), this.getYv()) < max_speed) {
 				this.setXa(Math.cos(rotationInRads) * thrust);
 				this.setYa(Math.sin(rotationInRads) * thrust);
@@ -97,7 +97,7 @@ public class Ship extends PhysicsSprite {
 					// this may allow us to avoid friendly fire, if desired
 					projectiles.add(new Projectile(ProjectileType.Laser, x, y, this.getRotation()-90));
 				}
-		} else if(playerNum == 1) {
+		} else if(playerNum == 2) {
 			if(pressedKeys.contains("I") && Math.hypot(this.getXv(), this.getYv()) < max_speed) {
 				this.setXa(Math.cos(rotationInRads) * thrust);
 				this.setYa(Math.sin(rotationInRads) * thrust);
