@@ -65,7 +65,8 @@ public class Ship extends PhysicsSprite {
 		this.setYv(getYv()*0.99);
 		double rotationInRads = Math.toRadians(this.getRotation()-90);
 		/* currently handling different player controls with keyboard. Final should be able to simply query 
-		 * the buttons pressed on this player's GamePad. i.e. playerController = controllers.get(player)
+		 * the buttons pressed on this player's GamePad. i.e. playerController = controllers.get(playerNum)
+		 * followed by all the various mappings assigned to the controller
 		 */
 		if(playerNum == 1) {
 			if(pressedKeys.contains("Up") && Math.hypot(this.getXv(), this.getYv()) < max_speed) {
@@ -175,20 +176,22 @@ public class Ship extends PhysicsSprite {
 		}
 		
 		
-
-		nrgFront.setScaleX((double) nrg / type.getNrgCap());
+		/* adjust this player's energy meter based on current energy level, and apply recharge
+		 * 
+		 */
 		// Regen the nrg over time
 		if(nrg < type.getNrgCap()) 
 			nrg += type.getNrgRecharge()/60; 
 		nrgBack.setPosition(getPosition().x - getWidth() / 2, getPosition().y - getHeight() / 3);
-
+		nrgFront.setScaleX((double) nrg / type.getNrgCap());
+		
 		
 		super.update(pressedKeys, controllers);
 		// need to update each projectile by looping through this ship's list of active projectiles
 		for(int i = 0; i < projectiles.size(); i++) {
 			Projectile p = projectiles.get(i);
 			p.update(pressedKeys, controllers);
-			// remove projectiles that have travelled too far
+			// remove projectiles that have travelled too far or have collided with something
 			if(p.shouldRemove())
 				projectiles.remove(i);
 		}

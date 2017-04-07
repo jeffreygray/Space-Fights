@@ -55,7 +55,7 @@ public class Projectile extends PhysicsSprite {
 	}
 
 	public boolean shouldRemove() {
-		return clock.getElapsedTime() > 4000 || shouldRemove;
+		return clock.getElapsedTime() > decayTime || shouldRemove;
 	}
 	
 	public void setRemove(boolean b) {
