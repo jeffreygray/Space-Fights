@@ -20,7 +20,7 @@ import edu.virginia.spacefights.classes.ShipType;
 public class SpaceFights extends Game {
 	static int gameWidth = 1500;
 	static int gameHeight = 900;
-	Sprite scene, plat1;
+	Sprite scene, plat1, plat2, plat3, plat4, plat5, plat6;
 	Ship player1, player2;
 	Sprite p1nrgFront, p1nrgBack, p2nrgFront, p2nrgBack;
 	ArrayList<Sprite> platforms = new ArrayList<Sprite>();
@@ -42,6 +42,14 @@ public class SpaceFights extends Game {
 		p2nrgBack = new Sprite("nrgBack", "rearNRG.png");
 
 		plat1 = new Sprite("plat1", "platformSpace.png");
+		plat2 = new Sprite("plat2", "platformSmall.png");
+		plat3 = new Sprite("plat3", "platformSpace.png");
+		plat4 = new Sprite("plat4", "platformSmall.png");
+		plat5 = new Sprite("plat5", "platformSmall.png");
+		plat6 = new Sprite("plat6", "platformSmall.png");
+
+
+
 		collisionManager = new CollisionManager();
 		
 		double p1Scale = 1.15;
@@ -65,21 +73,44 @@ public class SpaceFights extends Game {
 		scene.addChild(p2nrgBack);
 		p1nrgBack.addChild(p1nrgFront);
 		p2nrgBack.addChild(p2nrgFront);
+		
+		//adding attributes to scene
 		scene.addChild(player1);
 		scene.addChild(player2);
-		scene.addChild(plat1);;
-	
-		
+		scene.addChild(plat1);
+		scene.addChild(plat2);
+		scene.addChild(plat3);
+		scene.addChild(plat4);
+		scene.addChild(plat5);
+		scene.addChild(plat6);
 		plat1.setParent(scene);
+		plat2.setParent(scene);
+		plat3.setParent(scene);
+		plat4.setParent(scene);
+		plat5.setParent(scene);
+		plat6.setParent(scene);
 
+		//placing location of platforms
+		plat1.setPosition(300, 350);
+		plat2.setPosition(300,350 + plat2.getHeight());
+		plat3.setPosition(300,800);
+		plat4.setPosition(300,350 + 2 * plat2.getHeight());
+		plat5.setPosition(300,350 + 3 * plat2.getHeight());
+		plat6.setPosition(300,350 + 4 * plat2.getHeight());
 		
-		plat1.setPosition(300, 350);;
 
-		
+		//updating platforms and players arrays with their constituents
 		platforms.add(plat1);
-
+		platforms.add(plat2);
+		platforms.add(plat3);
+		platforms.add(plat4);
+		platforms.add(plat5);
+		platforms.add(plat6);
+		//
 		players.add(player1);
 		players.add(player2);
+		//
+		
 		for(Ship player : players) {
 			player.addEventListener(collisionManager, CollisionEvent.PLATFORM);
 			player.addEventListener(collisionManager, CollisionEvent.DEATH);
@@ -163,7 +194,7 @@ public class SpaceFights extends Game {
 									
 								}
 								else p.setPosition(pHB.getX() - mHB.getWidth(), p.getPosition().y); // on left side
-								System.out.println("LR WALL HIT");
+								//System.out.println("LR WALL HIT");
 								p.setXv(-p.getXv()); // Dampen is currently 0.8, can change later
 							} else {
 								// coming from top or bottom

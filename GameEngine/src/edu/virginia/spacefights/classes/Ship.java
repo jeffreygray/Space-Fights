@@ -46,7 +46,7 @@ public class Ship extends PhysicsSprite {
 		nrgCap = type.getNrgCap();
 		nrg = nrgCap;
 		playerNum = playerNumber;
-		max_speed = 10;
+		max_speed = 9;
 		rotate_speed = 4;
 		thrust = type.getThrust();
 		this.type = type;
@@ -57,8 +57,8 @@ public class Ship extends PhysicsSprite {
 	public void update(ArrayList<String> pressedKeys, ArrayList<GamePad> controllers) {
 		this.setXa(0);
 		this.setYa(0);
-		this.setXv(getXv()*0.99);
-		this.setYv(getYv()*0.99);
+		this.setXv(getXv()*.995);
+		this.setYv(getYv()*.995);
 		double rotationInRads = Math.toRadians(this.getRotation()-90);
 		/* currently handling different player controls with keyboard. Final should be able to simply query 
 		 * the buttons pressed on this player's GamePad. i.e. playerController = controllers.get(player)

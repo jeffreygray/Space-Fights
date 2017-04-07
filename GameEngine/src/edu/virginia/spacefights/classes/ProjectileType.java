@@ -1,7 +1,7 @@
 package edu.virginia.spacefights.classes;
 
 public enum ProjectileType {
-	Bullet(15, 4000, 400, true, "bullet_transparent.png"), Laser(10, 8000, 10000, false, "laser.png");
+	Bullet(15, 4000, 80, true, "bullet_transparent.png"), Laser(10, 8000, 10000, false, "laser.png"); // bullet damage is being scaled somewhere. where?
 	private double muzzleVelocity, decayTime;
 	private int damage;
 	private boolean hasBounce;
