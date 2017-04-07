@@ -1,5 +1,6 @@
 // updated to print out energy and decrement upon hitting L
-// TODO: 4.7.2017 ships and ships bounce, lasers destroy upon hitting platforms, player agnosticism
+// TODO: 4.7.2017 ships and ships bounce, fix bug hugging bottom of map, rotate hb
+
 package edu.virginia.lab1test;
 
 import java.awt.Graphics;
@@ -20,6 +21,7 @@ import edu.virginia.spacefights.classes.ShipType;
 public class SpaceFights extends Game {
 	static int gameWidth = 1800;
 	static int gameHeight = 1000;
+	static double dampen = -0.65;
 	Sprite scene, plat1, plat2, plat3, plat4, plat5;
 	Ship player1, player2, player3;
 //	Sprite p1nrgFront, p1nrgBack, p2nrgFront, p2nrgBack;
@@ -31,15 +33,15 @@ public class SpaceFights extends Game {
 	public SpaceFights() {
 		super("Space Fights", gameWidth, gameHeight);
 		player1 = new Ship(ShipType.Vulture, 1);
-		player2 = new Ship(ShipType.Vulture, 2);
-		player3 = new Ship(ShipType.Vulture, 3);
+		player2 = new Ship(ShipType.Rhino, 2);
+//		player3 = new Ship(ShipType.Vulture, 3);
 
 		
 		players.add(player1);
 		players.add(player2);
-		players.add(player3);
+//		players.add(player3);
 		
-		scene = new Sprite("scene", "background.png");
+		scene = new Sprite("scene", "backgroundSF.png");
 		scene.setScaleX(1);
 
 /*		p1nrgFront = new Sprite("nrgFront", "frontNRG.png");
@@ -48,17 +50,19 @@ public class SpaceFights extends Game {
 		p2nrgFront = new Sprite("nrgFront", "frontNRG.png");
 		p2nrgBack = new Sprite("nrgBack", "rearNRG.png");
 */
-		plat1 = new Sprite("plat1", "platformSpace.png");
-		plat2 = new Sprite("plat2", "platformSmall.png");
-		plat3 = new Sprite("plat3", "platformSmall.png");
-		plat4 = new Sprite("plat4", "platformSmall.png");
-		plat5 = new Sprite("plat5", "platformSmall.png");
+		plat1 = new Sprite("plat1", "platformSpaceVertical.png");
+		plat2 = new Sprite("plat2", "moon.png");
+		plat2.setScaleX(9);
+		plat2.setScaleY(9);
+		plat3 = new Sprite("plat3", "platformSpaceVertical.png");
+//		plat4 = new Sprite("plat4", "platformSmall.png");
+//		plat5 = new Sprite("plat5", "platformSmall.png");
 
 		platforms.add(plat1);
-		platforms.add(plat2);
+     	platforms.add(plat2);
 		platforms.add(plat3);
-		platforms.add(plat4);
-		platforms.add(plat5);
+//		platforms.add(plat4);
+//		platforms.add(plat5);
 
 		
 		collisionManager = new CollisionManager();
@@ -66,7 +70,7 @@ public class SpaceFights extends Game {
 
 		player1.setPosition(800, 350);
 		player2.setPosition(300,150);
-		player3.setPosition(1,1);
+//		player3.setPosition(1,1);
 	
 
 /*		
@@ -91,11 +95,13 @@ public class SpaceFights extends Game {
 		scene.addChild(plat5);
 */
 		//		
-		plat1.setPosition(300, 350);
-		plat2.setPosition(300, 350 + plat2.getHeight());
-		plat3.setPosition(300, 350 +  2*plat2.getHeight());
-		plat4.setPosition(300, 350 + 3*plat2.getHeight());
-		plat5.setPosition(300, 350 + 4*plat2.getHeight());
+		plat1.setPosition(400, 250);
+		plat2.setPosition(900, 300);
+		plat3.setPosition(1350, 470);
+
+//		plat3.setPosition(300, 348 +  2*plat2.getHeight());
+//		plat4.setPosition(300, 347 + 3*plat2.getHeight());
+//		plat5.setPosition(300, 346 + 4*plat2.getHeight());
 
 
 
@@ -125,19 +131,19 @@ public class SpaceFights extends Game {
 //			p2nrgFront.setScaleX((double) player2.getNrg() / player2.getShipType().getNrgCap());
 			for(Ship player: players) {
 				Point shipPos = player.getPosition();
-				if (shipPos.x < 0) {
+				if (shipPos.x <= 0) {
 					player.setXPosition(0);
 					player.setXv(-player1.getXv());
 				} else if (shipPos.x > gameWidth - player.getWidth()) {
 					player.setXPosition(gameWidth - player.getWidth());
-					player.setXv(-player1.getXv());
+					player.setXv(dampen * player1.getXv());
 				}
-				if (shipPos.y < 0) {
+				if (shipPos.y <= 0) {
 					player.setYPosition(0);
-					player.setYv(-player.getYv());
+					player.setYv(dampen * player.getYv());
 				} else if (shipPos.y > gameHeight - player.getHeight()) {
 					player.setYPosition(gameHeight - player.getHeight());
-					player.setYv(-player.getYv());
+					player.setYv(dampen * player.getYv());
 				}
 			}
 			// collisions p1
@@ -178,7 +184,7 @@ public class SpaceFights extends Game {
 							// left
 							// side
 							// System.out.println("LR WALL HIT");
-							player.setXv(-0.8 * player.getXv()); // Dampen is
+							player.setXv(dampen * player.getXv()); // Dampen is
 							// currently
 							// 0.8, can
 							// change
@@ -189,13 +195,16 @@ public class SpaceFights extends Game {
 								player.setPosition(player.getPosition().x, pHB.getY() - mHB.getHeight()); // above
 							} else
 								player.setPosition(player.getPosition().x, pHB.getY() + pHB.getHeight()); // below
-							player.setYv(-0.8 * player.getYv());
+							player.setYv(dampen * player.getYv());
 						}
 
 					}
 					for (Projectile p : player.getProjectiles()) {
 						if (p.collidesWith(plat)) {
 							p.dispatchEvent(new Event(CollisionEvent.PLATFORM, p));
+							if (!p.isHasBounce()) {
+								p.setRemove(true);
+							}
 
 							Rectangle mHB = p.getHitbox();
 							Rectangle pHB = plat.getHitbox();
