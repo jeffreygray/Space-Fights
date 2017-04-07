@@ -18,6 +18,8 @@ import edu.virginia.spacefights.classes.Ship;
 import edu.virginia.spacefights.classes.ShipType;
 
 public class SpaceFights extends Game {
+	static int gameWidth = 1800;
+	static int gameHeight = 990;
 	Sprite scene, plat1;
 	Ship player1, player2;
 	Sprite p1nrgFront, p1nrgBack, p2nrgFront, p2nrgBack;
@@ -27,7 +29,7 @@ public class SpaceFights extends Game {
 
 
 	public SpaceFights() {
-		super("Space Fights", 1200, 700);
+		super("Space Fights", gameWidth, gameHeight);
 		player1 = new Ship(ShipType.Rhino, 1);
 		player2 = new Ship(ShipType.Vulture, 2);
 		
@@ -98,16 +100,16 @@ public class SpaceFights extends Game {
 				player1.setXPosition(0);
 				player1.setXv(-player1.getXv());
 			}
-			else if(shipPos.x > 1200-player1.getWidth()) {
-				player1.setXPosition(1200-player1.getWidth());
+			else if(shipPos.x > gameWidth-player1.getWidth()) {
+				player1.setXPosition(gameWidth-player1.getWidth());
 				player1.setXv(-player1.getXv());
 			}
 			if(shipPos.y < 0){
 				player1.setYPosition(0);
 				player1.setYv(-player1.getYv());
 			}
-			else if(shipPos.y > 700-player1.getHeight()) {
-				player1.setYPosition(700-player1.getHeight());
+			else if(shipPos.y > gameHeight-player1.getHeight()) {
+				player1.setYPosition(gameHeight-player1.getHeight());
 				player1.setYv(-player1.getYv());
 			}
 			
@@ -131,7 +133,7 @@ public class SpaceFights extends Game {
 								
 							}
 							else player.setPosition(pHB.getX() - mHB.getWidth(), player.getPosition().y); // on left side
-							System.out.println("LR WALL HIT");
+							//System.out.println("LR WALL HIT");
 							player.setXv(-0.8*player.getXv()); // Dampen is currently 0.8, can change later
 						} else {
 							// coming from top or bottom
@@ -190,16 +192,16 @@ public class SpaceFights extends Game {
 				player2.setXPosition(0);
 				player2.setXv(-player2.getXv());
 			}
-			else if(shipPos.x > 1200-player2.getWidth()) {
-				player2.setXPosition(1200-player2.getWidth());
+			else if(shipPos.x > gameWidth-player2.getWidth()) {
+				player2.setXPosition(gameWidth-player2.getWidth());
 				player2.setXv(-player2.getXv());
 			}
 			if(shipPos.y < 0){
 				player2.setYPosition(0);
 				player2.setYv(-player2.getYv());
 			}
-			else if(shipPos.y > 700-player2.getHeight()) {
-				player2.setYPosition(700-player2.getHeight());
+			else if(shipPos.y > gameHeight-player2.getHeight()) {
+				player2.setYPosition(gameHeight-player2.getHeight());
 				player2.setYv(-player2.getYv());
 			}
 			

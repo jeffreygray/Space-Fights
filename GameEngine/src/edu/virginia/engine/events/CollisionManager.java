@@ -41,10 +41,10 @@ public class CollisionManager implements IEventListener {
 			TweenJuggler.getInstance().add(tween);
 			break;
 		case CollisionEvent.DEATH:
-			System.out.println("IN COLLISION MANAGER");
+			//System.out.println("IN COLLISION MANAGER");
 			Ship s = (Ship) (event.getSource());
 			// add explosion, sound and other death effects
-			s.setPosition(0,0);
+			s.setPosition(500,500);
 			s.setNrg(s.getShipType().getNrgCap());
 			s.setRotation(0);
 			s.setXv(0);

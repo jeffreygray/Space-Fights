@@ -1,7 +1,7 @@
 package edu.virginia.spacefights.classes;
 
 public enum ShipType {
-	Rhino(1500, 250, 0.5, 200, 333, 0, 0, "ship2.png"), Vulture(1500, 200, 0.8, 300, 500, 1000, 0, "ship.png");
+	Rhino(1700, 260, 0.3, 240, 280, 0, 0, "ship2.png"), Vulture(1400, 220, 0.55, 300, 430, 1100, 0, "ship.png");
 	private final int nrgCap;
 	private final int nrgRecharge;
 	private final double thrust;

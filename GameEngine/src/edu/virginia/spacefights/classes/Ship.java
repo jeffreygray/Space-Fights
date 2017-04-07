@@ -47,7 +47,7 @@ public class Ship extends PhysicsSprite {
 		nrg = nrgCap;
 		playerNum = playerNumber;
 		max_speed = 10;
-		rotate_speed = 5;
+		rotate_speed = 4;
 		thrust = type.getThrust();
 		this.type = type;
 		clock = new GameClock();
@@ -63,7 +63,7 @@ public class Ship extends PhysicsSprite {
 		/* currently handling different player controls with keyboard. Final should be able to simply query 
 		 * the buttons pressed on this player's GamePad. i.e. playerController = controllers.get(player)
 		 */
-		if(playerNum == 1) {
+		if(playerNum == 2) {
 			if(pressedKeys.contains("Up") && Math.hypot(this.getXv(), this.getYv()) < max_speed) {
 				this.setXa(Math.cos(rotationInRads) * thrust);
 				this.setYa(Math.sin(rotationInRads) * thrust);
@@ -87,20 +87,30 @@ public class Ship extends PhysicsSprite {
 				
 				projectiles.add(new Projectile(ProjectileType.Bullet, x, y, this.getRotation()-90));
 			}
-		} else if(playerNum == 2) {
-			if(pressedKeys.contains("W") && Math.hypot(this.getXv(), this.getYv()) < max_speed) {
+			 if(pressedKeys.contains("Z") && clock.getElapsedTime() >= type.getSpecialCD() && nrg >= type.getSpecialCost()) {
+					nrg = nrg-type.getSpecialCost();
+					clock.resetGameClock();
+					double x = this.getX() + this.getPivotPoint().x + Math.cos(rotationInRads)*this.getHeight()/2;
+					double y = this.getY() + this.getPivotPoint().y + Math.sin(rotationInRads)*this.getWidth()/2;
+					
+					// each projectile will be genrated and store in projectiles and associated with source ship.
+					// this may allow us to avoid friendly fire, if desired
+					projectiles.add(new Projectile(ProjectileType.Laser, x, y, this.getRotation()-90));
+				}
+		} else if(playerNum == 1) {
+			if(pressedKeys.contains("I") && Math.hypot(this.getXv(), this.getYv()) < max_speed) {
 				this.setXa(Math.cos(rotationInRads) * thrust);
 				this.setYa(Math.sin(rotationInRads) * thrust);
 			}
-			if(pressedKeys.contains("S") && Math.hypot(this.getXv(), this.getYv()) < max_speed) {
+			if(pressedKeys.contains("K") && Math.hypot(this.getXv(), this.getYv()) < max_speed) {
 				this.setXa(-Math.cos(rotationInRads) * thrust);
 				this.setYa(-Math.sin(rotationInRads) * thrust);
 				//System.out.println("XV: " + xv +"\t YV: " + yv);
 			}
-			if(pressedKeys.contains("A")) {
+			if(pressedKeys.contains("J")) {
 				this.setRotation(this.getRotation()-5);
 			}
-			if(pressedKeys.contains("D")) {
+			if(pressedKeys.contains("L")) {
 				this.setRotation(this.getRotation()+5);
 			}
 			if(pressedKeys.contains("Ctrl") && clock.getElapsedTime() >= type.getCooldown() && nrg >= type.getFiringCost()) {
@@ -152,10 +162,10 @@ public class Ship extends PhysicsSprite {
 	}
 	
 	public void setNrg(int energy) {
-		System.out.println("Setting nrg");
+		//System.out.println("Setting nrg");
 		if(energy <= 0) {
 			// player dies
-			System.out.println("NRG < 0");
+			//System.out.println("NRG < 0");
 			this.dispatchEvent(new Event(CollisionEvent.DEATH, this));
 		}
 		else 
