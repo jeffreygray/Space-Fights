@@ -11,6 +11,7 @@ import edu.virginia.engine.display.Sprite;
 import edu.virginia.engine.events.CollisionEvent;
 import edu.virginia.engine.events.Event;
 import edu.virginia.engine.util.GameClock;
+import edu.virginia.engine.util.SoundManager;
 
 public class Ship extends PhysicsSprite {
 
@@ -61,8 +62,8 @@ public class Ship extends PhysicsSprite {
 	public void update(ArrayList<String> pressedKeys, ArrayList<GamePad> controllers) {
 		this.setXa(0);
 		this.setYa(0);
-		this.setXv(getXv()*0.99);
-		this.setYv(getYv()*0.99);
+		this.setXv(getXv()*0.995);
+		this.setYv(getYv()*0.995);
 		double rotationInRads = Math.toRadians(this.getRotation()-90);
 		/* currently handling different player controls with keyboard. Final should be able to simply query 
 		 * the buttons pressed on this player's GamePad. i.e. playerController = controllers.get(playerNum)
@@ -86,6 +87,8 @@ public class Ship extends PhysicsSprite {
 			}
 			if(pressedKeys.contains("Space") && clock.getElapsedTime() >= type.getCooldown() && nrg >= type.getFiringCost()) {
 				nrg = nrg - type.getFiringCost();
+				SoundManager.playSoundEffect("bullet.wav");
+
 				clock.resetGameClock();
 				double x = this.getX() + this.getPivotPoint().x + Math.cos(rotationInRads)*this.getHeight()/2;
 				double y = this.getY() + this.getPivotPoint().y + Math.sin(rotationInRads)*this.getWidth()/2;
@@ -93,6 +96,7 @@ public class Ship extends PhysicsSprite {
 				projectiles.add(new Projectile(ProjectileType.Bullet, x, y, this.getRotation()-90));
 			}
 			 if(pressedKeys.contains("Z") && clock.getElapsedTime() >= type.getSpecialCD() && nrg >= type.getSpecialCost()) {
+				 SoundManager.playSoundEffect("laser.wav");
 					nrg = nrg-type.getSpecialCost();
 					clock.resetGameClock();
 					double x = this.getX() + this.getPivotPoint().x + Math.cos(rotationInRads)*this.getHeight()/2;
@@ -119,6 +123,7 @@ public class Ship extends PhysicsSprite {
 				this.setRotation(this.getRotation()+5);
 			}
 			if(pressedKeys.contains("Ctrl") && clock.getElapsedTime() >= type.getCooldown() && nrg >= type.getFiringCost()) {
+				SoundManager.playSoundEffect("bullet.wav");
 				nrg = nrg-type.getFiringCost();
 				clock.resetGameClock();
 				double x = this.getX() + this.getPivotPoint().x + Math.cos(rotationInRads)*this.getHeight()/2;
@@ -128,6 +133,8 @@ public class Ship extends PhysicsSprite {
 				// this may allow us to avoid friendly fire, if desired
 				projectiles.add(new Projectile(ProjectileType.Bullet, x, y, this.getRotation()-90));
 			} if(pressedKeys.contains("Shift") && clock.getElapsedTime() >= type.getSpecialCD() && nrg >= type.getSpecialCost()) {
+				SoundManager.playSoundEffect("laser.wav");
+
 				nrg = nrg-type.getSpecialCost();
 				clock.resetGameClock();
 				double x = this.getX() + this.getPivotPoint().x + Math.cos(rotationInRads)*this.getHeight()/2;
@@ -216,6 +223,7 @@ public class Ship extends PhysicsSprite {
 			// player dies
 			//System.out.println("NRG < 0");
 			this.dispatchEvent(new Event(CollisionEvent.DEATH, this));
+			SoundManager.playSoundEffect("death.wav");
 		}
 		else 
 			this.nrg = energy;
