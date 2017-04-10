@@ -230,7 +230,8 @@ public class DisplayObject extends EventDispatcher {
 	}
 
 	public void setPosition(Point position) {
-		this.position = position;
+		this.position.x = position.x;
+		this.position.y = position.y;
 	}
 	
 	public void setPosition(double x, double y) {

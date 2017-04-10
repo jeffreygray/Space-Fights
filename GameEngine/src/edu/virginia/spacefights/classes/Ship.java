@@ -1,11 +1,11 @@
 package edu.virginia.spacefights.classes;
 
 import java.awt.Graphics;
+import java.awt.Point;
 import java.util.ArrayList;
 
-import com.sun.glass.ui.CommonDialogs.Type;
-
 import edu.virginia.engine.controller.GamePad;
+import edu.virginia.engine.display.Game;
 import edu.virginia.engine.display.PhysicsSprite;
 import edu.virginia.engine.display.Sprite;
 import edu.virginia.engine.events.CollisionEvent;
@@ -21,10 +21,12 @@ public class Ship extends PhysicsSprite {
 	private double max_speed;
 	private double rotate_speed;
 	private double thrust;
-	private GameClock clock;
+	private GameClock lastShot, lastSpawned, lastFlashed;
 	private ShipType type;
 	private Sprite nrgFront, nrgBack;
 	private ArrayList<Projectile> projectiles = new ArrayList<Projectile>();
+	private boolean recentlySpawned = false;
+	private Point spawn = new Point();
 	
 	/* 
 	 * This will be if we want to use animated ship sprites
@@ -47,12 +49,22 @@ public class Ship extends PhysicsSprite {
 		rotate_speed = 4;
 		thrust = type.getThrust();
 		this.type = type;
-		clock = new GameClock();
+		
+		if(playerNumber == 1)
+			spawn.setLocation(300, 150);
+		else if(playerNumber == 2)
+			spawn.setLocation(900, 150);
+		else if(playerNumber == 3)
+			spawn.setLocation(300, 650);
+		setPosition(spawn.x, spawn.y);
+		
+		lastShot = new GameClock();
+		lastSpawned = new GameClock();
+		lastFlashed = new GameClock();
 		
 		nrgFront = new Sprite("nrgFront", "frontNRG.png");
 		nrgBack = new Sprite("nrgBack", "rearNRG.png");
 		
-
 		nrgBack.setScaleY(-0.8);
 		nrgBack.setScaleX(0.6);
 		nrgBack.addChild(nrgFront);
@@ -60,6 +72,7 @@ public class Ship extends PhysicsSprite {
 	
 	@Override
 	public void update(ArrayList<String> pressedKeys, ArrayList<GamePad> controllers) {
+		System.out.println(spawn);
 		this.setXa(0);
 		this.setYa(0);
 		this.setXv(getXv()*0.995);
@@ -85,20 +98,20 @@ public class Ship extends PhysicsSprite {
 			if(pressedKeys.contains("Right")) {
 				this.setRotation(this.getRotation()+rotate_speed);
 			}
-			if(pressedKeys.contains("Space") && clock.getElapsedTime() >= type.getCooldown() && nrg >= type.getFiringCost()) {
+			if(pressedKeys.contains("Space") && lastShot.getElapsedTime() >= type.getCooldown() && nrg >= type.getFiringCost()) {
 				nrg = nrg - type.getFiringCost();
 				SoundManager.playSoundEffect("bullet.wav");
 
-				clock.resetGameClock();
+				lastShot.resetGameClock();
 				double x = this.getX() + this.getPivotPoint().x + Math.cos(rotationInRads)*this.getHeight()/2;
 				double y = this.getY() + this.getPivotPoint().y + Math.sin(rotationInRads)*this.getWidth()/2;
 				
 				projectiles.add(new Projectile(ProjectileType.Bullet, x, y, this.getRotation()-90));
 			}
-			 if(pressedKeys.contains("Z") && clock.getElapsedTime() >= type.getSpecialCD() && nrg >= type.getSpecialCost()) {
+			 if(pressedKeys.contains("Z") && lastShot.getElapsedTime() >= type.getSpecialCD() && nrg >= type.getSpecialCost()) {
 				 SoundManager.playSoundEffect("laser.wav");
 					nrg = nrg-type.getSpecialCost();
-					clock.resetGameClock();
+					lastShot.resetGameClock();
 					double x = this.getX() + this.getPivotPoint().x + Math.cos(rotationInRads)*this.getHeight()/2;
 					double y = this.getY() + this.getPivotPoint().y + Math.sin(rotationInRads)*this.getWidth()/2;
 					
@@ -122,21 +135,21 @@ public class Ship extends PhysicsSprite {
 			if(pressedKeys.contains("L")) {
 				this.setRotation(this.getRotation()+5);
 			}
-			if(pressedKeys.contains("Ctrl") && clock.getElapsedTime() >= type.getCooldown() && nrg >= type.getFiringCost()) {
+			if(pressedKeys.contains("Ctrl") && lastShot.getElapsedTime() >= type.getCooldown() && nrg >= type.getFiringCost()) {
 				SoundManager.playSoundEffect("bullet.wav");
 				nrg = nrg-type.getFiringCost();
-				clock.resetGameClock();
+				lastShot.resetGameClock();
 				double x = this.getX() + this.getPivotPoint().x + Math.cos(rotationInRads)*this.getHeight()/2;
 				double y = this.getY() + this.getPivotPoint().y + Math.sin(rotationInRads)*this.getWidth()/2;
 				
 				// each projectile will be genrated and store in projectiles and associated with source ship.
 				// this may allow us to avoid friendly fire, if desired
 				projectiles.add(new Projectile(ProjectileType.Bullet, x, y, this.getRotation()-90));
-			} if(pressedKeys.contains("Shift") && clock.getElapsedTime() >= type.getSpecialCD() && nrg >= type.getSpecialCost()) {
+			} if(pressedKeys.contains("Shift") && lastShot.getElapsedTime() >= type.getSpecialCD() && nrg >= type.getSpecialCost()) {
 				SoundManager.playSoundEffect("laser.wav");
 
 				nrg = nrg-type.getSpecialCost();
-				clock.resetGameClock();
+				lastShot.resetGameClock();
 				double x = this.getX() + this.getPivotPoint().x + Math.cos(rotationInRads)*this.getHeight()/2;
 				double y = this.getY() + this.getPivotPoint().y + Math.sin(rotationInRads)*this.getWidth()/2;
 				
@@ -161,18 +174,18 @@ public class Ship extends PhysicsSprite {
 			if(pressedKeys.contains("NumPad-3")) {
 				this.setRotation(this.getRotation()+5);
 			}
-			if(pressedKeys.contains("Back Quote") && clock.getElapsedTime() >= type.getCooldown() && nrg >= type.getFiringCost()) {
+			if(pressedKeys.contains("Back Quote") && lastShot.getElapsedTime() >= type.getCooldown() && nrg >= type.getFiringCost()) {
 				nrg = nrg-type.getFiringCost();
-				clock.resetGameClock();
+				lastShot.resetGameClock();
 				double x = this.getX() + this.getPivotPoint().x + Math.cos(rotationInRads)*this.getHeight()/2;
 				double y = this.getY() + this.getPivotPoint().y + Math.sin(rotationInRads)*this.getWidth()/2;
 				
 				// each projectile will be genrated and store in projectiles and associated with source ship.
 				// this may allow us to avoid friendly fire, if desired
 				projectiles.add(new Projectile(ProjectileType.Bullet, x, y, this.getRotation()-90));
-			} if(pressedKeys.contains("Q") && clock.getElapsedTime() >= type.getSpecialCD() && nrg >= type.getSpecialCost()) {
+			} if(pressedKeys.contains("Q") && lastShot.getElapsedTime() >= type.getSpecialCD() && nrg >= type.getSpecialCost()) {
 				nrg = nrg-type.getSpecialCost();
-				clock.resetGameClock();
+				lastShot.resetGameClock();
 				double x = this.getX() + this.getPivotPoint().x + Math.cos(rotationInRads)*this.getHeight()/2;
 				double y = this.getY() + this.getPivotPoint().y + Math.sin(rotationInRads)*this.getWidth()/2;
 				
@@ -183,8 +196,20 @@ public class Ship extends PhysicsSprite {
 		}
 		
 		
+		// want to make players flash to indicate they are invincible
+		if(recentlySpawned) {
+			System.out.println("recentlySpawned=True; spawned " + lastSpawned.getElapsedTime() + "ms ago");
+			if(lastSpawned.getElapsedTime() > 2000) {
+				recentlySpawned = false;
+				this.setVisible(true);
+			} else if(lastFlashed.getElapsedTime() > 200) {
+					// flashes the player as long as he's invincible
+					this.setVisible(!this.isVisible());
+					lastFlashed.resetGameClock();
+			}
+		}
+		
 		/* adjust this player's energy meter based on current energy level, and apply recharge
-		 * 
 		 */
 		// Regen the nrg over time
 		if(nrg < type.getNrgCap()) 
@@ -219,14 +244,16 @@ public class Ship extends PhysicsSprite {
 	
 	public void setNrg(int energy) {
 		//System.out.println("Setting nrg");
-		if(energy <= 0) {
-			// player dies
-			//System.out.println("NRG < 0");
-			this.dispatchEvent(new Event(CollisionEvent.DEATH, this));
-			SoundManager.playSoundEffect("death.wav");
+		// if the player did recently spawn, want them to not take any damage
+		if(!recentlySpawned) {
+			if(energy <= 0) {
+				// player dies
+				//System.out.println("NRG < 0");
+				this.dispatchEvent(new Event(CollisionEvent.DEATH, this));
+			}
+			else 
+				this.nrg = energy;
 		}
-		else 
-			this.nrg = energy;
 	}
 
 	public ShipType getShipType() {
@@ -241,5 +268,15 @@ public class Ship extends PhysicsSprite {
 		return playerNum;
 	}
 
-
+	public void respawn() {
+		setPosition(spawn.x, spawn.y);
+		setNrg(type.getNrgCap());
+		setRotation(0);
+		setXv(0);
+		setYv(0);
+		recentlySpawned = true;
+		lastSpawned.resetGameClock();
+		lastShot.resetGameClock();
+		lastFlashed.resetGameClock();
+	}
 }

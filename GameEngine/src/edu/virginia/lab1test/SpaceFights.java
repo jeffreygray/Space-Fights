@@ -27,7 +27,6 @@ public class SpaceFights extends Game {
 	static double dampen = -0.65;
 	Sprite scene, plat1, plat2, plat3, plat4, plat5, plat6, plat7, plat8, plat9, plat10, plat11, plat12, plat13, plat14, plat15;
 	Ship player1, player2, player3;
-//	Sprite p1nrgFront, p1nrgBack, p2nrgFront, p2nrgBack;
 	ArrayList<Sprite> platforms = new ArrayList<Sprite>();
 	ArrayList<Ship> players = new ArrayList<Ship>();
 	CollisionManager collisionManager;
@@ -92,8 +91,8 @@ public class SpaceFights extends Game {
 		collisionManager = new CollisionManager();
 
 
-		player1.setPosition(800, 350);
-		player2.setPosition(300,150);
+//		player1.setPosition(800, 350);
+//		player2.setPosition(300,150);
 //		player3.setPosition(1,1);
 		
 		for(int i = 0; i < platforms.size(); i++) {
