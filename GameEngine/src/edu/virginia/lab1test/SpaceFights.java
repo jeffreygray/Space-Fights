@@ -21,8 +21,8 @@ import edu.virginia.engine.util.SoundManager;
 
 
 public class SpaceFights extends Game {
-	static int gameWidth = 1800;
-	static int gameHeight = 1000;
+	static int gameWidth = 1200;
+	static int gameHeight = 700;
 
 	static double dampen = -0.65;
 	Sprite scene, plat1, plat2, plat3, plat4, plat5, plat6, plat7, plat8, plat9, plat10, plat11, plat12, plat13, plat14, plat15;
@@ -30,10 +30,14 @@ public class SpaceFights extends Game {
 	ArrayList<Sprite> platforms = new ArrayList<Sprite>();
 	ArrayList<Ship> players = new ArrayList<Ship>();
 	CollisionManager collisionManager;
+	private double elasticity = 1.7;
 
 
 	public SpaceFights() {
 		super("Space Fights", gameWidth, gameHeight);
+		scene = new Sprite("scene", "background.png");
+		collisionManager = new CollisionManager();
+
 		player1 = new Ship(ShipType.Vulture, 1);
 		player2 = new Ship(ShipType.Rhino, 2);
 //		player3 = new Ship(ShipType.Vulture, 3);
@@ -43,8 +47,15 @@ public class SpaceFights extends Game {
 		players.add(player2);
 //		players.add(player3);
 		
-		scene = new Sprite("scene", "background.png");
-		scene.setScaleX(1);
+		for(Ship player : players) {
+			player.addEventListener(collisionManager, CollisionEvent.PLATFORM);
+			player.addEventListener(collisionManager, CollisionEvent.DEATH);
+			player.setScaleX(0.8);
+			player.setScaleY(0.65);
+			player.setPivotPoint(player.getWidth()/2, player.getHeight()/2);
+			scene.addChild(player);		
+		}
+		
 
 		plat1 = new Sprite("plat1", "platformSpaceVertical.png");
 		plat2 = new Sprite("plat2", "moon.png");
@@ -88,13 +99,6 @@ public class SpaceFights extends Game {
 		
 
 		
-		collisionManager = new CollisionManager();
-
-
-//		player1.setPosition(800, 350);
-//		player2.setPosition(300,150);
-//		player3.setPosition(1,1);
-		
 		for(int i = 0; i < platforms.size(); i++) {
 			Sprite plat = platforms.get(i);
 			scene.addChild(plat);
@@ -120,27 +124,12 @@ public class SpaceFights extends Game {
 		plat15.setScaleY(10);
 
 		
-	
-
-
-
-
-
-
 
 //		plat3.setPosition(300, 348 +  2*plat2.getHeight());
 //		plat4.setPosition(300, 347 + 3*plat2.getHeight());
 //		plat5.setPosition(300, 346 + 4*plat2.getHeight());
 
-		for(Ship player : players) {
-			player.addEventListener(collisionManager, CollisionEvent.PLATFORM);
-			player.addEventListener(collisionManager, CollisionEvent.DEATH);
-			player.setScaleX(0.8);
-			player.setScaleY(0.65);
-			player.setPivotPoint(player.getWidth()/2, player.getHeight()/2);
-			scene.addChild(player);		
-		}
-		SoundManager.playMusic("sound.wav");
+		//SoundManager.playMusic("sound.wav");
 	}
 
 	@Override
@@ -164,6 +153,32 @@ public class SpaceFights extends Game {
 				} else if (shipPos.y > gameHeight - player.getHeight()) {
 					player.setYPosition(gameHeight - player.getHeight()-1);
 					player.setYv(dampen * player.getYv());
+				}
+				// ship-to-ship collision
+				for(Ship other: players) {
+					if(player.collidesWith(other) && other.getPlayerNum() != player.getPlayerNum()) {
+//						System.out.println("COLLISION");
+						
+						Rectangle myHB = player.getHitbox();
+						Rectangle otherHB = player.getHitbox();
+						Rectangle overlap = myHB.intersection(otherHB);
+						if (overlap.width < overlap.height) {
+							player.setNrg((int) (player.getNrg()-Math.abs(2*other.getM()*other.getXv())));
+							other.setNrg((int) (other.getNrg()-Math.abs(2*player.getM()*player.getXv())));
+							System.out.println(player.getNrg());
+							// momentum formulae
+							double oldV1 = player.getXv();
+							player.setXv((elasticity*other.getM()*other.getXv() + player.getXv()*(player.getM()-elasticity*other.getM()))/(other.getM() + player.getM()));  
+							other.setXv((elasticity *player.getM()*oldV1 + other.getXv()*(other.getM()-elasticity*player.getM()))/(other.getM() + player.getM()));
+							// Dampen is currently 0.8, can change later
+						} else {// coming from top or bottom
+							player.setNrg((int) (player.getNrg()-Math.abs(2*other.getM()*other.getYv())));
+							other.setNrg((int) (other.getNrg()-Math.abs(2*player.getM()*player.getYv())));
+							double oldV2 = player.getYv();
+							player.setYv((elasticity*other.getM()*other.getYv() + player.getYv()*(player.getM()-elasticity*other.getM()))/(other.getM() + player.getM()));  
+							other.setYv((elasticity*player.getM()*oldV2 + other.getYv()*(other.getM()-elasticity*player.getM()))/(other.getM() + player.getM()));
+						}
+					}
 				}
 			}
 			/*

@@ -68,11 +68,19 @@ public class Ship extends PhysicsSprite {
 		nrgBack.setScaleY(-0.8);
 		nrgBack.setScaleX(0.6);
 		nrgBack.addChild(nrgFront);
+		
+		switch(type){
+		case Rhino:
+			this.setM(20);
+			break;
+		case Vulture:
+			this.setM(10);
+			break;
+		}
 	}
 	
 	@Override
 	public void update(ArrayList<String> pressedKeys, ArrayList<GamePad> controllers) {
-		System.out.println(spawn);
 		this.setXa(0);
 		this.setYa(0);
 		this.setXv(getXv()*0.995);

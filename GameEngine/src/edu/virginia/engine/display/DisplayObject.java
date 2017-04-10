@@ -1,6 +1,7 @@
 package edu.virginia.engine.display;
 
 import java.awt.AlphaComposite;
+import java.awt.Color;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.Point;
@@ -149,7 +150,7 @@ public class DisplayObject extends EventDispatcher {
 	protected void update(ArrayList<String> pressedKeys, ArrayList<GamePad> controllers) {
 		if(this.getDisplayImage() != null) {
 			if(scaleX > 0 && scaleY > 0)
-				hitbox.setBounds(position.x, position.y, (int) Math.abs(this.getDisplayImage().getWidth()*scaleX), (int) Math.abs(this.getDisplayImage().getHeight()*scaleY));
+				hitbox.setBounds(position.x, position.y, Math.abs(this.getWidth()), Math.abs(this.getHeight()));
 			else if(scaleX < 0 && scaleY > 0)
 				hitbox.setBounds(position.x - this.getDisplayImage().getWidth(), position.y, (int) Math.abs(this.getDisplayImage().getWidth()*scaleX), (int) Math.abs(this.getDisplayImage().getHeight()*scaleY));
 			else if(scaleX > 0 && scaleY < 0)
@@ -173,7 +174,8 @@ public class DisplayObject extends EventDispatcher {
 			 * (rotation, etc.)
 			 */
 			Graphics2D g2d = (Graphics2D) g;
-			//g2d.draw(hitbox);
+			g2d.setColor(Color.MAGENTA);
+			g2d.draw(hitbox);
 
 			//g2d.drawRect(this.getPosition().x-2, this.getPosition().y-2, 4, 4);
 			applyTransformations(g2d);
@@ -237,6 +239,8 @@ public class DisplayObject extends EventDispatcher {
 	public void setPosition(double x, double y) {
 		this.position.x = (int)x;
 		this.position.y = (int)y;
+		//~
+//		this.hitbox.setBounds(position.x, position.y, Math.abs(this.getWidth()), Math.abs(this.getHeight()));
 	}
 
 	public Point getPivotPoint() {
