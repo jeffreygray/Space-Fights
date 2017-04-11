@@ -129,7 +129,7 @@ public class SpaceFights extends Game {
 //		plat4.setPosition(300, 347 + 3*plat2.getHeight());
 //		plat5.setPosition(300, 346 + 4*plat2.getHeight());
 
-		//SoundManager.playMusic("sound.wav");
+		SoundManager.playMusic("sound.wav");
 	}
 
 	@Override

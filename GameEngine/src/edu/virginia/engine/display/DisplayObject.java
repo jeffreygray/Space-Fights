@@ -174,8 +174,8 @@ public class DisplayObject extends EventDispatcher {
 			 * (rotation, etc.)
 			 */
 			Graphics2D g2d = (Graphics2D) g;
-			g2d.setColor(Color.MAGENTA);
-			g2d.draw(hitbox);
+			//g2d.setColor(Color.MAGENTA);
+			//g2d.draw(hitbox);
 
 			//g2d.drawRect(this.getPosition().x-2, this.getPosition().y-2, 4, 4);
 			applyTransformations(g2d);
