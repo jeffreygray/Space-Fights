@@ -1,7 +1,7 @@
 package edu.virginia.spacefights.classes;
 
 public enum ProjectileType {
-	Bullet(15, 3000, 430, true, "bullet_transparent.png"), Laser(10, 1500, 10000, false, "laser.png");
+	Bullet(15, 3000, 430, true, "bullet_transparent.png"), Laser(10, 1500, 10000, false, "laser1.png");
 	private double muzzleVelocity, decayTime;
 	private int damage;
 	private boolean hasBounce;

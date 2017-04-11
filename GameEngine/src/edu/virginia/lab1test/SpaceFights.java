@@ -25,7 +25,7 @@ public class SpaceFights extends Game {
 	static int gameHeight = 700;
 
 	static double dampen = -0.65;
-	Sprite scene, plat1, plat2, plat3, plat4, plat5, plat6, plat7, plat8, plat9, plat10, plat11, plat12, plat13, plat14, plat15;
+	Sprite scene, plat1, plat2, plat3, plat4, plat5, plat6, plat7, plat8, plat9, plat10, plat11, plat12, plat13, plat14, plat15, plat16;
 	Ship player1, player2, player3;
 	ArrayList<Sprite> platforms = new ArrayList<Sprite>();
 	ArrayList<Ship> players = new ArrayList<Ship>();
@@ -74,6 +74,8 @@ public class SpaceFights extends Game {
 		plat13 = new Sprite("plat13", "platformSpaceVertical.png");
 		plat14 = new Sprite("plat14", "platformSpace.png");
 		plat15 = new Sprite("plat15", "platformSpaceVertical.png");
+		plat16 = new Sprite("plat15", "platformSpace.png");
+
 
 
 
@@ -95,6 +97,8 @@ public class SpaceFights extends Game {
 		platforms.add(plat13);
 		platforms.add(plat14);
 		platforms.add(plat15);
+		platforms.add(plat16);
+
 
 		
 
@@ -122,6 +126,9 @@ public class SpaceFights extends Game {
 		plat14.setScaleX(10);
 		plat15.setPosition(gameWidth - plat15.getWidth(), 0);
 		plat15.setScaleY(10);
+		plat16.setPosition(0,630);
+		plat16.setScaleX(10);
+
 
 		
 

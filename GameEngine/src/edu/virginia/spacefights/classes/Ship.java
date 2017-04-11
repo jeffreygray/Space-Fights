@@ -91,22 +91,22 @@ public class Ship extends PhysicsSprite {
 		 * followed by all the various mappings assigned to the controller
 		 */
 		if(playerNum == 1) {
-			if(pressedKeys.contains("Up") && Math.hypot(this.getXv(), this.getYv()) < max_speed) {
+			if(pressedKeys.contains("W") && Math.hypot(this.getXv(), this.getYv()) < max_speed) {
 				this.setXa(Math.cos(rotationInRads) * thrust);
 				this.setYa(Math.sin(rotationInRads) * thrust);
 			}
-			if(pressedKeys.contains("Down") && Math.hypot(this.getXv(), this.getYv()) < max_speed) {
+			if(pressedKeys.contains("S") && Math.hypot(this.getXv(), this.getYv()) < max_speed) {
 				this.setXa(-Math.cos(rotationInRads) * thrust);
 				this.setYa(-Math.sin(rotationInRads) * thrust);
 				//System.out.println("XV: " + xv +"\t YV: " + yv);
 			}
-			if(pressedKeys.contains("Left")) {
+			if(pressedKeys.contains("A")) {
 				this.setRotation(this.getRotation()-rotate_speed);
 			}
-			if(pressedKeys.contains("Right")) {
+			if(pressedKeys.contains("D")) {
 				this.setRotation(this.getRotation()+rotate_speed);
 			}
-			if(pressedKeys.contains("Space") && lastShot.getElapsedTime() >= type.getCooldown() && nrg >= type.getFiringCost()) {
+			if(pressedKeys.contains("B") && lastShot.getElapsedTime() >= type.getCooldown() && nrg >= type.getFiringCost()) {
 				nrg = nrg - type.getFiringCost();
 				SoundManager.playSoundEffect("bullet.wav");
 
@@ -116,7 +116,7 @@ public class Ship extends PhysicsSprite {
 				
 				projectiles.add(new Projectile(ProjectileType.Bullet, x, y, this.getRotation()-90));
 			}
-			 if(pressedKeys.contains("Z") && lastShot.getElapsedTime() >= type.getSpecialCD() && nrg >= type.getSpecialCost()) {
+			 if(pressedKeys.contains("V") && lastShot.getElapsedTime() >= type.getSpecialCD() && nrg >= type.getSpecialCost()) {
 				 SoundManager.playSoundEffect("laser.wav");
 					nrg = nrg-type.getSpecialCost();
 					lastShot.resetGameClock();
@@ -143,7 +143,7 @@ public class Ship extends PhysicsSprite {
 			if(pressedKeys.contains("L")) {
 				this.setRotation(this.getRotation()+5);
 			}
-			if(pressedKeys.contains("Ctrl") && lastShot.getElapsedTime() >= type.getCooldown() && nrg >= type.getFiringCost()) {
+			if(pressedKeys.contains("O") && lastShot.getElapsedTime() >= type.getCooldown() && nrg >= type.getFiringCost()) {
 				SoundManager.playSoundEffect("bullet.wav");
 				nrg = nrg-type.getFiringCost();
 				lastShot.resetGameClock();
@@ -153,7 +153,7 @@ public class Ship extends PhysicsSprite {
 				// each projectile will be genrated and store in projectiles and associated with source ship.
 				// this may allow us to avoid friendly fire, if desired
 				projectiles.add(new Projectile(ProjectileType.Bullet, x, y, this.getRotation()-90));
-			} if(pressedKeys.contains("Shift") && lastShot.getElapsedTime() >= type.getSpecialCD() && nrg >= type.getSpecialCost()) {
+			} if(pressedKeys.contains("P") && lastShot.getElapsedTime() >= type.getSpecialCD() && nrg >= type.getSpecialCost()) {
 				SoundManager.playSoundEffect("laser.wav");
 
 				nrg = nrg-type.getSpecialCost();
