@@ -21,19 +21,23 @@ import edu.virginia.engine.util.SoundManager;
 
 
 public class SpaceFights extends Game {
-	static int gameWidth = 1800;
-	static int gameHeight = 1000;
+	static int gameWidth = 1200;
+	static int gameHeight = 700;
+
 	static double dampen = -0.65;
 	Sprite scene, plat1, plat2, plat3, plat4, plat5, plat6, plat7, plat8, plat9, plat10, plat11, plat12, plat13, plat14, plat15;
 	Ship player1, player2, player3;
-//	Sprite p1nrgFront, p1nrgBack, p2nrgFront, p2nrgBack;
 	ArrayList<Sprite> platforms = new ArrayList<Sprite>();
 	ArrayList<Ship> players = new ArrayList<Ship>();
 	CollisionManager collisionManager;
+	private double elasticity = 1.7;
 
 
 	public SpaceFights() {
 		super("Space Fights", gameWidth, gameHeight);
+		scene = new Sprite("scene", "background.png");
+		collisionManager = new CollisionManager();
+
 		player1 = new Ship(ShipType.Vulture, 1);
 		player2 = new Ship(ShipType.Rhino, 2);
 //		player3 = new Ship(ShipType.Vulture, 3);
@@ -43,15 +47,16 @@ public class SpaceFights extends Game {
 		players.add(player2);
 //		players.add(player3);
 		
-		scene = new Sprite("scene", "background.png");
-		scene.setScaleX(1);
+		for(Ship player : players) {
+			player.addEventListener(collisionManager, CollisionEvent.PLATFORM);
+			player.addEventListener(collisionManager, CollisionEvent.DEATH);
+			player.setScaleX(0.8);
+			player.setScaleY(0.65);
+			player.setPivotPoint(player.getWidth()/2, player.getHeight()/2);
+			scene.addChild(player);		
+		}
+		
 
-/*		p1nrgFront = new Sprite("nrgFront", "frontNRG.png");
-		p1nrgBack = new Sprite("nrgBack", "rearNRG.png");
-
-		p2nrgFront = new Sprite("nrgFront", "frontNRG.png");
-		p2nrgBack = new Sprite("nrgBack", "rearNRG.png");
-*/
 		plat1 = new Sprite("plat1", "platformSpaceVertical.png");
 		plat2 = new Sprite("plat2", "moon.png");
 		plat2.setScaleX(9);
@@ -94,36 +99,11 @@ public class SpaceFights extends Game {
 		
 
 		
-		collisionManager = new CollisionManager();
-
-
-		player1.setPosition(800, 350);
-		player2.setPosition(300,150);
-//		player3.setPosition(1,1);
-	
-
-/*		
-		p1nrgBack.setScaleY(-0.8);
-		p1nrgBack.setScaleX(0.6);
-		p2nrgBack.setScaleY(-0.8);
-		p2nrgBack.setScaleX(0.6);
-
-		scene.addChild(p1nrgBack);
-		scene.addChild(p2nrgBack);
-		p1nrgBack.addChild(p1nrgFront);
-		p2nrgBack.addChild(p2nrgFront); */
-		
 		for(int i = 0; i < platforms.size(); i++) {
 			Sprite plat = platforms.get(i);
 			scene.addChild(plat);
 		}
-			/*scene.addChild(plat1);
-		scene.addChild(plat2);
-		scene.addChild(plat3);
-		scene.addChild(plat4);
-		scene.addChild(plat5);
-*/
-		//		
+		
 		plat1.setPosition(400, 250);
 		plat2.setPosition(900, 300);
 		plat3.setPosition(1350, 470);
@@ -144,32 +124,11 @@ public class SpaceFights extends Game {
 		plat15.setScaleY(10);
 
 		
-	
-
-
-
-
-
-
 
 //		plat3.setPosition(300, 348 +  2*plat2.getHeight());
 //		plat4.setPosition(300, 347 + 3*plat2.getHeight());
 //		plat5.setPosition(300, 346 + 4*plat2.getHeight());
 
-
-
-
-				
-		for(Ship player : players) {
-			player.addEventListener(collisionManager, CollisionEvent.PLATFORM);
-			player.addEventListener(collisionManager, CollisionEvent.DEATH);
-			player.setScaleX(0.8);
-			player.setScaleY(0.65);
-			player.setPivotPoint(player.getWidth()/2, player.getHeight()/2);
-			scene.addChild(player);
-		
-			
-		}
 		SoundManager.playMusic("sound.wav");
 	}
 
@@ -177,29 +136,51 @@ public class SpaceFights extends Game {
 	public void update(ArrayList<String> pressedKeys, ArrayList<GamePad> controllers) {
 		if (scene != null) { // makes sure we loaded everything
 			scene.update(pressedKeys, controllers);
-			// adjusts the scale of the player nrg bars based on current nrg
-			// levels
-			// ~ move to Ship class?
-//			p1nrgFront.setScaleX((double) player1.getNrg() / player1.getShipType().getNrgCap());
-//			p2nrgFront.setScaleX((double) player2.getNrg() / player2.getShipType().getNrgCap());
+			
+			// Keeps players within bounds of game window by rebounding them back in
 			for(Ship player: players) {
 				Point shipPos = player.getPosition();
-				if (shipPos.x < 0) {
-					player.setXPosition(0);
-					player.setXv(-player1.getXv());
+				if (shipPos.x <= 0) {
+					player.setXPosition(1);
+					player.setXv(-player.getXv());
 				} else if (shipPos.x > gameWidth - player.getWidth()) {
-					player.setXPosition(gameWidth - player.getWidth());
-					player.setXv(dampen * player1.getXv());
+					player.setXPosition(gameWidth - player.getWidth()-1);
+					player.setXv(dampen * player.getXv());
 				}
-				if (shipPos.y < 0) {
-					player.setYPosition(0);
+				if (shipPos.y <= 0) {
+					player.setYPosition(1);
 					player.setYv(dampen * player.getYv());
 				} else if (shipPos.y > gameHeight - player.getHeight()) {
-					player.setYPosition(gameHeight - player.getHeight());
+					player.setYPosition(gameHeight - player.getHeight()-1);
 					player.setYv(dampen * player.getYv());
 				}
+				// ship-to-ship collision
+				for(Ship other: players) {
+					if(player.collidesWith(other) && other.getPlayerNum() != player.getPlayerNum()) {
+//						System.out.println("COLLISION");
+						
+						Rectangle myHB = player.getHitbox();
+						Rectangle otherHB = player.getHitbox();
+						Rectangle overlap = myHB.intersection(otherHB);
+						if (overlap.width < overlap.height) {
+							player.setNrg((int) (player.getNrg()-Math.abs(2*other.getM()*other.getXv())));
+							other.setNrg((int) (other.getNrg()-Math.abs(2*player.getM()*player.getXv())));
+							System.out.println(player.getNrg());
+							// momentum formulae
+							double oldV1 = player.getXv();
+							player.setXv((elasticity*other.getM()*other.getXv() + player.getXv()*(player.getM()-elasticity*other.getM()))/(other.getM() + player.getM()));  
+							other.setXv((elasticity *player.getM()*oldV1 + other.getXv()*(other.getM()-elasticity*player.getM()))/(other.getM() + player.getM()));
+							// Dampen is currently 0.8, can change later
+						} else {// coming from top or bottom
+							player.setNrg((int) (player.getNrg()-Math.abs(2*other.getM()*other.getYv())));
+							other.setNrg((int) (other.getNrg()-Math.abs(2*player.getM()*player.getYv())));
+							double oldV2 = player.getYv();
+							player.setYv((elasticity*other.getM()*other.getYv() + player.getYv()*(player.getM()-elasticity*other.getM()))/(other.getM() + player.getM()));  
+							other.setYv((elasticity*player.getM()*oldV2 + other.getYv()*(other.getM()-elasticity*player.getM()))/(other.getM() + player.getM()));
+						}
+					}
+				}
 			}
-			// collisions p1
 			/*
 			 * for players:
 			 *   for each plat:
@@ -209,13 +190,13 @@ public class SpaceFights extends Game {
 			 *   for each projectile
 			 *   	for each ship
 			 *     		check collide
-			 *     
-			 * 
 			 */
 
 			for(Ship player: players) {
 				
 				for(Sprite plat: platforms) {
+					
+					// player-platform collision
 					if (player.collidesWith(plat)) {
 						player.dispatchEvent(new Event(CollisionEvent.PLATFORM, player));
 
@@ -225,34 +206,24 @@ public class SpaceFights extends Game {
 
 						if (overlap.width < overlap.height) {
 							// coming from side; which side?
-							if (mHB.x > pHB.x) { // collision with right side of
-								// platform
-								if (player.getScaleX() > 0) // facing right
-									player.setPosition(pHB.getX() + pHB.getWidth(), player.getPosition().y);
-								else
-									player.setPosition(pHB.getX() + pHB.getWidth() + mHB.getWidth(),
-											player.getPosition().y);
-
-							} else
-								player.setPosition(pHB.getX() - mHB.getWidth(), player.getPosition().y); // on
-							// left
-							// side
+							if (mHB.x > pHB.x) { // collision with right side
+								player.setPosition(pHB.getX() + pHB.getWidth(), player.getPosition().y);	
+							} else // left side
+								player.setPosition(pHB.getX() - mHB.getWidth(), player.getPosition().y); 
 							// System.out.println("LR WALL HIT");
-							player.setXv(dampen * player.getXv()); // Dampen is
-							// currently
-							// 0.8, can
-							// change
-							// later
-						} else {
-							// coming from top or bottom
-							if (mHB.y < pHB.y) {
-								player.setPosition(player.getPosition().x, pHB.getY() - mHB.getHeight()); // above
-							} else
-								player.setPosition(player.getPosition().x, pHB.getY() + pHB.getHeight()); // below
+							player.setXv(dampen * player.getXv());  
+							// Dampen is currently 0.8, can change later
+						} else {// coming from top or bottom
+							if (mHB.y < pHB.y) { // above
+								player.setPosition(player.getPosition().x, pHB.getY() - mHB.getHeight()); 
+							} else { // below
+								player.setPosition(player.getPosition().x, pHB.getY() + pHB.getHeight()); 
+							}
 							player.setYv(dampen * player.getYv());
 						}
 
 					}
+					// projectile-platform collision
 					for (Projectile p : player.getProjectiles()) {
 						if (p.collidesWith(plat)) {
 							p.dispatchEvent(new Event(CollisionEvent.PLATFORM, p));
@@ -269,32 +240,25 @@ public class SpaceFights extends Game {
 							if (overlap.width < overlap.height) {
 								// coming from side; which side?
 								if (mHB.x > pHB.x) { // collision with right
-									// side of platform
-									if (p.getScaleX() > 0) // facing right
-										p.setPosition(pHB.getX() + pHB.getWidth(), p.getPosition().y);
-									else
-										p.setPosition(pHB.getX() + pHB.getWidth() + mHB.getWidth(),
-												p.getPosition().y);
-
-								} else
-									p.setPosition(pHB.getX() - mHB.getWidth(), p.getPosition().y); // on
-								// left
-								// side
+									p.setPosition(pHB.getX() + pHB.getWidth(), p.getPosition().y);
+								} else // left side
+									p.setPosition(pHB.getX() - mHB.getWidth(), p.getPosition().y); 
 								// System.out.println("LR WALL HIT");
-								p.setXv(-p.getXv()); // Dampen is currently
-								// 0.8, can change
-								// later
-							} else {
-								// coming from top or bottom
-								if (mHB.y < pHB.y) {
-									p.setPosition(p.getPosition().x, pHB.getY() - mHB.getHeight()); // above
-								} else
-									p.setPosition(p.getPosition().x, pHB.getY() + pHB.getHeight()); // below
-								p.setYv(-p.getYv());
+								p.setXv(-p.getXv());
+							} else { // either above or below platform
+								if(p.isHasBounce())
+									p.setYv(-p.getYv());
+								// reset position to get it "out" of the platform (so hitboxes don't intersect)
+								if (mHB.y < pHB.y) // above
+									p.setPosition(p.getPosition().x, pHB.getY() - mHB.getHeight());
+								else // below
+									p.setPosition(p.getPosition().x, pHB.getY() + pHB.getHeight());
+								
 							}
 						}
 					}
-				}
+				} // End platform collisions
+				// player-projectile collision
 				for (Projectile p : player.getProjectiles()) {
 					for (Ship s : players) {
 						// checks with collision with enemies
@@ -303,12 +267,10 @@ public class SpaceFights extends Game {
 							p.setRemove(true);
 						}
 					}
-				}
+				} // end player-projectile collision
 
-			}
-			
-			
-		}
+			} // end for each player loop
+		} // end not null check
 //		System.out.println(pressedKeys);
 	}
 

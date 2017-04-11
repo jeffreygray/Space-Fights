@@ -12,7 +12,10 @@ public class GameClock {
 		resetGameClock();
 	}
 	
-	// returns milliseconds passed between the previous two elapsedTime() calls
+	/** 
+	 * 
+	 * @return returns milliseconds passed between since clock creation or clock reset
+	 */
 	public double getElapsedTime() {
 		return (System.nanoTime() - startTime) / 1000000.0;
 	}

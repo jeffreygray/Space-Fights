@@ -107,7 +107,7 @@ public class PhysicsSprite extends AnimatedSprite {
 		this.setX(x);
 		this.setY(y);
 	}
-
+	
 	public double getY() {
 		return y;
 	}
