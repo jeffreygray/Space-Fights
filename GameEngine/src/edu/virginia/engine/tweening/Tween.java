@@ -64,7 +64,7 @@ public class Tween extends EventDispatcher {
 			long currTime = System.nanoTime()/1000;
 			TweenParam tp = fields.get(i);
 			double percentComplete = (currTime - startTime)/tp.getTime();
-			System.out.println(percentComplete);
+			//System.out.println(percentComplete);
 			setValue(tp.getParameter(), tp.getStartVal()+(tp.getEndVal() - tp.getStartVal())*TweenTransitions.applyTransition(percentComplete, tp.getFunction()));
 			if(percentComplete >= 1)
 				this.complete = true;
