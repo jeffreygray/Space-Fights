@@ -36,21 +36,23 @@ public class SpaceFights extends Game {
 
 	@Override
 	public void update(ArrayList<String> pressedKeys, ArrayList<GamePad> controllers) {
-		switch(screen.getSceneToUpdate()) {
-		case Screens.SELECT_SCENE:
-			screen.shipSelectScreen(pressedKeys, controllers);
-		break;
-		case Screens.GAME_SCENE:
-			screen.gameScreenUpdate(pressedKeys, controllers);
-		break;
-		}		
-		TweenJuggler.nextFrame();
+		if(screen != null) {
+			switch(screen.getSceneToUpdate()) {
+			case Screens.SELECT_SCENE:
+				screen.shipSelectScreen(pressedKeys, controllers);
+				break;
+			case Screens.GAME_SCENE:
+				screen.gameScreenUpdate(pressedKeys, controllers);
+				break;
+			}		
+			TweenJuggler.nextFrame();
+		}
 	}
 
 	@Override
 	public void draw(Graphics g){
 		super.draw(g);
-		if(screen.getScene() !=null) {
+		if(screen !=null) {
 			screen.getScene().draw(g);
 		}
 	}

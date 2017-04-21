@@ -62,37 +62,10 @@ public class Screens {
 		selectorBoxes = new ArrayList<Sprite>();
 		
 		collisionManager = new CollisionManager();
-
-/*		player1 = new Ship(ShipType.Vulture, 1);
-		player2 = new Ship(ShipType.Rhino, 2);
-//		player2 = new Ship(ShipType.Rhino, 2);
-//		player3 = new Ship(ShipType.Vulture, 3);
-
 		
-		players.add(player1);
-		players.add(player2);
-//		players.add(player3);
-		
-		for(Ship player : players) {
-			player.addEventListener(collisionManager, CollisionEvent.PLATFORM);
-			player.addEventListener(collisionManager, CollisionEvent.DEATH);
-			player.setScaleX(0.8);
-			player.setScaleY(0.65);
-			player.setPivotPoint(player.getWidth()/2, player.getHeight()/2);
-			scene.addChild(player);		
-		}
-		
-		
-		
-*/
-		scene.removeAll();
-		
-
-//		plat3.setPosition(300, 348 +  2*plat2.getHeight());
-//		plat4.setPosition(300, 347 + 3*plat2.getHeight());
-//		plat5.setPosition(300, 346 + 4*plat2.getHeight());
 		makeShipSelectScreen();
 		makeGameScreen();
+		
 		scene.addChild(shipSelectScreen);
 		SoundManager.playMusic("sound.wav");
 		TweenJuggler tj = new TweenJuggler();
@@ -119,7 +92,7 @@ public class Screens {
 	}
 	
 	public void shipSelectScreen(ArrayList<String> pressedKeys, ArrayList<GamePad> controllers) {
-		System.out.println(-1%5);
+		if(scene != null)
 		for(int i = 0; i < controllers.size(); i++) {
 			Sprite currently_selected_ship = playerInfo.get(i).get(shipChoice[i]);
 			Sprite selector = selectorBoxes.get(i);
