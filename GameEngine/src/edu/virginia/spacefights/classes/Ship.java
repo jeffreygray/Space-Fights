@@ -50,11 +50,11 @@ public class Ship extends PhysicsSprite {
 		thrust = type.getThrust();
 		this.type = type;
 		
-		if(playerNumber == 1)
+		if(playerNumber == 0)
 			spawn.setLocation(300, 150);
-		else if(playerNumber == 2)
+		else if(playerNumber == 1)
 			spawn.setLocation(900, 150);
-		else if(playerNumber == 3)
+		else if(playerNumber == 2)
 			spawn.setLocation(300, 650);
 		setPosition(spawn.x, spawn.y);
 		
@@ -77,6 +77,7 @@ public class Ship extends PhysicsSprite {
 			this.setM(10);
 			break;
 		}
+		System.out.println("Ship #"+playerNum+ " is at position "+this.getPosition());
 	}
 	
 	@Override
@@ -86,122 +87,162 @@ public class Ship extends PhysicsSprite {
 		this.setXv(getXv()*0.995);
 		this.setYv(getYv()*0.995);
 		double rotationInRads = Math.toRadians(this.getRotation()-90);
+		GamePad playerController = controllers.get(playerNum);
 		/* currently handling different player controls with keyboard. Final should be able to simply query 
 		 * the buttons pressed on this player's GamePad. i.e. playerController = controllers.get(playerNum)
 		 * followed by all the various mappings assigned to the controller
 		 */
-		if(playerNum == 1) {
-			if(pressedKeys.contains("W") && Math.hypot(this.getXv(), this.getYv()) < max_speed) {
+		if(playerController.getLeftStickYAxis() == -1 && Math.hypot(this.getXv(), this.getYv()) < max_speed) {
 				this.setXa(Math.cos(rotationInRads) * thrust);
 				this.setYa(Math.sin(rotationInRads) * thrust);
-			}
-			if(pressedKeys.contains("S") && Math.hypot(this.getXv(), this.getYv()) < max_speed) {
-				this.setXa(-Math.cos(rotationInRads) * thrust);
-				this.setYa(-Math.sin(rotationInRads) * thrust);
-				//System.out.println("XV: " + xv +"\t YV: " + yv);
-			}
-			if(pressedKeys.contains("A")) {
-				this.setRotation(this.getRotation()-rotate_speed);
-			}
-			if(pressedKeys.contains("D")) {
-				this.setRotation(this.getRotation()+rotate_speed);
-			}
-			if(pressedKeys.contains("B") && lastShot.getElapsedTime() >= type.getCooldown() && nrg >= type.getFiringCost()) {
-				nrg = nrg - type.getFiringCost();
-				SoundManager.playSoundEffect("bullet.wav");
-
-				lastShot.resetGameClock();
-				double x = this.getX() + this.getPivotPoint().x + Math.cos(rotationInRads)*this.getHeight()/2;
-				double y = this.getY() + this.getPivotPoint().y + Math.sin(rotationInRads)*this.getWidth()/2;
-				
-				projectiles.add(new Projectile(ProjectileType.Bullet, x, y, this.getRotation()-90));
-			}
-			 if(pressedKeys.contains("V") && lastShot.getElapsedTime() >= type.getSpecialCD() && nrg >= type.getSpecialCost()) {
-				 SoundManager.playSoundEffect("laser.wav");
-					nrg = nrg-type.getSpecialCost();
-					lastShot.resetGameClock();
-					double x = this.getX() + this.getPivotPoint().x + Math.cos(rotationInRads)*this.getHeight()/2;
-					double y = this.getY() + this.getPivotPoint().y + Math.sin(rotationInRads)*this.getWidth()/2;
-					
-					// each projectile will be genrated and store in projectiles and associated with source ship.
-					// this may allow us to avoid friendly fire, if desired
-					projectiles.add(new Projectile(ProjectileType.Laser, x, y, this.getRotation()-90));
-				}
-		} else if(playerNum == 2) {
-			if(pressedKeys.contains("I") && Math.hypot(this.getXv(), this.getYv()) < max_speed) {
-				this.setXa(Math.cos(rotationInRads) * thrust);
-				this.setYa(Math.sin(rotationInRads) * thrust);
-			}
-			if(pressedKeys.contains("K") && Math.hypot(this.getXv(), this.getYv()) < max_speed) {
-				this.setXa(-Math.cos(rotationInRads) * thrust);
-				this.setYa(-Math.sin(rotationInRads) * thrust);
-				//System.out.println("XV: " + xv +"\t YV: " + yv);
-			}
-			if(pressedKeys.contains("J")) {
-				this.setRotation(this.getRotation()-5);
-			}
-			if(pressedKeys.contains("L")) {
-				this.setRotation(this.getRotation()+5);
-			}
-			if(pressedKeys.contains("O") && lastShot.getElapsedTime() >= type.getCooldown() && nrg >= type.getFiringCost()) {
-				SoundManager.playSoundEffect("bullet.wav");
-				nrg = nrg-type.getFiringCost();
-				lastShot.resetGameClock();
-				double x = this.getX() + this.getPivotPoint().x + Math.cos(rotationInRads)*this.getHeight()/2;
-				double y = this.getY() + this.getPivotPoint().y + Math.sin(rotationInRads)*this.getWidth()/2;
-				
-				// each projectile will be genrated and store in projectiles and associated with source ship.
-				// this may allow us to avoid friendly fire, if desired
-				projectiles.add(new Projectile(ProjectileType.Bullet, x, y, this.getRotation()-90));
-			} if(pressedKeys.contains("P") && lastShot.getElapsedTime() >= type.getSpecialCD() && nrg >= type.getSpecialCost()) {
-				SoundManager.playSoundEffect("laser.wav");
-
-				nrg = nrg-type.getSpecialCost();
-				lastShot.resetGameClock();
-				double x = this.getX() + this.getPivotPoint().x + Math.cos(rotationInRads)*this.getHeight()/2;
-				double y = this.getY() + this.getPivotPoint().y + Math.sin(rotationInRads)*this.getWidth()/2;
-				
-				// each projectile will be genrated and store in projectiles and associated with source ship.
-				// this may allow us to avoid friendly fire, if desired
-				projectiles.add(new Projectile(ProjectileType.Laser, x, y, this.getRotation()-90));
-			}
 		}
-		else if(playerNum == 3) {
-			if(pressedKeys.contains("NumPad-5") && Math.hypot(this.getXv(), this.getYv()) < max_speed) {
-				this.setXa(Math.cos(rotationInRads) * thrust);
-				this.setYa(Math.sin(rotationInRads) * thrust);
-			}
-			if(pressedKeys.contains("NumPad-2") && Math.hypot(this.getXv(), this.getYv()) < max_speed) {
-				this.setXa(-Math.cos(rotationInRads) * thrust);
-				this.setYa(-Math.sin(rotationInRads) * thrust);
-				//System.out.println("XV: " + xv +"\t YV: " + yv);
-			}
-			if(pressedKeys.contains("NumPad-1")) {
-				this.setRotation(this.getRotation()-5);
-			}
-			if(pressedKeys.contains("NumPad-3")) {
-				this.setRotation(this.getRotation()+5);
-			}
-			if(pressedKeys.contains("Back Quote") && lastShot.getElapsedTime() >= type.getCooldown() && nrg >= type.getFiringCost()) {
-				nrg = nrg-type.getFiringCost();
-				lastShot.resetGameClock();
-				double x = this.getX() + this.getPivotPoint().x + Math.cos(rotationInRads)*this.getHeight()/2;
-				double y = this.getY() + this.getPivotPoint().y + Math.sin(rotationInRads)*this.getWidth()/2;
-				
-				// each projectile will be genrated and store in projectiles and associated with source ship.
-				// this may allow us to avoid friendly fire, if desired
-				projectiles.add(new Projectile(ProjectileType.Bullet, x, y, this.getRotation()-90));
-			} if(pressedKeys.contains("Q") && lastShot.getElapsedTime() >= type.getSpecialCD() && nrg >= type.getSpecialCost()) {
-				nrg = nrg-type.getSpecialCost();
-				lastShot.resetGameClock();
-				double x = this.getX() + this.getPivotPoint().x + Math.cos(rotationInRads)*this.getHeight()/2;
-				double y = this.getY() + this.getPivotPoint().y + Math.sin(rotationInRads)*this.getWidth()/2;
-				
-				// each projectile will be genrated and store in projectiles and associated with source ship.
-				// this may allow us to avoid friendly fire, if desired
-				projectiles.add(new Projectile(ProjectileType.Laser, x, y, this.getRotation()-90));
-			}
+		if(playerController.getLeftStickYAxis() == 1 && Math.hypot(this.getXv(), this.getYv()) < max_speed) {
+			this.setXa(-Math.cos(rotationInRads) * thrust);
+			this.setYa(-Math.sin(rotationInRads) * thrust);
 		}
+		if(playerController.getLeftStickXAxis() == -1) {
+			this.setRotation(this.getRotation()-rotate_speed);
+		}
+		if(playerController.getLeftStickXAxis() == 1) {
+			this.setRotation(this.getRotation()+rotate_speed);
+		}
+		
+		if(playerController.isButtonPressed(GamePad.BUTTON_A) && lastShot.getElapsedTime() >= type.getCooldown() && nrg >= type.getFiringCost()) {
+			nrg = nrg - type.getFiringCost();
+			SoundManager.playSoundEffect("bullet.wav");
+
+			lastShot.resetGameClock();
+			double x = this.getX() + this.getPivotPoint().x + Math.cos(rotationInRads)*this.getHeight()/2;
+			double y = this.getY() + this.getPivotPoint().y + Math.sin(rotationInRads)*this.getWidth()/2;
+			
+			projectiles.add(new Projectile(ProjectileType.Bullet, x, y, this.getRotation()-90));
+		}
+		
+		 if(playerController.isButtonPressed(GamePad.BUTTON_B) && lastShot.getElapsedTime() >= type.getSpecialCD() && nrg >= type.getSpecialCost()) {
+		 SoundManager.playSoundEffect("laser.wav");
+			nrg = nrg-type.getSpecialCost();
+			lastShot.resetGameClock();
+			double x = this.getX() + this.getPivotPoint().x + Math.cos(rotationInRads)*this.getHeight()/2;
+			double y = this.getY() + this.getPivotPoint().y + Math.sin(rotationInRads)*this.getWidth()/2;
+			
+			// each projectile will be genrated and store in projectiles and associated with source ship.
+			// this may allow us to avoid friendly fire, if desired
+			projectiles.add(new Projectile(ProjectileType.Laser, x, y, this.getRotation()-90));
+		}
+		
+//		if(playerNum == 1) {
+//			if(pressedKeys.contains("W") && Math.hypot(this.getXv(), this.getYv()) < max_speed) {
+//				this.setXa(Math.cos(rotationInRads) * thrust);
+//				this.setYa(Math.sin(rotationInRads) * thrust);
+//			}
+//			if(pressedKeys.contains("S") && Math.hypot(this.getXv(), this.getYv()) < max_speed) {
+//				this.setXa(-Math.cos(rotationInRads) * thrust);
+//				this.setYa(-Math.sin(rotationInRads) * thrust);
+//				//System.out.println("XV: " + xv +"\t YV: " + yv);
+//			}
+//			if(pressedKeys.contains("A")) {
+//				this.setRotation(this.getRotation()-rotate_speed);
+//			}
+//			if(pressedKeys.contains("D")) {
+//				this.setRotation(this.getRotation()+rotate_speed);
+//			}
+//			if(pressedKeys.contains("B") && lastShot.getElapsedTime() >= type.getCooldown() && nrg >= type.getFiringCost()) {
+//				nrg = nrg - type.getFiringCost();
+//				SoundManager.playSoundEffect("bullet.wav");
+//
+//				lastShot.resetGameClock();
+//				double x = this.getX() + this.getPivotPoint().x + Math.cos(rotationInRads)*this.getHeight()/2;
+//				double y = this.getY() + this.getPivotPoint().y + Math.sin(rotationInRads)*this.getWidth()/2;
+//				
+//				projectiles.add(new Projectile(ProjectileType.Bullet, x, y, this.getRotation()-90));
+//			}
+//			 if(pressedKeys.contains("V") && lastShot.getElapsedTime() >= type.getSpecialCD() && nrg >= type.getSpecialCost()) {
+//				 SoundManager.playSoundEffect("laser.wav");
+//					nrg = nrg-type.getSpecialCost();
+//					lastShot.resetGameClock();
+//					double x = this.getX() + this.getPivotPoint().x + Math.cos(rotationInRads)*this.getHeight()/2;
+//					double y = this.getY() + this.getPivotPoint().y + Math.sin(rotationInRads)*this.getWidth()/2;
+//					
+//					// each projectile will be genrated and store in projectiles and associated with source ship.
+//					// this may allow us to avoid friendly fire, if desired
+//					projectiles.add(new Projectile(ProjectileType.Laser, x, y, this.getRotation()-90));
+////				}
+//	
+//		 else if(playerNum == 2) {
+//			if(pressedKeys.contains("I") && Math.hypot(this.getXv(), this.getYv()) < max_speed) {
+//				this.setXa(Math.cos(rotationInRads) * thrust);
+//				this.setYa(Math.sin(rotationInRads) * thrust);
+//			}
+//			if(pressedKeys.contains("K") && Math.hypot(this.getXv(), this.getYv()) < max_speed) {
+//				this.setXa(-Math.cos(rotationInRads) * thrust);
+//				this.setYa(-Math.sin(rotationInRads) * thrust);
+//				//System.out.println("XV: " + xv +"\t YV: " + yv);
+//			}
+//			if(pressedKeys.contains("J")) {
+//				this.setRotation(this.getRotation()-5);
+//			}
+//			if(pressedKeys.contains("L")) {
+//				this.setRotation(this.getRotation()+5);
+//			}
+//			if(pressedKeys.contains("O") && lastShot.getElapsedTime() >= type.getCooldown() && nrg >= type.getFiringCost()) {
+//				SoundManager.playSoundEffect("bullet.wav");
+//				nrg = nrg-type.getFiringCost();
+//				lastShot.resetGameClock();
+//				double x = this.getX() + this.getPivotPoint().x + Math.cos(rotationInRads)*this.getHeight()/2;
+//				double y = this.getY() + this.getPivotPoint().y + Math.sin(rotationInRads)*this.getWidth()/2;
+//				
+//				// each projectile will be genrated and store in projectiles and associated with source ship.
+//				// this may allow us to avoid friendly fire, if desired
+//				projectiles.add(new Projectile(ProjectileType.Bullet, x, y, this.getRotation()-90));
+//			} if(pressedKeys.contains("P") && lastShot.getElapsedTime() >= type.getSpecialCD() && nrg >= type.getSpecialCost()) {
+//				SoundManager.playSoundEffect("laser.wav");
+//
+//				nrg = nrg-type.getSpecialCost();
+//				lastShot.resetGameClock();
+//				double x = this.getX() + this.getPivotPoint().x + Math.cos(rotationInRads)*this.getHeight()/2;
+//				double y = this.getY() + this.getPivotPoint().y + Math.sin(rotationInRads)*this.getWidth()/2;
+//				
+//				// each projectile will be genrated and store in projectiles and associated with source ship.
+//				// this may allow us to avoid friendly fire, if desired
+//				projectiles.add(new Projectile(ProjectileType.Laser, x, y, this.getRotation()-90));
+//			}
+//		}
+//		else if(playerNum == 3) {
+//			if(pressedKeys.contains("NumPad-5") && Math.hypot(this.getXv(), this.getYv()) < max_speed) {
+//				this.setXa(Math.cos(rotationInRads) * thrust);
+//				this.setYa(Math.sin(rotationInRads) * thrust);
+//			}
+//			if(pressedKeys.contains("NumPad-2") && Math.hypot(this.getXv(), this.getYv()) < max_speed) {
+//				this.setXa(-Math.cos(rotationInRads) * thrust);
+//				this.setYa(-Math.sin(rotationInRads) * thrust);
+//				//System.out.println("XV: " + xv +"\t YV: " + yv);
+//			}
+//			if(pressedKeys.contains("NumPad-1")) {
+//				this.setRotation(this.getRotation()-5);
+//			}
+//			if(pressedKeys.contains("NumPad-3")) {
+//				this.setRotation(this.getRotation()+5);
+//			}
+//			if(pressedKeys.contains("Back Quote") && lastShot.getElapsedTime() >= type.getCooldown() && nrg >= type.getFiringCost()) {
+//				nrg = nrg-type.getFiringCost();
+//				lastShot.resetGameClock();
+//				double x = this.getX() + this.getPivotPoint().x + Math.cos(rotationInRads)*this.getHeight()/2;
+//				double y = this.getY() + this.getPivotPoint().y + Math.sin(rotationInRads)*this.getWidth()/2;
+//				
+//				// each projectile will be genrated and store in projectiles and associated with source ship.
+//				// this may allow us to avoid friendly fire, if desired
+//				projectiles.add(new Projectile(ProjectileType.Bullet, x, y, this.getRotation()-90));
+//			} if(pressedKeys.contains("Q") && lastShot.getElapsedTime() >= type.getSpecialCD() && nrg >= type.getSpecialCost()) {
+//				nrg = nrg-type.getSpecialCost();
+//				lastShot.resetGameClock();
+//				double x = this.getX() + this.getPivotPoint().x + Math.cos(rotationInRads)*this.getHeight()/2;
+//				double y = this.getY() + this.getPivotPoint().y + Math.sin(rotationInRads)*this.getWidth()/2;
+//				
+//				// each projectile will be genrated and store in projectiles and associated with source ship.
+//				// this may allow us to avoid friendly fire, if desired
+//				projectiles.add(new Projectile(ProjectileType.Laser, x, y, this.getRotation()-90));
+//			}
+//		}
 		
 		
 		// want to make players flash to indicate they are invincible

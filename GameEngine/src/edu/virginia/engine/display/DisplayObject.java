@@ -292,6 +292,10 @@ public class DisplayObject extends EventDispatcher {
 		this.parent = d;
 	}
 
+	public DisplayObject getParent() {
+		return parent;
+	}
+
 	public float getAlpha() {
 		return alpha;
 	}
@@ -314,6 +318,15 @@ public class DisplayObject extends EventDispatcher {
 
 	public void setXPosition(double val) {
 		this.position.x = (int) val;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	@Override
+	public boolean equals(Object obj) {
+		DisplayObject other = (DisplayObject) obj;
+		return this.id.equals(other.getId());
 	}
 
 }

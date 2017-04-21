@@ -5,6 +5,7 @@ import java.awt.Point;
 import java.awt.Rectangle;
 import java.util.ArrayList;
 
+import edu.virginia.engine.controller.GamePad;
 import edu.virginia.engine.display.Game;
 import edu.virginia.engine.display.PhysicsSprite;
 import edu.virginia.engine.display.Sprite;
@@ -35,7 +36,7 @@ public class LabSixGame  extends Game {
 	public LabSixGame() {
 		super("Lab Six: The InbeTWEENers", 1200, 700);
 		String[] images = {"mario_0.png", "mario_1.png", "mario_2.png", "mario_3.png"};
-		mario = new PhysicsSprite("mario", images, 10, 0, 0, 0, PhysicsSprite.getGravity(), 0);
+		mario = new PhysicsSprite("mario", images, 10, 0, 0, 0, PhysicsSprite.getGravity());
 		scene = new Sprite("scene");
 		coin1 = new Sprite("coin1", "coin.png");
 		coin2 = new Sprite("coin2", "coin.png");
@@ -89,7 +90,7 @@ public class LabSixGame  extends Game {
 	}
 	
 	@Override
-	public void update(ArrayList<String> pressedKeys){
+	public void update(ArrayList<String> pressedKeys, ArrayList<GamePad> controllers){
 		if(scene != null) {
 			/* grab the position before movement is calculated, to determine the direction of potential collisions */
 			Point prevPos = new Point(mario.getPosition());
@@ -114,7 +115,7 @@ public class LabSixGame  extends Game {
 			/* Set the velocities based on the key presses, then update position*/
 			mario.setXv(xv);
 			mario.setYv(yv);
-			scene.update(pressedKeys);
+			scene.update(pressedKeys, controllers);
 			
 			for(int i = 0; i < coins.size(); i++) {
 				Sprite coin = coins.get(i);

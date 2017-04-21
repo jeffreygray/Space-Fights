@@ -33,12 +33,13 @@ public class CollisionManager implements IEventListener {
 			SoundManager.playSoundEffect("get_coin.wav");
 			break;
 		case TweenEvent.TWEEN_COMPLETE_EVENT:
+			/*
 			Tween tween = ((TweenEvent) event).getTween();
 			DisplayObject dobj = tween.getObj();
 			tween = new Tween(dobj);
 			tween.animate(TweenableParam.ALPHA, 1, 0, 200000, Function.LINEAR);
 			
-			TweenJuggler.getInstance().add(tween);
+			TweenJuggler.getInstance().add(tween); */
 			break;
 		case CollisionEvent.DEATH:
 			//System.out.println("IN COLLISION MANAGER");
