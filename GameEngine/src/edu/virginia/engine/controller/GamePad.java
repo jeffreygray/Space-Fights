@@ -15,19 +15,19 @@ public class GamePad {
 	
 	/* Constants defining the various buttons on a typical controller */
 	/* Might be necessary to change the string bindings depending on your particular gamepad configuration */
-	public static final String BUTTON_CROSS = "0"; //X on ps3
-	public static final String BUTTON_CIRCLE = "1"; //Cross on ps3
-	public static final String BUTTON_SQUARE = "2"; //Square on ps3
-	public static final String BUTTON_TRIANGLE = "3"; //Triangle on ps3
+	public static final String BUTTON_B = "0"; //X on ps3
+	public static final String BUTTON_A = "1"; //Cross on ps3
+//	public static final String BUTTON_SQUARE = "2"; //Square on ps3
+//	public static final String BUTTON_TRIANGLE = "3"; //Triangle on ps3
 	
-	public static final String BUTTON_L1 = "4"; //L1 hammer on ps3
-	public static final String BUTTON_R1 = "5"; //R1 hammer on ps3
+//	public static final String BUTTON_L1 = "4"; //L1 hammer on ps3
+//	public static final String BUTTON_R1 = "5"; //R1 hammer on ps3
 	
-	public static final String BUTTON_L3 = "8";
-	public static final String BUTTON_R3 = "9";
+	public static final String BUTTON_SELECT = "8";
+	public static final String BUTTON_START = "9";
 	
-	public static final String BUTTON_SELECT = "6";
-	public static final String BUTTON_START = "7";
+//	public static final String BUTTON_SELECT = "6";
+//	public static final String BUTTON_START = "7";
 	
 	public static final String DPAD_UP = "DPAD_UP"; //X on ps3
 	public static final String DPAD_RIGHT = "DPAD_RIGHT"; //X on ps3
