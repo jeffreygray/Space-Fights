@@ -23,6 +23,8 @@ import edu.virginia.engine.util.SoundManager;
 
 
 public class SpaceFights extends Game {
+	// 1200 x 700 - caleb
+	// 1900x1070 - jeffrey
 	static int gameWidth = 1200;
 	static int gameHeight = 700;
 	Screens screen;

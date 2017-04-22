@@ -16,6 +16,7 @@ import edu.virginia.engine.util.SoundManager;
 public class Ship extends PhysicsSprite {
 
 	private int nrg;
+	public boolean dyingNow = true;
 	private int nrgCap;
 	private int playerNum;
 	private double max_speed;
@@ -23,7 +24,7 @@ public class Ship extends PhysicsSprite {
 	private double thrust;
 	private GameClock lastShot, lastSpawned, lastFlashed;
 	private ShipType type;
-	private Sprite nrgFront, nrgBack;
+	private Sprite nrgFront, nrgBack, boom;
 	private ArrayList<Projectile> projectiles = new ArrayList<Projectile>();
 	private boolean recentlySpawned = false;
 	private Point spawn = new Point();
@@ -46,7 +47,7 @@ public class Ship extends PhysicsSprite {
 		nrg = nrgCap;
 		playerNum = playerNumber;
 		max_speed = 10;
-		rotate_speed = 4;
+		rotate_speed = 5;
 		thrust = type.getThrust();
 		this.type = type;
 		
@@ -64,6 +65,9 @@ public class Ship extends PhysicsSprite {
 		
 		nrgFront = new Sprite("nrgFront", "frontNRG.png");
 		nrgBack = new Sprite("nrgBack", "rearNRG.png");
+		boom = new Sprite("boom", "boom.png");
+		boom.setVisible(false);
+		
 		
 		nrgBack.setScaleY(-0.8);
 		nrgBack.setScaleX(0.6);
@@ -285,6 +289,13 @@ public class Ship extends PhysicsSprite {
 		for(Projectile p : projectiles)
 			p.draw(g);
 		nrgBack.draw(g);
+		if (dyingNow == true) {
+			boom.setPosition(getPosition().getX(), getPosition().getY());
+			boom.setVisible(true);
+			boom.draw(g);
+			dyingNow = false;
+		}
+		boom.removeAll();
 	}
 	
 	public int getNrg() {
