@@ -13,6 +13,7 @@ import edu.virginia.engine.util.GameClock;
 import edu.virginia.engine.util.SoundManager;
 
 public class Ship extends PhysicsSprite {
+	public static final int MOMENTUM_DAMAGE_RATIO = 150;
 
 	private int nrg;
 	private int nrgCap;
@@ -41,7 +42,7 @@ public class Ship extends PhysicsSprite {
 	 * @param playerNumber An integer representing which gamepad will control this ship
 	 */
 	public Ship(ShipType type, int playerNumber) {
-		super(""+playerNumber, type.getImageName());
+		super(""+playerNumber, type.getImageName()+playerNumber+".png");
 		nrgCap = type.getNrgCap();
 		nrg = nrgCap;
 		playerNum = playerNumber;
@@ -51,6 +52,7 @@ public class Ship extends PhysicsSprite {
 		rotate_speed = 4;
 		thrust = type.getThrust();
 		this.type = type;
+		this.setM(type.getMass());
 		
 		if(playerNumber == 0)
 			spawn.setLocation(300, 150);
@@ -58,6 +60,8 @@ public class Ship extends PhysicsSprite {
 			spawn.setLocation(900, 150);
 		else if(playerNumber == 2)
 			spawn.setLocation(300, 650);
+		else if(playerNumber == 3)
+			spawn.setLocation(900, 650);
 		setPosition(spawn.x, spawn.y);
 		
 		lastShot = new GameClock();
@@ -70,15 +74,7 @@ public class Ship extends PhysicsSprite {
 		nrgBack.setScaleY(-0.8);
 		nrgBack.setScaleX(0.6);
 		nrgBack.addChild(nrgFront);
-		
-		switch(type){
-		case Rhino:
-			this.setM(20);
-			break;
-		case Vulture:
-			this.setM(10);
-			break;
-		}
+
 		System.out.println("Ship #"+playerNum+ " is at position "+this.getPosition());
 	}
 	
@@ -245,7 +241,6 @@ public class Ship extends PhysicsSprite {
 		
 		// want to make players flash to indicate they are invincible
 		if(recentlySpawned) {
-			System.out.println("recentlySpawned=True; spawned " + lastSpawned.getElapsedTime() + "ms ago");
 			if(lastSpawned.getElapsedTime() > 2000) {
 				recentlySpawned = false;
 				this.setVisible(true);

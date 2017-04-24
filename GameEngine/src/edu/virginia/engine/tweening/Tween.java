@@ -56,7 +56,6 @@ public class Tween extends EventDispatcher {
 	
 	public void beginStartTime() {
 		startTime = System.nanoTime()/1000000;
-		System.out.println("START: " + startTime);
 	}
 
 	public void update() {

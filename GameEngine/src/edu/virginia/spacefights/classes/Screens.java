@@ -16,6 +16,7 @@ import edu.virginia.engine.events.Event;
 import edu.virginia.engine.events.IEventListener;
 import edu.virginia.engine.tweening.Function;
 import edu.virginia.engine.tweening.Tween;
+import edu.virginia.engine.tweening.TweenEvent;
 import edu.virginia.engine.tweening.TweenJuggler;
 import edu.virginia.engine.tweening.TweenableParam;
 import edu.virginia.engine.util.SoundManager;
@@ -83,7 +84,7 @@ public class Screens implements IEventListener {
 
 			playerAvailableShips.add(new ArrayList<Sprite>());
 			for(ShipType st : ShipType.values()) {
-				Sprite newShip = new Sprite(st.toString(), st.getImageName());
+				Sprite newShip = new Sprite(st.toString(), st.getImageName()+i+".png");
 				selector.addChild(newShip);
 				newShip.setPosition(newShip.getParent().getWidth()/5, newShip.getParent().getHeight()/5);
 				newShip.setAlpha(0);
@@ -99,6 +100,7 @@ public class Screens implements IEventListener {
 
 	public void shipSelectScreen(ArrayList<String> pressedKeys, ArrayList<GamePad> controllers) {
 		if(scene != null) {
+			System.out.println(ShipType.Lion.toString());
 			// if all 4 (or however many there are...) players ready, then call gameStart
 			if(playersReady[0] && playersReady[1]) {
 				gameStart();
@@ -137,11 +139,11 @@ public class Screens implements IEventListener {
 						TweenJuggler.getInstance().add(oldShipTween);
 						
 						// Select the new ship as current, then tween in the newly selected ship
-						shipChoice[i] = (shipChoice[i]-1) < 0 ? ShipType.values().length-1 : shipChoice[i]-1;
+						shipChoice[i] = (shipChoice[i]+1)%ShipType.values().length;
 						currently_selected_ship = playerAvailableShips.get(i).get(shipChoice[i]);
 						Tween nextShipTween = new Tween(currently_selected_ship);
 						nextShipTween.animate(TweenableParam.X, -selector.getWidth(), 
-								selector.getWidth()/2-currently_selected_ship.getWidth()/2, 400, Function.LINEAR);
+								selector.getWidth()/2.0-currently_selected_ship.getWidth()/2.0, 400, Function.LINEAR);
 						nextShipTween.animate(TweenableParam.ALPHA, 0, 1, 400, Function.LINEAR);
 						TweenJuggler.getInstance().add(nextShipTween);
 					}
@@ -290,6 +292,7 @@ public class Screens implements IEventListener {
 				TweenJuggler.getInstance().add(winnerDance);
 				return;
 			}
+			ArrayList<Ship> alreadyCollidedWithPlayerThisFrame = new ArrayList<Ship>();
 			// Keeps players within bounds of game window by rebounding them back in
 			for(Ship player: players) {
 				Point shipPos = player.getPosition();
@@ -308,26 +311,26 @@ public class Screens implements IEventListener {
 					player.setYv(dampen * player.getYv());
 				}
 				// ship-to-ship collision
-				ArrayList<Ship> alreadyCollided = new ArrayList<Ship>();
+				// each frame, the ships will technically only register one collision in order to avoid funny things with near-infinite collisions
 				for(Ship other: players) {
-					if(player.collidesWith(other) && other.getPlayerNum() != player.getPlayerNum() /*&& !alreadyCollided.contains(other)*/) {
-						System.out.println("COLLISION");
-						alreadyCollided.add(player);
-						alreadyCollided.add(other);
+					if(player.collidesWith(other) && other.getPlayerNum() != player.getPlayerNum() && !alreadyCollidedWithPlayerThisFrame.contains(other)) {
+						alreadyCollidedWithPlayerThisFrame.add(player);
+						alreadyCollidedWithPlayerThisFrame.add(other);
+						
 						Rectangle myHB = player.getHitbox();
-						Rectangle otherHB = player.getHitbox();
+						Rectangle otherHB = other.getHitbox();
 						Rectangle overlap = myHB.intersection(otherHB);
 						if (overlap.width < overlap.height) {
-							player.setNrg((int) (player.getNrg()-Math.abs(2*other.getM()*other.getXv())));
-							other.setNrg((int) (other.getNrg()-Math.abs(2*player.getM()*player.getXv())));
+							player.setNrg((int) (player.getNrg()-Ship.MOMENTUM_DAMAGE_RATIO*Math.abs(other.getXv()-player.getXv()) * other.getM()/(other.getM() + player.getM())));
+							other.setNrg((int) (other.getNrg()-Ship.MOMENTUM_DAMAGE_RATIO*Math.abs(player.getXv()-other.getXv()) * player.getM()/(player.getM() + other.getM())));
 							//System.out.println(player.getNrg());
 							// momentum formulae
 							double oldV1 = player.getXv();
 							player.setXv((elasticity*other.getM()*other.getXv() + player.getXv()*(player.getM()-elasticity*other.getM()))/(other.getM() + player.getM()));  
 							other.setXv((elasticity *player.getM()*oldV1 + other.getXv()*(other.getM()-elasticity*player.getM()))/(other.getM() + player.getM()));
 						} else {// coming from top or bottom
-							player.setNrg((int) (player.getNrg()-Math.abs(2*other.getM()*other.getYv())));
-							other.setNrg((int) (other.getNrg()-Math.abs(2*player.getM()*player.getYv())));
+							player.setNrg((int) (player.getNrg()-Ship.MOMENTUM_DAMAGE_RATIO*Math.abs(other.getYv()-player.getYv()) * other.getM()/(other.getM() + player.getM())));
+							other.setNrg((int) (other.getNrg()-Ship.MOMENTUM_DAMAGE_RATIO*Math.abs(player.getYv()-other.getYv()) * player.getM()/(player.getM() + other.getM())));
 							double oldV2 = player.getYv();
 							player.setYv((elasticity*other.getM()*other.getYv() + player.getYv()*(player.getM()-elasticity*other.getM()))/(other.getM() + player.getM()));  
 							other.setYv((elasticity*player.getM()*oldV2 + other.getYv()*(other.getM()-elasticity*player.getM()))/(other.getM() + player.getM()));
@@ -444,6 +447,9 @@ public class Screens implements IEventListener {
 				playerNode.removeChild(s);
 				deadPlayers.add(s);
 			}
+			break;
+		case TweenEvent.TWEEN_COMPLETE_EVENT:
+			// the player is revived, 
 		}
 
 	}

@@ -28,7 +28,6 @@ public class TweenJuggler {
 			t.update();
 			if(t.isComplete()) {
 				t.dispatchEvent(new TweenEvent(TweenEvent.TWEEN_COMPLETE_EVENT, t));
-				System.out.println("Tween Completed");
 				tweens.remove(i);
 			}
 		}

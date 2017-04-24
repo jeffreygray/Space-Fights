@@ -1,15 +1,18 @@
 package edu.virginia.spacefights.classes;
 
 public enum ShipType {
-	Lion(1700, 260, 0.3, 240, 280, 10000, 10000, "ship2.png"), Vulture(1400, 220, 0.45, 270, 430, 1100, 0, "ship.png"), Rhino(1500, 200, .5, 250, 380, 10000, 10000, "new.png");	private final int nrgCap;
+	Lion(1700, 260, 0.3, 240, 280, 10000, 10000, 15, "lion"), 
+	Vulture(1400, 220, 0.4, 270, 430, 1100, 0, 10, "vulture"), 
+	Rhino(1500, 200, 0.2, 400, 380, 10000, 10000, 20, "rhino");	
+	private final int nrgCap;
 	private final int nrgRecharge;
 	private final double thrust;
 	private final int bulletCost;
 	private final int cooldown;
 	private final int specialCost;
 	private final int specialCD;
-	// ~ Next line will eventually become type-based, like the other fields, which will determine
-	// ~ which image is displayed for the ship
+	private final int mass;
+	
 	private final String imageName;
 	
 	/**
@@ -19,15 +22,16 @@ public enum ShipType {
 	 * @param firingCost The amount of energy each weapon use incurs
 	 * @param cooldown The amount of time that must occur between consecutive shots, expressed in milliseconds
 	 */
-	private ShipType(int nrgCap, int nrgRecharge, double thrust, int firingCost, int cooldown, int specCost, int specialCD, String fileName) {
+	private ShipType(int nrgCap, int nrgRecharge, double thrust, int firingCost, int cooldown, int specCost, int specialCD, int mass, String fileName) {
 		this.nrgCap = nrgCap;
 		this.nrgRecharge = nrgRecharge;
 		this.thrust = thrust;
 		this.bulletCost = firingCost;
 		this.cooldown = cooldown;
-		this.imageName = fileName;
 		this.specialCost = specCost;
 		this.specialCD = specialCD;
+		this.mass = mass;
+		this.imageName = fileName;
 	}
 
 	public int getNrgCap() {
@@ -64,6 +68,10 @@ public enum ShipType {
 
 	public int getSpecialCD() {
 		return specialCD;
+	}
+
+	public int getMass() {
+		return mass;
 	}
 	
 }
