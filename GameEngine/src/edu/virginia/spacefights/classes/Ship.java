@@ -114,7 +114,6 @@ public class Ship extends PhysicsSprite {
 			lastShot.resetGameClock();
 			double x = this.getX() + this.getPivotPoint().x + Math.cos(rotationInRads)*this.getHeight()/2;
 			double y = this.getY() + this.getPivotPoint().y + Math.sin(rotationInRads)*this.getWidth()/2;
-			
 			projectiles.add(new Projectile(ProjectileType.Bullet, x, y, this.getRotation()-90));
 		}
 		

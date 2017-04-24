@@ -95,11 +95,14 @@ public class Screens implements IEventListener {
 
 	public void shipSelectScreen(ArrayList<String> pressedKeys, ArrayList<GamePad> controllers) {
 		if(scene != null) {
+			// if all 4 (or however many there are...) players ready, then call gameStart
+			if(playersReady[0] && playersReady[1]) {
+				gameStart();
+			}
 			for(int i = 0; i < controllers.size(); i++) {
 				Sprite currently_selected_ship = playerAvailableShips.get(i).get(shipChoice[i]);
 				Sprite selector = selectorBoxes.get(i);
-
-				if(controllers.get(i).getLeftStickXAxis() == -1) {
+				if(controllers.get(i).getLeftStickXAxis() == -1 && !playersReady[i]) {
 					if(!pressedButtonLastFrame[i]){ 
 						pressedButtonLastFrame[i] = true;
 						Tween oldShipTween = new Tween(currently_selected_ship);
@@ -119,7 +122,7 @@ public class Screens implements IEventListener {
 						TweenJuggler.getInstance().add(nextShipTween);
 					}
 				}
-				else if(controllers.get(i).getLeftStickXAxis() == 1) {
+				else if(controllers.get(i).getLeftStickXAxis() == 1  && !playersReady[i]) {
 					if(!pressedButtonLastFrame[i]){ 
 						pressedButtonLastFrame[i] = true;
 						Tween oldShipTween = new Tween(currently_selected_ship);
@@ -128,38 +131,27 @@ public class Screens implements IEventListener {
 								selector.getWidth(), 100000, Function.LINEAR);
 						oldShipTween.animate(TweenableParam.ALPHA, 1, 0, 100000, Function.LINEAR);
 						TweenJuggler.getInstance().add(oldShipTween);
-
-						// Select the new ship as current, then tween in the newly selected ship
-						shipChoice[i] = (shipChoice[i]+1) % ShipType.values().length;
-						currently_selected_ship = playerAvailableShips.get(i).get(shipChoice[i]);
-						Tween nextShipTween = new Tween(currently_selected_ship);
-						nextShipTween.animate(TweenableParam.X, -selector.getWidth(), 
-								selector.getWidth()/2-currently_selected_ship.getWidth()/2, 1500, Function.LINEAR);
-						nextShipTween.animate(TweenableParam.ALPHA, 0, 1, 1500, Function.LINEAR);
-						TweenJuggler.getInstance().add(nextShipTween);
 					}
 				}
-				else if(controllers.get(i).isButtonPressed(GamePad.BUTTON_A) || controllers.get(i).isButtonPressed(GamePad.BUTTON_START)) {
+				else if((controllers.get(i).isButtonPressed(GamePad.BUTTON_A) || controllers.get(i).isButtonPressed(GamePad.BUTTON_START))
+						&& !playersReady[i]) {
 					if(!pressedButtonLastFrame[i]) {
 						pressedButtonLastFrame[i] = true;
-						System.out.println("Player " + i + " is ready! " + pressedButtonLastFrame[i]);
 						playersReady[i] = true;
 						// put a "READY" image over top of selector/ship box.
+						selector.addChild(new Sprite("player"+i+"Ready", "ready.png"));
 					}
 				} else if(controllers.get(i).isButtonPressed(GamePad.BUTTON_B)) {
 					if(!pressedButtonLastFrame[i]) {
 						pressedButtonLastFrame[i] = true;
 						playersReady[i] = false;
+						selector.removeChildByID("player"+i+"Ready");
 					}
-				}
-				else pressedButtonLastFrame[i] = false;
-			}
-			// if all 4 (or however many there are...) players ready, then call gameStart
-			if(playersReady[0] && playersReady[1]) {
-				gameStart();
+				}	
 			}
 		}
 	}
+
 
 
 	private DisplayObjectContainer playerNode = new DisplayObjectContainer("playersNode");
@@ -271,7 +263,7 @@ public class Screens implements IEventListener {
 	public void gameScreenUpdate(ArrayList<String> pressedKeys, ArrayList<GamePad> controllers) {
 		if (scene != null) { // makes sure we loaded everything
 			scene.update(pressedKeys, controllers);
-			
+
 			// check if only 1 player is left on the screen
 			if(players.size() == 1) {
 				// Display Game Over; players.get(0).getPlayerNum() wins
@@ -419,26 +411,26 @@ public class Screens implements IEventListener {
 
 			} // end for each player loop
 			players.removeAll(deadPlayers);
-	} // end not null check
-}
-
-public DisplayObjectContainer getScene() {
-	return scene;
-}
-
-@Override
-public void handleEvent(Event event) {
-	switch(event.getEventType()) {
-	case CollisionEvent.DEATH:
-		Ship s = (Ship) (event.getSource());
-		int sNum = s.getPlayerNum();
-		((DisplayObjectContainer) ((DisplayObjectContainer) playersLivesBar.getChildren().get(sNum)).getChildren().get(s.getLives())).removeIndex(0);
-		if(s.getLives() == 0) {
-			System.out.println("RemoveIndex :"+sNum);
-			playerNode.removeChild(s);
-			deadPlayers.add(s);
-		}
+		} // end not null check
 	}
 
-}
+	public DisplayObjectContainer getScene() {
+		return scene;
+	}
+
+	@Override
+	public void handleEvent(Event event) {
+		switch(event.getEventType()) {
+		case CollisionEvent.DEATH:
+			Ship s = (Ship) (event.getSource());
+			int sNum = s.getPlayerNum();
+			((DisplayObjectContainer) ((DisplayObjectContainer) playersLivesBar.getChildren().get(sNum)).getChildren().get(s.getLives())).removeIndex(0);
+			if(s.getLives() == 0) {
+				System.out.println("RemoveIndex :"+sNum);
+				playerNode.removeChild(s);
+				deadPlayers.add(s);
+			}
+		}
+
+	}
 }
