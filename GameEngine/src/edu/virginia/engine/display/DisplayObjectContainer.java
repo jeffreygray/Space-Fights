@@ -63,6 +63,15 @@ public class DisplayObjectContainer extends DisplayObject {
 		return ret;
 	}
 	
+	public boolean removeChildByID(String DisplayObjectID) {
+		for(DisplayObject child : children) {
+			if(child.getId().equals(DisplayObjectID)) {
+				return children.remove(child);
+			}
+		}
+		return false;
+	}
+	
 	public void removeIndex(int i) {
 		children.remove(i);
 	}

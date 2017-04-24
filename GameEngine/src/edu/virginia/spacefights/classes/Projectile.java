@@ -20,8 +20,6 @@ public class Projectile extends PhysicsSprite {
 	public Projectile(ProjectileType type, double xPos, double yPos, double angle) {
 		// id, filename, mass, xvelcity, xacceleration, yvel, yaccel, nrg 
 		super("projectile", type.getImage(), 0, Math.cos(Math.toRadians(angle))*type.getMuzzleVelocity(), 0, Math.sin(Math.toRadians(angle))*type.getMuzzleVelocity(), 0);
-		/*remove this line after get real projectile ~
-		 */
 		this.setPivotPoint(this.getWidth()/2, this.getHeight()/2);
 		this.setRotation(angle+90);
 		this.setX(xPos - this.getWidth()/2);

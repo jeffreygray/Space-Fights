@@ -96,7 +96,7 @@ public class Screens {
 		for(int i = 0; i < controllers.size(); i++) {
 			Sprite currently_selected_ship = playerInfo.get(i).get(shipChoice[i]);
 			Sprite selector = selectorBoxes.get(i);
-			if(controllers.get(i).getLeftStickXAxis() == -1) {
+			if(controllers.get(i).getLeftStickXAxis() == -1 && !playersReady[i]) {
 				if(!pressedButtonLastFrame[i]){ 
 					pressedButtonLastFrame[i] = true;
 					Tween oldShipTween = new Tween(currently_selected_ship);
@@ -116,7 +116,7 @@ public class Screens {
 					TweenJuggler.getInstance().add(nextShipTween);
 				}
 			}
-			else if(controllers.get(i).getLeftStickXAxis() == 1) {
+			else if(controllers.get(i).getLeftStickXAxis() == 1  && !playersReady[i]) {
 				if(!pressedButtonLastFrame[i]){ 
 					pressedButtonLastFrame[i] = true;
 					Tween oldShipTween = new Tween(currently_selected_ship);
@@ -136,17 +136,19 @@ public class Screens {
 					TweenJuggler.getInstance().add(nextShipTween);
 				}
 			}
-			else if(controllers.get(i).isButtonPressed(GamePad.BUTTON_A) || controllers.get(i).isButtonPressed(GamePad.BUTTON_START)) {
+			else if((controllers.get(i).isButtonPressed(GamePad.BUTTON_A) || controllers.get(i).isButtonPressed(GamePad.BUTTON_START))
+					&& !playersReady[i]) {
 				if(!pressedButtonLastFrame[i]) {
 					pressedButtonLastFrame[i] = true;
-					System.out.println("Player " + i + " is ready! " + pressedButtonLastFrame[i]);
 					playersReady[i] = true;
 					// put a "READY" image over top of selector/ship box.
+					selector.addChild(new Sprite("player"+i+"Ready", "ready.png"));
 				}
 			} else if(controllers.get(i).isButtonPressed(GamePad.BUTTON_B)) {
 				if(!pressedButtonLastFrame[i]) {
 					pressedButtonLastFrame[i] = true;
 					playersReady[i] = false;
+					selector.removeChildByID("player"+i+"Ready");
 				}
 			}
 			else pressedButtonLastFrame[i] = false;
