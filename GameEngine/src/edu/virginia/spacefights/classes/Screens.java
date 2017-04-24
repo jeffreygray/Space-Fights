@@ -199,7 +199,7 @@ public class Screens {
 		plat13 = new Sprite("plat13", "platformSpaceVertical.png");
 		plat14 = new Sprite("plat14", "platformSpace.png");
 		plat15 = new Sprite("plat15", "platformSpaceVertical.png");
-//		plat16 = new Sprite("plat15", "platformSpace.png");
+		plat16 = new Sprite("plat15", "platformSpace.png");
 
 		platforms.add(plat1);
      	platforms.add(plat2);
@@ -216,28 +216,28 @@ public class Screens {
 		platforms.add(plat13);
 		platforms.add(plat14);
 		platforms.add(plat15);
-//		platforms.add(plat16);
+		platforms.add(plat16);
 
 		plat1.setPosition(400, 250);
 		plat2.setPosition(900, 300);
 		plat3.setPosition(1350, 470);
-		plat4.setPosition(0, 999);
-		plat5.setPosition(plat4.getWidth(), 999);
-		plat6.setPosition(plat4.getWidth() * 2, 999);
-		plat7.setPosition(plat4.getWidth() * 3, 999);
-		plat8.setPosition(plat4.getWidth() * 4, 999);
-		plat9.setPosition(plat4.getWidth() * 5, 999);
-		plat10.setPosition(plat4.getWidth() * 6, 999);
-		plat11.setPosition(plat4.getWidth() * 7, 999);
-		plat12.setPosition(plat4.getWidth() * 8, 999);
+		plat4.setPosition(0, 920);
+		plat5.setPosition(plat4.getWidth(), 925);
+		plat6.setPosition(plat4.getWidth() * 2, 925);
+		plat7.setPosition(plat4.getWidth() * 3, 925);
+		plat8.setPosition(plat4.getWidth() * 4, 925);
+		plat9.setPosition(plat4.getWidth() * 5, 925);
+		plat10.setPosition(plat4.getWidth() * 6, 925);
+		plat11.setPosition(plat4.getWidth() * 7, 925);
+		plat12.setPosition(plat4.getWidth() * 8, 925);
 		plat13.setPosition(0,0);
 		plat13.setScaleY(10);
 		plat14.setPosition(1,0);
 		plat14.setScaleX(10);
 		plat15.setPosition(gameWidth - plat15.getWidth(), 0);
 		plat15.setScaleY(10);
-//		plat16.setPosition(0,630);
-//		plat16.setScaleX(10);
+		plat16.setPosition(0,630);
+		plat16.setScaleX(10);
 		
 		for(int i = 0; i < platforms.size(); i++) {
 			Sprite plat = platforms.get(i);

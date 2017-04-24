@@ -1,7 +1,6 @@
 package edu.virginia.engine.events;
 
 import edu.virginia.engine.display.DisplayObject;
-import edu.virginia.engine.display.Sprite;
 import edu.virginia.engine.tweening.Function;
 import edu.virginia.engine.tweening.Tween;
 import edu.virginia.engine.tweening.TweenEvent;
@@ -45,31 +44,10 @@ public class CollisionManager implements IEventListener {
 		case CollisionEvent.DEATH:
 			//System.out.println("IN COLLISION MANAGER");
 			Ship s = (Ship) (event.getSource());
-//			Sprite dead;
-			
-//			Tween boom = new Tween(s);
-//			boom.animate(TweenableParam.X, s.getPosition().getX(), s.getPosition().getX() + 10, 5000, Function.EASE_IN_OUT_QUAD);
-//			boom.animate(TweenableParam.Y, s.getPosition().getY(), s.getPosition().getY() + 10, 5000, Function.EASE_IN_OUT_QUAD);
-//			
-//			boom.addEventListener(this, TweenEvent.TWEEN_COMPLETE_EVENT);
-//			
-//			TweenJuggler.getInstance().add(boom);
-
-//			double x = s.getPosition().getX();
-//			double y = s.getPosition().getY();
-			s.dyingNow = true;
-			
 			// add explosion, sound and other death effects 
 			// can use tween for explosion effect, calling a SPAWNED event 
 			// on finish which will do the actual respawn of the ship
 			s.respawn();
-		
-			
-			
-			
-		
-			
-			
 			SoundManager.playSoundEffect("death.wav");
 			break;
 			
