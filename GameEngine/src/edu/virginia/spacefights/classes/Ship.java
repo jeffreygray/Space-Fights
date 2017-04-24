@@ -18,6 +18,7 @@ public class Ship extends PhysicsSprite {
 	private int nrg;
 	private int nrgCap;
 	private int playerNum;
+	private int lives;
 	private double max_speed;
 	private double rotate_speed;
 	private double thrust;
@@ -45,6 +46,8 @@ public class Ship extends PhysicsSprite {
 		nrgCap = type.getNrgCap();
 		nrg = nrgCap;
 		playerNum = playerNumber;
+		lives = 3;
+		
 		max_speed = 10;
 		rotate_speed = 4;
 		thrust = type.getThrust();
@@ -88,10 +91,7 @@ public class Ship extends PhysicsSprite {
 		this.setYv(getYv()*0.995);
 		double rotationInRads = Math.toRadians(this.getRotation()-90);
 		GamePad playerController = controllers.get(playerNum);
-		/* currently handling different player controls with keyboard. Final should be able to simply query 
-		 * the buttons pressed on this player's GamePad. i.e. playerController = controllers.get(playerNum)
-		 * followed by all the various mappings assigned to the controller
-		 */
+
 		if(playerController.getLeftStickYAxis() == -1 && Math.hypot(this.getXv(), this.getYv()) < max_speed) {
 				this.setXa(Math.cos(rotationInRads) * thrust);
 				this.setYa(Math.sin(rotationInRads) * thrust);
@@ -107,7 +107,7 @@ public class Ship extends PhysicsSprite {
 			this.setRotation(this.getRotation()+rotate_speed);
 		}
 		
-		if(playerController.isButtonPressed(GamePad.BUTTON_A) && lastShot.getElapsedTime() >= type.getCooldown() && nrg >= type.getFiringCost()) {
+		if(playerController.isButtonPressed(GamePad.BUTTON_A) && lastShot.getElapsedTime() >= type.getCooldown() && nrg > type.getFiringCost()) {
 			nrg = nrg - type.getFiringCost();
 			SoundManager.playSoundEffect("bullet.wav");
 
@@ -118,7 +118,7 @@ public class Ship extends PhysicsSprite {
 			projectiles.add(new Projectile(ProjectileType.Bullet, x, y, this.getRotation()-90));
 		}
 		
-		 if(playerController.isButtonPressed(GamePad.BUTTON_B) && lastShot.getElapsedTime() >= type.getSpecialCD() && nrg >= type.getSpecialCost()) {
+		 if(playerController.isButtonPressed(GamePad.BUTTON_B) && lastShot.getElapsedTime() >= type.getSpecialCD() && nrg > type.getSpecialCost()) {
 		 SoundManager.playSoundEffect("laser.wav");
 			nrg = nrg-type.getSpecialCost();
 			lastShot.resetGameClock();
@@ -261,7 +261,7 @@ public class Ship extends PhysicsSprite {
 		/* adjust this player's energy meter based on current energy level, and apply recharge
 		 */
 		// Regen the nrg over time
-		if(nrg < type.getNrgCap()) 
+		if(nrg < type.getNrgCap() && nrg > 0) 
 			nrg += type.getNrgRecharge()/60; 
 		nrgBack.setPosition(getPosition().x - getWidth() / 2, getPosition().y - getHeight() / 3);
 		nrgFront.setScaleX((double) nrg / type.getNrgCap());
@@ -285,6 +285,8 @@ public class Ship extends PhysicsSprite {
 		for(Projectile p : projectiles)
 			p.draw(g);
 		nrgBack.draw(g);
+		
+		
 	}
 	
 	public int getNrg() {
@@ -298,6 +300,7 @@ public class Ship extends PhysicsSprite {
 			if(energy <= 0) {
 				// player dies
 				//System.out.println("NRG < 0");
+				lives--;
 				this.dispatchEvent(new Event(CollisionEvent.DEATH, this));
 			}
 			else 
@@ -318,14 +321,24 @@ public class Ship extends PhysicsSprite {
 	}
 
 	public void respawn() {
-		setPosition(spawn.x, spawn.y);
-		setNrg(type.getNrgCap());
-		setRotation(0);
-		setXv(0);
-		setYv(0);
-		recentlySpawned = true;
-		lastSpawned.resetGameClock();
-		lastShot.resetGameClock();
-		lastFlashed.resetGameClock();
+		if(lives > 0) {
+			setPosition(spawn.x, spawn.y);
+			setNrg(type.getNrgCap());
+			setRotation(0);
+			setXv(0);
+			setYv(0);
+			recentlySpawned = true;
+			lastSpawned.resetGameClock();
+			lastShot.resetGameClock();
+			lastFlashed.resetGameClock();
+		} else {
+			this.setVisible(false);
+			nrgBack.setVisible(false);
+			nrgFront.setVisible(false);
+		}
+	}
+
+	public int getLives() {
+		return lives;
 	}
 }

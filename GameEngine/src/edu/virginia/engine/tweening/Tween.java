@@ -10,18 +10,18 @@ import edu.virginia.engine.events.EventDispatcher;
 TweenParam objects */
 public class Tween extends EventDispatcher {
 	private DisplayObject obj;
-	private boolean complete;
+	private ArrayList<Boolean> complete;
 	private ArrayList<TweenParam> fields = new ArrayList<TweenParam>();
 	private long startTime;
 	
 	public Tween(DisplayObject obj) {
 		this.obj = obj;
-		this.complete = false;
+		this.complete = new ArrayList<Boolean>();
 	}
 	
 	public Tween(DisplayObject obj, TweenTransitions transition) {
 		this.obj = obj;
-		this.complete = false;
+		this.complete = new ArrayList<Boolean>();
 	}
 	
 	public void animate(TweenableParam fieldToAnimate, double startVal, double endVal, double time, Function function) {
@@ -51,7 +51,7 @@ public class Tween extends EventDispatcher {
 	}
 	
 	public boolean isComplete() {
-		return complete;
+		return !complete.contains(false);
 	}
 	
 	public void beginStartTime() {
@@ -67,7 +67,7 @@ public class Tween extends EventDispatcher {
 			//System.out.println(percentComplete);
 			setValue(tp.getParameter(), tp.getStartVal()+(tp.getEndVal() - tp.getStartVal())*TweenTransitions.applyTransition(percentComplete, tp.getFunction()));
 			if(percentComplete >= 1)
-				this.complete = true;
+				this.complete.set(i, true);
 		}
 	}
 
