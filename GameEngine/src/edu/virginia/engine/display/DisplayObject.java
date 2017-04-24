@@ -39,10 +39,7 @@ public class DisplayObject extends EventDispatcher {
 	private float alpha;
 	
 	private Rectangle hitbox = new Rectangle();
-	
-	public void setDisplayImage(BufferedImage displayImage) {
-		this.displayImage = displayImage;
-	}
+
 
 	/**
 	 * Constructors: can pass in the id OR the id and image's file path and

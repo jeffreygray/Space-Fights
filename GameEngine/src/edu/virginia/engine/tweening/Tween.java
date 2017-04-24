@@ -55,13 +55,12 @@ public class Tween extends EventDispatcher {
 	}
 	
 	public void beginStartTime() {
-		startTime = System.nanoTime()/1000;
-		System.out.println("START: " + startTime);
+		startTime = System.nanoTime()/1000000;
 	}
 
 	public void update() {
 		for(int i = 0; i < fields.size(); i++) {
-			long currTime = System.nanoTime()/1000;
+			long currTime = System.nanoTime()/1000000;
 			TweenParam tp = fields.get(i);
 			double percentComplete = (currTime - startTime)/tp.getTime();
 			//System.out.println(percentComplete);

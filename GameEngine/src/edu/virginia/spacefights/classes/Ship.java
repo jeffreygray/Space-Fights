@@ -5,19 +5,20 @@ import java.awt.Point;
 import java.util.ArrayList;
 
 import edu.virginia.engine.controller.GamePad;
-import edu.virginia.engine.display.Game;
 import edu.virginia.engine.display.PhysicsSprite;
 import edu.virginia.engine.display.Sprite;
-import edu.virginia.engine.events.CollisionEvent;
+import edu.virginia.engine.events.CombatEvent;
 import edu.virginia.engine.events.Event;
 import edu.virginia.engine.util.GameClock;
 import edu.virginia.engine.util.SoundManager;
 
 public class Ship extends PhysicsSprite {
+	public static final int MOMENTUM_DAMAGE_RATIO = 150;
 
 	private int nrg;
 	private int nrgCap;
 	private int playerNum;
+	private int lives;
 	private double max_speed;
 	private double rotate_speed;
 	private double thrust;
@@ -41,14 +42,17 @@ public class Ship extends PhysicsSprite {
 	 * @param playerNumber An integer representing which gamepad will control this ship
 	 */
 	public Ship(ShipType type, int playerNumber) {
-		super(""+playerNumber, type.getImageName());
+		super(""+playerNumber, type.getImageName()+playerNumber+".png");
 		nrgCap = type.getNrgCap();
 		nrg = nrgCap;
 		playerNum = playerNumber;
+		lives = 3;
+		
 		max_speed = 10;
 		rotate_speed = 4;
 		thrust = type.getThrust();
 		this.type = type;
+		this.setM(type.getMass());
 		
 		if(playerNumber == 0)
 			spawn.setLocation(300, 150);
@@ -56,6 +60,8 @@ public class Ship extends PhysicsSprite {
 			spawn.setLocation(900, 150);
 		else if(playerNumber == 2)
 			spawn.setLocation(300, 650);
+		else if(playerNumber == 3)
+			spawn.setLocation(900, 650);
 		setPosition(spawn.x, spawn.y);
 		
 		lastShot = new GameClock();
@@ -68,15 +74,7 @@ public class Ship extends PhysicsSprite {
 		nrgBack.setScaleY(-0.8);
 		nrgBack.setScaleX(0.6);
 		nrgBack.addChild(nrgFront);
-		
-		switch(type){
-		case Rhino:
-			this.setM(20);
-			break;
-		case Vulture:
-			this.setM(10);
-			break;
-		}
+
 		System.out.println("Ship #"+playerNum+ " is at position "+this.getPosition());
 	}
 	
@@ -88,10 +86,7 @@ public class Ship extends PhysicsSprite {
 		this.setYv(getYv()*0.995);
 		double rotationInRads = Math.toRadians(this.getRotation()-90);
 		GamePad playerController = controllers.get(playerNum);
-		/* currently handling different player controls with keyboard. Final should be able to simply query 
-		 * the buttons pressed on this player's GamePad. i.e. playerController = controllers.get(playerNum)
-		 * followed by all the various mappings assigned to the controller
-		 */
+
 		if(playerController.getLeftStickYAxis() == -1 && Math.hypot(this.getXv(), this.getYv()) < max_speed) {
 				this.setXa(Math.cos(rotationInRads) * thrust);
 				this.setYa(Math.sin(rotationInRads) * thrust);
@@ -107,18 +102,17 @@ public class Ship extends PhysicsSprite {
 			this.setRotation(this.getRotation()+rotate_speed);
 		}
 		
-		if(playerController.isButtonPressed(GamePad.BUTTON_A) && lastShot.getElapsedTime() >= type.getCooldown() && nrg >= type.getFiringCost()) {
+		if(playerController.isButtonPressed(GamePad.BUTTON_A) && lastShot.getElapsedTime() >= type.getCooldown() && nrg > type.getFiringCost()) {
 			nrg = nrg - type.getFiringCost();
 			SoundManager.playSoundEffect("bullet.wav");
 
 			lastShot.resetGameClock();
 			double x = this.getX() + this.getPivotPoint().x + Math.cos(rotationInRads)*this.getHeight()/2;
 			double y = this.getY() + this.getPivotPoint().y + Math.sin(rotationInRads)*this.getWidth()/2;
-			
 			projectiles.add(new Projectile(ProjectileType.Bullet, x, y, this.getRotation()-90));
 		}
 		
-		 if(playerController.isButtonPressed(GamePad.BUTTON_B) && lastShot.getElapsedTime() >= type.getSpecialCD() && nrg >= type.getSpecialCost()) {
+		 if(playerController.isButtonPressed(GamePad.BUTTON_B) && lastShot.getElapsedTime() >= type.getSpecialCD() && nrg > type.getSpecialCost()) {
 		 SoundManager.playSoundEffect("laser.wav");
 			nrg = nrg-type.getSpecialCost();
 			lastShot.resetGameClock();
@@ -247,7 +241,6 @@ public class Ship extends PhysicsSprite {
 		
 		// want to make players flash to indicate they are invincible
 		if(recentlySpawned) {
-			System.out.println("recentlySpawned=True; spawned " + lastSpawned.getElapsedTime() + "ms ago");
 			if(lastSpawned.getElapsedTime() > 2000) {
 				recentlySpawned = false;
 				this.setVisible(true);
@@ -261,7 +254,7 @@ public class Ship extends PhysicsSprite {
 		/* adjust this player's energy meter based on current energy level, and apply recharge
 		 */
 		// Regen the nrg over time
-		if(nrg < type.getNrgCap()) 
+		if(nrg < type.getNrgCap() && nrg > 0) 
 			nrg += type.getNrgRecharge()/60; 
 		nrgBack.setPosition(getPosition().x - getWidth() / 2, getPosition().y - getHeight() / 3);
 		nrgFront.setScaleX((double) nrg / type.getNrgCap());
@@ -285,6 +278,8 @@ public class Ship extends PhysicsSprite {
 		for(Projectile p : projectiles)
 			p.draw(g);
 		nrgBack.draw(g);
+		
+		
 	}
 	
 	public int getNrg() {
@@ -298,7 +293,8 @@ public class Ship extends PhysicsSprite {
 			if(energy <= 0) {
 				// player dies
 				//System.out.println("NRG < 0");
-				this.dispatchEvent(new Event(CollisionEvent.DEATH, this));
+				lives--;
+				this.dispatchEvent(new Event(CombatEvent.DEATH, this));
 			}
 			else 
 				this.nrg = energy;
@@ -318,14 +314,24 @@ public class Ship extends PhysicsSprite {
 	}
 
 	public void respawn() {
-		setPosition(spawn.x, spawn.y);
-		setNrg(type.getNrgCap());
-		setRotation(0);
-		setXv(0);
-		setYv(0);
-		recentlySpawned = true;
-		lastSpawned.resetGameClock();
-		lastShot.resetGameClock();
-		lastFlashed.resetGameClock();
+		if(lives > 0) {
+			setPosition(spawn.x, spawn.y);
+			setNrg(type.getNrgCap());
+			setRotation(0);
+			setXv(0);
+			setYv(0);
+			recentlySpawned = true;
+			lastSpawned.resetGameClock();
+			lastShot.resetGameClock();
+			lastFlashed.resetGameClock();
+		} else {
+			this.setVisible(false);
+			nrgBack.setVisible(false);
+			nrgFront.setVisible(false);
+		}
+	}
+
+	public int getLives() {
+		return lives;
 	}
 }
