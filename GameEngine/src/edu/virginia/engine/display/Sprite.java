@@ -22,4 +22,5 @@ public class Sprite extends DisplayObjectContainer {
 	public void update(ArrayList<String> pressedKeys, ArrayList<GamePad> controllers) {
 		super.update(pressedKeys, controllers);
 	}
+
 }

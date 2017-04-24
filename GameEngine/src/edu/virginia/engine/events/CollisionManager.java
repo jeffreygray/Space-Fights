@@ -41,15 +41,7 @@ public class CollisionManager implements IEventListener {
 			
 			TweenJuggler.getInstance().add(tween); */
 			break;
-		case CollisionEvent.DEATH:
-			//System.out.println("IN COLLISION MANAGER");
-			Ship s = (Ship) (event.getSource());
-			// add explosion, sound and other death effects 
-			// can use tween for explosion effect, calling a SPAWNED event 
-			// on finish which will do the actual respawn of the ship
-			s.respawn();
-			SoundManager.playSoundEffect("death.wav");
-			break;
+		
 			
 		}
 	}

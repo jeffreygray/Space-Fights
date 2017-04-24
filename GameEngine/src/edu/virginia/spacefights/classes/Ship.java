@@ -5,10 +5,9 @@ import java.awt.Point;
 import java.util.ArrayList;
 
 import edu.virginia.engine.controller.GamePad;
-import edu.virginia.engine.display.Game;
 import edu.virginia.engine.display.PhysicsSprite;
 import edu.virginia.engine.display.Sprite;
-import edu.virginia.engine.events.CollisionEvent;
+import edu.virginia.engine.events.CombatEvent;
 import edu.virginia.engine.events.Event;
 import edu.virginia.engine.util.GameClock;
 import edu.virginia.engine.util.SoundManager;
@@ -300,7 +299,7 @@ public class Ship extends PhysicsSprite {
 				// player dies
 				//System.out.println("NRG < 0");
 				lives--;
-				this.dispatchEvent(new Event(CollisionEvent.DEATH, this));
+				this.dispatchEvent(new Event(CombatEvent.DEATH, this));
 			}
 			else 
 				this.nrg = energy;

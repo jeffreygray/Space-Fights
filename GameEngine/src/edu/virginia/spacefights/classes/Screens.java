@@ -10,6 +10,8 @@ import edu.virginia.engine.display.DisplayObjectContainer;
 import edu.virginia.engine.display.Sprite;
 import edu.virginia.engine.events.CollisionEvent;
 import edu.virginia.engine.events.CollisionManager;
+import edu.virginia.engine.events.CombatEvent;
+import edu.virginia.engine.events.DeathManager;
 import edu.virginia.engine.events.Event;
 import edu.virginia.engine.events.IEventListener;
 import edu.virginia.engine.tweening.Function;
@@ -30,7 +32,7 @@ public class Screens implements IEventListener {
 		return sceneToUpdate;
 	}
 
-
+	
 	static double dampen = -0.65;
 	int gameWidth, gameHeight;
 	private DisplayObjectContainer gameScreen, shipSelectScreen;
@@ -42,6 +44,7 @@ public class Screens implements IEventListener {
 
 	private ArrayList<ArrayList<Sprite>> playerAvailableShips = new ArrayList<ArrayList<Sprite>>(); // index is pNum, list contains images of the various ship types
 	private CollisionManager collisionManager;
+	private DeathManager deathManager;
 	private double elasticity = 1.7;
 
 
@@ -64,6 +67,7 @@ public class Screens implements IEventListener {
 		selectorBoxes = new ArrayList<Sprite>();
 
 		collisionManager = new CollisionManager();
+		deathManager = new DeathManager();
 
 		makeShipSelectScreen();
 		makeGameScreen();
@@ -108,8 +112,8 @@ public class Screens implements IEventListener {
 						Tween oldShipTween = new Tween(currently_selected_ship);
 						// tween the old selected ship away
 						oldShipTween.animate(TweenableParam.X, currently_selected_ship.getPosition().getX(), 
-								-selector.getWidth(), 100000, Function.LINEAR);
-						oldShipTween.animate(TweenableParam.ALPHA, 1, 0, 100000, Function.LINEAR);
+								-selector.getWidth(), 400, Function.LINEAR);
+						oldShipTween.animate(TweenableParam.ALPHA, 1, 0, 400, Function.LINEAR);
 						TweenJuggler.getInstance().add(oldShipTween);
 
 						// Select the new ship as current, then tween in the newly selected ship
@@ -117,8 +121,8 @@ public class Screens implements IEventListener {
 						currently_selected_ship = playerAvailableShips.get(i).get(shipChoice[i]);
 						Tween nextShipTween = new Tween(currently_selected_ship);
 						nextShipTween.animate(TweenableParam.X, selector.getWidth(), 
-								selector.getWidth()/2-currently_selected_ship.getWidth()/2, 150000, Function.LINEAR);
-						nextShipTween.animate(TweenableParam.ALPHA, 0, 1, 100000, Function.LINEAR);
+								selector.getWidth()/2-currently_selected_ship.getWidth()/2, 400, Function.LINEAR);
+						nextShipTween.animate(TweenableParam.ALPHA, 0, 1, 400, Function.LINEAR);
 						TweenJuggler.getInstance().add(nextShipTween);
 					}
 				}
@@ -128,9 +132,18 @@ public class Screens implements IEventListener {
 						Tween oldShipTween = new Tween(currently_selected_ship);
 						// tween the old selected ship away
 						oldShipTween.animate(TweenableParam.X, currently_selected_ship.getPosition().getX(), 
-								selector.getWidth(), 100000, Function.LINEAR);
-						oldShipTween.animate(TweenableParam.ALPHA, 1, 0, 100000, Function.LINEAR);
+								selector.getWidth(), 400, Function.LINEAR);
+						oldShipTween.animate(TweenableParam.ALPHA, 1, 0, 400, Function.LINEAR);
 						TweenJuggler.getInstance().add(oldShipTween);
+						
+						// Select the new ship as current, then tween in the newly selected ship
+						shipChoice[i] = (shipChoice[i]-1) < 0 ? ShipType.values().length-1 : shipChoice[i]-1;
+						currently_selected_ship = playerAvailableShips.get(i).get(shipChoice[i]);
+						Tween nextShipTween = new Tween(currently_selected_ship);
+						nextShipTween.animate(TweenableParam.X, -selector.getWidth(), 
+								selector.getWidth()/2-currently_selected_ship.getWidth()/2, 400, Function.LINEAR);
+						nextShipTween.animate(TweenableParam.ALPHA, 0, 1, 400, Function.LINEAR);
+						TweenJuggler.getInstance().add(nextShipTween);
 					}
 				}
 				else if((controllers.get(i).isButtonPressed(GamePad.BUTTON_A) || controllers.get(i).isButtonPressed(GamePad.BUTTON_START))
@@ -148,6 +161,7 @@ public class Screens implements IEventListener {
 						selector.removeChildByID("player"+i+"Ready");
 					}
 				}	
+				else pressedButtonLastFrame[i] = false;
 			}
 		}
 	}
@@ -168,8 +182,8 @@ public class Screens implements IEventListener {
 			// make and add player to display tree
 			Ship player = new Ship(ShipType.valueOf(playerAvailableShips.get(i).get(shipChoice[i]).getId()), i);
 			player.addEventListener(collisionManager, CollisionEvent.PLATFORM);
-			player.addEventListener(collisionManager, CollisionEvent.DEATH);
-			player.addEventListener(this, CollisionEvent.DEATH);
+			player.addEventListener(deathManager, CombatEvent.DEATH);
+			player.addEventListener(this, CombatEvent.DEATH);
 			player.setScaleX(0.8);
 			player.setScaleY(0.65);
 			player.setPivotPoint(player.getWidth()/2, player.getHeight()/2);
@@ -278,7 +292,6 @@ public class Screens implements IEventListener {
 			}
 			// Keeps players within bounds of game window by rebounding them back in
 			for(Ship player: players) {
-				System.out.println("Player #"+player.getPlayerNum()+player.getPosition());
 				Point shipPos = player.getPosition();
 				if (shipPos.x <= 0) {
 					player.setXPosition(1);
@@ -295,10 +308,12 @@ public class Screens implements IEventListener {
 					player.setYv(dampen * player.getYv());
 				}
 				// ship-to-ship collision
+				ArrayList<Ship> alreadyCollided = new ArrayList<Ship>();
 				for(Ship other: players) {
-					if(player.collidesWith(other) && other.getPlayerNum() != player.getPlayerNum()) {
-						//						System.out.println("COLLISION");
-
+					if(player.collidesWith(other) && other.getPlayerNum() != player.getPlayerNum() /*&& !alreadyCollided.contains(other)*/) {
+						System.out.println("COLLISION");
+						alreadyCollided.add(player);
+						alreadyCollided.add(other);
 						Rectangle myHB = player.getHitbox();
 						Rectangle otherHB = player.getHitbox();
 						Rectangle overlap = myHB.intersection(otherHB);
@@ -310,7 +325,6 @@ public class Screens implements IEventListener {
 							double oldV1 = player.getXv();
 							player.setXv((elasticity*other.getM()*other.getXv() + player.getXv()*(player.getM()-elasticity*other.getM()))/(other.getM() + player.getM()));  
 							other.setXv((elasticity *player.getM()*oldV1 + other.getXv()*(other.getM()-elasticity*player.getM()))/(other.getM() + player.getM()));
-							// Dampen is currently 0.8, can change later
 						} else {// coming from top or bottom
 							player.setNrg((int) (player.getNrg()-Math.abs(2*other.getM()*other.getYv())));
 							other.setNrg((int) (other.getNrg()-Math.abs(2*player.getM()*player.getYv())));
@@ -421,7 +435,7 @@ public class Screens implements IEventListener {
 	@Override
 	public void handleEvent(Event event) {
 		switch(event.getEventType()) {
-		case CollisionEvent.DEATH:
+		case CombatEvent.DEATH:
 			Ship s = (Ship) (event.getSource());
 			int sNum = s.getPlayerNum();
 			((DisplayObjectContainer) ((DisplayObjectContainer) playersLivesBar.getChildren().get(sNum)).getChildren().get(s.getLives())).removeIndex(0);
