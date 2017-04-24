@@ -10,18 +10,18 @@ import edu.virginia.engine.events.EventDispatcher;
 TweenParam objects */
 public class Tween extends EventDispatcher {
 	private DisplayObject obj;
-	private ArrayList<Boolean> complete;
+	private boolean complete;
 	private ArrayList<TweenParam> fields = new ArrayList<TweenParam>();
 	private long startTime;
 	
 	public Tween(DisplayObject obj) {
 		this.obj = obj;
-		this.complete = new ArrayList<Boolean>();
+		this.complete = false;
 	}
 	
 	public Tween(DisplayObject obj, TweenTransitions transition) {
 		this.obj = obj;
-		this.complete = new ArrayList<Boolean>();
+		this.complete = false;
 	}
 	
 	public void animate(TweenableParam fieldToAnimate, double startVal, double endVal, double time, Function function) {
@@ -51,23 +51,23 @@ public class Tween extends EventDispatcher {
 	}
 	
 	public boolean isComplete() {
-		return !complete.contains(false);
+		return complete;
 	}
 	
 	public void beginStartTime() {
-		startTime = System.nanoTime()/1000;
+		startTime = System.nanoTime()/1000000;
 		System.out.println("START: " + startTime);
 	}
 
 	public void update() {
 		for(int i = 0; i < fields.size(); i++) {
-			long currTime = System.nanoTime()/1000;
+			long currTime = System.nanoTime()/1000000;
 			TweenParam tp = fields.get(i);
 			double percentComplete = (currTime - startTime)/tp.getTime();
 			//System.out.println(percentComplete);
 			setValue(tp.getParameter(), tp.getStartVal()+(tp.getEndVal() - tp.getStartVal())*TweenTransitions.applyTransition(percentComplete, tp.getFunction()));
 			if(percentComplete >= 1)
-				this.complete.set(i, true);
+				this.complete = true;
 		}
 	}
 

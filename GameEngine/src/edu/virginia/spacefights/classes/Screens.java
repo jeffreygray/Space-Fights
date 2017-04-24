@@ -134,8 +134,8 @@ public class Screens implements IEventListener {
 						currently_selected_ship = playerAvailableShips.get(i).get(shipChoice[i]);
 						Tween nextShipTween = new Tween(currently_selected_ship);
 						nextShipTween.animate(TweenableParam.X, -selector.getWidth(), 
-								selector.getWidth()/2-currently_selected_ship.getWidth()/2, 150000, Function.LINEAR);
-						nextShipTween.animate(TweenableParam.ALPHA, 0, 1, 100000, Function.LINEAR);
+								selector.getWidth()/2-currently_selected_ship.getWidth()/2, 1500, Function.LINEAR);
+						nextShipTween.animate(TweenableParam.ALPHA, 0, 1, 1500, Function.LINEAR);
 						TweenJuggler.getInstance().add(nextShipTween);
 					}
 				}
@@ -278,9 +278,9 @@ public class Screens implements IEventListener {
 				sceneToUpdate = -1;
 				Ship winner = players.get(0);
 				Tween winnerDance = new Tween(winner);
-				winnerDance.animate(TweenableParam.X, 50, gameWidth, 2000000, Function.EASE_IN_OUT_QUAD);
-				winnerDance.animate(TweenableParam.Y, 50, 150, 2000000, Function.LINEAR);
-				winnerDance.animate(TweenableParam.ROTATION, 90, 0, 200000, Function.LINEAR);
+				winnerDance.animate(TweenableParam.X, 50, gameWidth, 2000, Function.EASE_IN_OUT_QUAD);
+				winnerDance.animate(TweenableParam.Y, 50, 150, 2000, Function.LINEAR);
+				winnerDance.animate(TweenableParam.ROTATION, 90, 0, 2000, Function.LINEAR);
 				TweenJuggler.getInstance().add(winnerDance);
 				return;
 			}
