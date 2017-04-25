@@ -49,7 +49,7 @@ public class Ship extends PhysicsSprite {
 		lives = 3;
 		
 		max_speed = 10;
-		rotate_speed = 4;
+		rotate_speed = 5;
 		thrust = type.getThrust();
 		this.type = type;
 		this.setM(type.getMass());
@@ -290,7 +290,7 @@ public class Ship extends PhysicsSprite {
 		//System.out.println("Setting nrg");
 		// if the player did recently spawn, want them to not take any damage
 		if(!recentlySpawned) {
-			if(energy <= 0) {
+			if(energy < 0) {
 				// player dies
 				//System.out.println("NRG < 0");
 				lives--;
@@ -314,6 +314,7 @@ public class Ship extends PhysicsSprite {
 	}
 
 	public void respawn() {
+		//lives--;
 		if(lives > 0) {
 			setPosition(spawn.x, spawn.y);
 			setNrg(type.getNrgCap());
