@@ -350,7 +350,6 @@ public class Screens implements IEventListener {
 			// check if only 1 player is left on the screen
 			if(players.size() == 1) {
 				// Display Game Over; players.get(0).getPlayerNum() wins
-				sceneToUpdate = -1;
 				Ship winner = players.get(0);
 				winner.removeEnergy();
 				Tween winnerDance = new Tween(winner);
@@ -359,6 +358,12 @@ public class Screens implements IEventListener {
 				winnerDance.animate(TweenableParam.ROTATION, 90, 0, 6000, Function.LINEAR);
 				TweenJuggler.getInstance().add(winnerDance);
 				Sprite gameOver = new Sprite("gameOver", "gameOver.png");
+				scene.addChild(gameOver);
+				gameOver.setPosition((SpaceFights.gameWidth/2)-(gameOver.getWidth()/2),200);
+				sceneToUpdate = Screens.GAME_OVER;
+				return;
+			} else if (players.size() == 0) {
+				Sprite gameOver = new Sprite("gameOver", "gameOverDOUBLE.png");
 				scene.addChild(gameOver);
 				gameOver.setPosition((SpaceFights.gameWidth/2)-(gameOver.getWidth()/2),200);
 				sceneToUpdate = Screens.GAME_OVER;
@@ -492,7 +497,12 @@ public class Screens implements IEventListener {
 					for (Ship s : players) {
 						// checks with collision with enemies
 						if (p.collidesWith(s) && s.getPlayerNum() != player.getPlayerNum()) {
-							s.setNrg(s.getNrg() - p.getDamage());
+							if(p.getDamage() == 0) {
+								s.setXv(0);
+								s.setYv(0);
+							} else {
+								s.setNrg(s.getNrg() - p.getDamage());
+							}
 							p.setRemove(true);
 						}
 					}

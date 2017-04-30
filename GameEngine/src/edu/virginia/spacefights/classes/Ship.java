@@ -134,12 +134,26 @@ public class Ship extends PhysicsSprite {
 				SoundManager.playSoundEffect("laser.wav");
 				nrg = nrg-type.getSpecialCost();
 				lastShot.resetGameClock();
+
 				double x = this.getX() + this.getPivotPoint().x + Math.cos(rotationInRads)*this.getHeight()/2;
 				double y = this.getY() + this.getPivotPoint().y + Math.sin(rotationInRads)*this.getWidth()/2;
-
-				// each projectile will be genrated and store in projectiles and associated with source ship.
-				// this may allow us to avoid friendly fire, if desired
-				projectiles.add(new Projectile(ProjectileType.Laser, x, y, this.getRotation()-90));
+				switch(type) {
+				case Rhino:
+					thrust = 0.25;
+					break;
+				case Vulture:	
+					projectiles.add(new Projectile(ProjectileType.Laser, x, y, this.getRotation()-90));
+					break;
+				case Lion:
+					projectiles.add(new Projectile(ProjectileType.FrostBullet, x, y, this.getRotation()-90));
+				}
+				if(type.equals(ShipType.Rhino)) {
+					thrust = 0.25;
+				} else {
+					
+				}
+			} else if (type.equals(ShipType.Rhino)) {
+				thrust = ShipType.Rhino.getThrust();
 			}
 		}
 		
