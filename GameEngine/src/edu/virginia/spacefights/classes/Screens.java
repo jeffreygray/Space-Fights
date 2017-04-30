@@ -518,9 +518,10 @@ public class Screens implements IEventListener {
 			((DisplayObjectContainer) ((DisplayObjectContainer) playersLivesBar.getChildren().get(sNum)).getChildren().get(s.getLives())).removeIndex(0);
 			
 			if(s.getLives() == 0) {
-				System.out.println("RemoveIndex :"+sNum);
-				playerNode.removeChild(s);
-				deadPlayers.add(s);
+				Tween finalDeath = new Tween(s);
+				finalDeath.animate(TweenableParam.X, s.getPosition().getX(), s.getPosition().getX(), deathManager.deathTime, Function.LINEAR);
+				finalDeath.addEventListener(this, TweenEvent.TWEEN_COMPLETE_EVENT);
+				TweenJuggler.getInstance().add(finalDeath);
 			}
 //			Tween tween = new Tween(s);
 //			tween.animate(TweenableParam.X, s.getPosition().getX(), s.getPosition().getX(), deathManager.deathTime, Function.LINEAR);
@@ -530,6 +531,12 @@ public class Screens implements IEventListener {
 			break;
 		case TweenEvent.TWEEN_COMPLETE_EVENT:
 			// the player is revived, 
+			Tween tween = ((TweenEvent) event).getTween();
+			Ship deadShip = (Ship)tween.getObj();
+			int sNum1 = deadShip.getPlayerNum();
+			System.out.println("RemoveIndex :"+sNum1);
+			playerNode.removeChild(deadShip);
+			deadPlayers.add(deadShip);
 			
 		}
 
