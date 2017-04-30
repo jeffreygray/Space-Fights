@@ -103,8 +103,17 @@ public class Screens implements IEventListener {
 			
 			
 			shipSelectScreen.addChild(selector);
+			
+			
+			
 			selectorBoxes.add(selector);
 		}
+		Sprite blurb = new Sprite("blurb", "blurb.png");
+		blurb.setPosition(500,500);
+		shipSelectScreen.addChild(blurb);
+
+		
+		
 	}
 
 	public void shipSelectScreen(ArrayList<String> pressedKeys, ArrayList<GamePad> controllers) {
