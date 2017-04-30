@@ -100,7 +100,7 @@ public class Screens implements IEventListener {
 
 	public void shipSelectScreen(ArrayList<String> pressedKeys, ArrayList<GamePad> controllers) {
 		if(scene != null) {
-			System.out.println(ShipType.Lion.toString());
+			//System.out.println(ShipType.Lion.toString());
 			// if all 4 (or however many there are...) players ready, then call gameStart
 			if(playersReady[0] && playersReady[1]) {
 				gameStart();
@@ -229,7 +229,7 @@ public class Screens implements IEventListener {
 		plat13 = new Sprite("plat13", "platformSpaceVertical.png");
 		plat14 = new Sprite("plat14", "platformSpace.png");
 		plat15 = new Sprite("plat15", "platformSpaceVertical.png");
-		plat16 = new Sprite("plat15", "platformSpace.png");
+		//plat16 = new Sprite("plat15", "platformSpace.png");
 
 		platforms.add(plat1);
 		platforms.add(plat2);
@@ -246,7 +246,7 @@ public class Screens implements IEventListener {
 		platforms.add(plat13);
 		platforms.add(plat14);
 		platforms.add(plat15);
-		platforms.add(plat16);
+		//platforms.add(plat16);
 
 		plat1.setPosition(400, 250);
 		plat2.setPosition(900, 300);
@@ -266,8 +266,8 @@ public class Screens implements IEventListener {
 		plat14.setScaleX(10);
 		plat15.setPosition(gameWidth - plat15.getWidth(), 0);
 		plat15.setScaleY(10);
-		plat16.setPosition(0,630);
-		plat16.setScaleX(10);
+		//plat16.setPosition(0,630);
+		//plat16.setScaleX(10);
 
 		for(int i = 0; i < platforms.size(); i++) {
 			Sprite plat = platforms.get(i);
