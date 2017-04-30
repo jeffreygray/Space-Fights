@@ -24,8 +24,8 @@ import edu.virginia.engine.util.SoundManager;
 
 public class SpaceFights extends Game {
 	// jeff 1800x1000 - will use for game expo bc larger screen 
-	static int gameWidth = 1800;
-	static int gameHeight = 1000;
+	public static int gameWidth = 1800;
+	public static int gameHeight = 1000;
 	Screens screen;
 	
 
@@ -45,7 +45,10 @@ public class SpaceFights extends Game {
 			case Screens.GAME_SCENE:
 				screen.gameScreenUpdate(pressedKeys, controllers);
 				break;
-			}		
+			case Screens.GAME_OVER:
+				screen.gameOverUpdate(pressedKeys, controllers);
+			}	
+			
 			TweenJuggler.nextFrame();
 		}
 	}

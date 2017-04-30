@@ -10,12 +10,16 @@ import edu.virginia.engine.util.SoundManager;
 import edu.virginia.spacefights.classes.Ship;
 
 public class DeathManager implements IEventListener {
+	
+	public int deathTime = 1500;
+	
 
 	@Override
 	public void handleEvent(Event event) {
 		switch(event.getEventType()) {
 		case CombatEvent.DEATH:
 			//System.out.println("IN COLLISION MANAGER");
+			
 			Ship player = (Ship) (event.getSource());
 			String[] booming = {"boom.png", "boom1.png"};
 			AnimatedSprite boom = new AnimatedSprite("boom", booming);
@@ -27,7 +31,8 @@ public class DeathManager implements IEventListener {
 			// on finish which will do the actual respawn of the ship
 			Tween explosion = new Tween(boom);
 		    Tween shipFade = new Tween(player);
-		    shipFade.animate(TweenableParam.ALPHA, 1, 0, 1500, Function.LINEAR);
+		    player.setDying(true);
+		    shipFade.animate(TweenableParam.ALPHA, 1, 0, deathTime, Function.LINEAR);
 			explosion.animate(TweenableParam.ALPHA, 0, 1, 1000, Function.LINEAR);
 			explosion.animate(TweenableParam.ROTATION, player.getRotation(), player.getRotation() + 180, 1000, Function.EASE_IN_OUT_QUAD);
 			explosion.animate(TweenableParam.SCALE_X, 0.1, 1, 1000, Function.LINEAR);
@@ -48,8 +53,9 @@ public class DeathManager implements IEventListener {
 			s.removeChildByID("boom");
 			
 		    s.setAlpha(1); // making ship visible again
-
+		    
 			s.respawn();
+			
 			
 		}
 	}

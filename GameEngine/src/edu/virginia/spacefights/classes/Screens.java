@@ -20,10 +20,12 @@ import edu.virginia.engine.tweening.TweenEvent;
 import edu.virginia.engine.tweening.TweenJuggler;
 import edu.virginia.engine.tweening.TweenableParam;
 import edu.virginia.engine.util.SoundManager;
+import edu.virginia.lab1test.SpaceFights;
 
 public class Screens implements IEventListener {
 	public static final int GAME_SCENE = 0;
 	public static final int SELECT_SCENE = 1;
+	public static final int GAME_OVER = 2;
 	private int sceneToUpdate = SELECT_SCENE;
 
 	/**
@@ -102,9 +104,21 @@ public class Screens implements IEventListener {
 		if(scene != null) {
 			//System.out.println(ShipType.Lion.toString());
 			// if all 4 (or however many there are...) players ready, then call gameStart
-			if(playersReady[0] && playersReady[1]) {
+			
+//			if(playersReady[0] && playersReady[1] && playersReady[2] && playersReady[3]) { // TODO: add in functionality for less than 4 players
+			if(playersReady[0] && playersReady[1]) { // TODO: add in functionality for less than 4 players
+				playersReady[0] = false;
+				playersReady[1] = false;
+				selectorBoxes.get(0).removeChildByID("player"+0+"Ready");
+				selectorBoxes.get(1).removeChildByID("player"+1+"Ready");
+
 				gameStart();
+				
+				return;
+				
 			}
+			
+			
 			for(int i = 0; i < controllers.size(); i++) {
 				Sprite currently_selected_ship = playerAvailableShips.get(i).get(shipChoice[i]);
 				Sprite selector = selectorBoxes.get(i);
@@ -180,8 +194,10 @@ public class Screens implements IEventListener {
 		scene.addChild(gameScreen);
 		scene.addChild(playersLivesBar);
 		playerNode.removeAll();
+		System.out.println(playersLivesBar.removeAll());
 		for(int i = 0; i<shipChoice.length; i++) {
 			// make and add player to display tree
+			System.out.println(playersLivesBar.getChildren().toString() + " Before " + i);
 			Ship player = new Ship(ShipType.valueOf(playerAvailableShips.get(i).get(shipChoice[i]).getId()), i);
 			player.addEventListener(collisionManager, CollisionEvent.PLATFORM);
 			player.addEventListener(deathManager, CombatEvent.DEATH);
@@ -202,7 +218,8 @@ public class Screens implements IEventListener {
 				heart.setPosition(j/5.0*heart.getParent().getWidth(), heart.getParent().getHeight()/2 - heart.getHeight()/2);
 				heart.addChild(new Sprite("heart_"+j, "heart.png"));
 			}
-			playersLivesBar.addChild(container);
+			playersLivesBar.addChildAtIndex(container, i);
+			System.out.println(playersLivesBar.getChildren().toString()+ " after " + i);
 		}
 		sceneToUpdate = Screens.GAME_SCENE;
 	}
@@ -275,7 +292,20 @@ public class Screens implements IEventListener {
 		}
 	}
 
-
+	
+	public void gameOverUpdate(ArrayList<String> pressedKeys, ArrayList<GamePad> controllers) {
+		for (GamePad controller : controllers) {
+			if (controller.isButtonPressed(GamePad.BUTTON_START)) {
+				scene.removeChildByID("gameScreen"); 
+				scene.removeChildByID("lifeBars");
+				scene.removeChildByID("gameOver");
+				scene.addChild(shipSelectScreen);
+				sceneToUpdate = Screens.SELECT_SCENE;
+				deadPlayers.clear();
+			}
+		}
+	}
+	
 	public void gameScreenUpdate(ArrayList<String> pressedKeys, ArrayList<GamePad> controllers) {
 		if (scene != null) { // makes sure we loaded everything
 			scene.update(pressedKeys, controllers);
@@ -285,11 +315,16 @@ public class Screens implements IEventListener {
 				// Display Game Over; players.get(0).getPlayerNum() wins
 				sceneToUpdate = -1;
 				Ship winner = players.get(0);
+				winner.removeEnergy();
 				Tween winnerDance = new Tween(winner);
-				winnerDance.animate(TweenableParam.X, 50, gameWidth, 2000, Function.EASE_IN_OUT_QUAD);
-				winnerDance.animate(TweenableParam.Y, 50, 150, 2000, Function.LINEAR);
-				winnerDance.animate(TweenableParam.ROTATION, 90, 0, 2000, Function.LINEAR);
+				winnerDance.animate(TweenableParam.X, 50, gameWidth, 6000, Function.EASE_IN_OUT_QUAD);
+				winnerDance.animate(TweenableParam.Y, 50, gameHeight, 6000, Function.LINEAR);
+				winnerDance.animate(TweenableParam.ROTATION, 90, 0, 6000, Function.LINEAR);
 				TweenJuggler.getInstance().add(winnerDance);
+				Sprite gameOver = new Sprite("gameOver", "gameOver.png");
+				scene.addChild(gameOver);
+				gameOver.setPosition((SpaceFights.gameWidth/2)-(gameOver.getWidth()/2),200);
+				sceneToUpdate = Screens.GAME_OVER;
 				return;
 			}
 			ArrayList<Ship> alreadyCollidedWithPlayerThisFrame = new ArrayList<Ship>();
@@ -441,15 +476,24 @@ public class Screens implements IEventListener {
 		case CombatEvent.DEATH:
 			Ship s = (Ship) (event.getSource());
 			int sNum = s.getPlayerNum();
+			System.out.println(sNum);
+			System.out.println(((DisplayObjectContainer) ((DisplayObjectContainer) playersLivesBar.getChildren().get(sNum)).getChildren().get(s.getLives())).getChildren().get(0).getId());
 			((DisplayObjectContainer) ((DisplayObjectContainer) playersLivesBar.getChildren().get(sNum)).getChildren().get(s.getLives())).removeIndex(0);
+			
 			if(s.getLives() == 0) {
 				System.out.println("RemoveIndex :"+sNum);
 				playerNode.removeChild(s);
 				deadPlayers.add(s);
 			}
+//			Tween tween = new Tween(s);
+//			tween.animate(TweenableParam.X, s.getPosition().getX(), s.getPosition().getX(), deathManager.deathTime, Function.LINEAR);
+//
+//			players.remove(s);
+			
 			break;
 		case TweenEvent.TWEEN_COMPLETE_EVENT:
 			// the player is revived, 
+			
 		}
 
 	}

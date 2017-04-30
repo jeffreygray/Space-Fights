@@ -28,6 +28,7 @@ public class Ship extends PhysicsSprite {
 	private ArrayList<Projectile> projectiles = new ArrayList<Projectile>();
 	private boolean recentlySpawned = false;
 	private Point spawn = new Point();
+	private boolean isDying = false;
 	
 	/* 
 	 * This will be if we want to use animated ship sprites
@@ -36,6 +37,8 @@ public class Ship extends PhysicsSprite {
 		// TODO Auto-generated constructor stub
 	} */
 	
+
+
 	/**
 	 * Creates a new ship of ship class <code>type</code> for player <code>playerNumber</code>
 	 * @param type The ship class to which this new ship will belong (e.g. Vulture)
@@ -78,6 +81,11 @@ public class Ship extends PhysicsSprite {
 		System.out.println("Ship #"+playerNum+ " is at position "+this.getPosition());
 	}
 	
+	public void removeEnergy() {
+		nrgBack.setVisible(false);
+		nrgFront.setVisible(false);
+	}
+	
 	@Override
 	public void update(ArrayList<String> pressedKeys, ArrayList<GamePad> controllers) {
 		this.setXa(0);
@@ -87,41 +95,44 @@ public class Ship extends PhysicsSprite {
 		double rotationInRads = Math.toRadians(this.getRotation()-90);
 		GamePad playerController = controllers.get(playerNum);
 
-		if(playerController.getLeftStickYAxis() == -1 && Math.hypot(this.getXv(), this.getYv()) < max_speed) {
+		
+		if (!isDying) {
+			if(playerController.getLeftStickYAxis() == -1 && Math.hypot(this.getXv(), this.getYv()) < max_speed) {
 				this.setXa(Math.cos(rotationInRads) * thrust);
 				this.setYa(Math.sin(rotationInRads) * thrust);
-		}
-		if(playerController.getLeftStickYAxis() == 1 && Math.hypot(this.getXv(), this.getYv()) < max_speed) {
-			this.setXa(-Math.cos(rotationInRads) * thrust);
-			this.setYa(-Math.sin(rotationInRads) * thrust);
-		}
-		if(playerController.getLeftStickXAxis() == -1) {
-			this.setRotation(this.getRotation()-rotate_speed);
-		}
-		if(playerController.getLeftStickXAxis() == 1) {
-			this.setRotation(this.getRotation()+rotate_speed);
-		}
-		
-		if(playerController.isButtonPressed(GamePad.BUTTON_A) && lastShot.getElapsedTime() >= type.getCooldown() && nrg > type.getFiringCost()) {
-			nrg = nrg - type.getFiringCost();
-			SoundManager.playSoundEffect("bullet.wav");
+			}
+			if(playerController.getLeftStickYAxis() == 1 && Math.hypot(this.getXv(), this.getYv()) < max_speed) {
+				this.setXa(-Math.cos(rotationInRads) * thrust);
+				this.setYa(-Math.sin(rotationInRads) * thrust);
+			}
+			if(playerController.getLeftStickXAxis() == -1) {
+				this.setRotation(this.getRotation()-rotate_speed);
+			}
+			if(playerController.getLeftStickXAxis() == 1) {
+				this.setRotation(this.getRotation()+rotate_speed);
+			}
 
-			lastShot.resetGameClock();
-			double x = this.getX() + this.getPivotPoint().x + Math.cos(rotationInRads)*this.getHeight()/2;
-			double y = this.getY() + this.getPivotPoint().y + Math.sin(rotationInRads)*this.getWidth()/2;
-			projectiles.add(new Projectile(ProjectileType.Bullet, x, y, this.getRotation()-90));
-		}
-		
-		 if(playerController.isButtonPressed(GamePad.BUTTON_B) && lastShot.getElapsedTime() >= type.getSpecialCD() && nrg > type.getSpecialCost()) {
-		 SoundManager.playSoundEffect("laser.wav");
-			nrg = nrg-type.getSpecialCost();
-			lastShot.resetGameClock();
-			double x = this.getX() + this.getPivotPoint().x + Math.cos(rotationInRads)*this.getHeight()/2;
-			double y = this.getY() + this.getPivotPoint().y + Math.sin(rotationInRads)*this.getWidth()/2;
-			
-			// each projectile will be genrated and store in projectiles and associated with source ship.
-			// this may allow us to avoid friendly fire, if desired
-			projectiles.add(new Projectile(ProjectileType.Laser, x, y, this.getRotation()-90));
+			if(playerController.isButtonPressed(GamePad.BUTTON_A) && lastShot.getElapsedTime() >= type.getCooldown() && nrg > type.getFiringCost()) {
+				nrg = nrg - type.getFiringCost();
+				SoundManager.playSoundEffect("bullet.wav");
+
+				lastShot.resetGameClock();
+				double x = this.getX() + this.getPivotPoint().x + Math.cos(rotationInRads)*this.getHeight()/2;
+				double y = this.getY() + this.getPivotPoint().y + Math.sin(rotationInRads)*this.getWidth()/2;
+				projectiles.add(new Projectile(ProjectileType.Bullet, x, y, this.getRotation()-90));
+			}
+
+			if(playerController.isButtonPressed(GamePad.BUTTON_B) && lastShot.getElapsedTime() >= type.getSpecialCD() && nrg > type.getSpecialCost()) {
+				SoundManager.playSoundEffect("laser.wav");
+				nrg = nrg-type.getSpecialCost();
+				lastShot.resetGameClock();
+				double x = this.getX() + this.getPivotPoint().x + Math.cos(rotationInRads)*this.getHeight()/2;
+				double y = this.getY() + this.getPivotPoint().y + Math.sin(rotationInRads)*this.getWidth()/2;
+
+				// each projectile will be genrated and store in projectiles and associated with source ship.
+				// this may allow us to avoid friendly fire, if desired
+				projectiles.add(new Projectile(ProjectileType.Laser, x, y, this.getRotation()-90));
+			}
 		}
 		
 //		if(playerNum == 1) {
@@ -290,7 +301,7 @@ public class Ship extends PhysicsSprite {
 		//System.out.println("Setting nrg");
 		// if the player did recently spawn, want them to not take any damage
 		if(!recentlySpawned) {
-			if(energy < 0) {
+			if(energy < 0 && !isDying) {
 				// player dies
 				//System.out.println("NRG < 0");
 				lives--;
@@ -312,8 +323,17 @@ public class Ship extends PhysicsSprite {
 	public int getPlayerNum() {
 		return playerNum;
 	}
+	
+	public boolean isDying() {
+		return isDying;
+	}
+
+	public void setDying(boolean isDying) {
+		this.isDying = isDying;
+	}
 
 	public void respawn() {
+		isDying = false;
 		//lives--;
 		if(lives > 0) {
 			setPosition(spawn.x, spawn.y);

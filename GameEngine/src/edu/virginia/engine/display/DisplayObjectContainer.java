@@ -79,9 +79,13 @@ public class DisplayObjectContainer extends DisplayObject {
 	public boolean removeAll() {
 		for(int i = 0; i < children.size(); i++) {
 			((DisplayObjectContainer) children.get(i)).removeAll();
-			children.remove(i);
 		}
+		children.clear();
 		return children.isEmpty();
+	}
+	
+	public String toString() {
+		return this.getId();
 	}
 
 }
