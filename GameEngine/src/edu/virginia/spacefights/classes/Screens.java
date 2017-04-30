@@ -52,9 +52,9 @@ public class Screens implements IEventListener {
 
 
 	ArrayList<Sprite> selectorBoxes;
-	int[] shipChoice = {0, 0};
+	int[] shipChoice = {0, -1, -1, -1};
 	private boolean[] pressedButtonLastFrame = new boolean[4];
-	private boolean[] playersReady = new boolean[4];
+	private boolean[] playersReady = {false, true, true, true};
 
 	/**A class to handle the updating of the screens 
 	 * @param width the width of the game window
@@ -81,20 +81,27 @@ public class Screens implements IEventListener {
 	}
 
 	public void makeShipSelectScreen() {
-		for(int i = 0; i < 2; i++) {
+		for(int i = 0; i < 4; i++) {
 			Sprite selector = new Sprite("p"+i+"SelectorBox", "player"+i+"Selector.png");
 
 			playerAvailableShips.add(new ArrayList<Sprite>());
 			for(ShipType st : ShipType.values()) {
 				Sprite newShip = new Sprite(st.toString(), st.getImageName()+i+".png");
 				selector.addChild(newShip);
-				newShip.setPosition(newShip.getParent().getWidth()/5, newShip.getParent().getHeight()/5);
+				newShip.setPosition(newShip.getParent().getWidth()/2 - newShip.getWidth()/2, 
+						newShip.getParent().getHeight()/2 - newShip.getHeight()/2);
 				newShip.setAlpha(0);
 				playerAvailableShips.get(i).add(newShip);
 			}
-			playerAvailableShips.get(i).get(shipChoice[i]).setAlpha(1);
+			
+			if(shipChoice[i] != -1) {
+				playerAvailableShips.get(i).get(shipChoice[i]).setAlpha(1);
+			} else{
+				selector.setVisible(false);
+			}
 			selector.setPosition(gameWidth*(i+1)/5, gameHeight/5);
-
+			
+			
 			shipSelectScreen.addChild(selector);
 			selectorBoxes.add(selector);
 		}
@@ -105,23 +112,42 @@ public class Screens implements IEventListener {
 			//System.out.println(ShipType.Lion.toString());
 			// if all 4 (or however many there are...) players ready, then call gameStart
 			
-//			if(playersReady[0] && playersReady[1] && playersReady[2] && playersReady[3]) { // TODO: add in functionality for less than 4 players
-			if(playersReady[0] && playersReady[1]) { // TODO: add in functionality for less than 4 players
-				playersReady[0] = false;
-				playersReady[1] = false;
-				selectorBoxes.get(0).removeChildByID("player"+0+"Ready");
-				selectorBoxes.get(1).removeChildByID("player"+1+"Ready");
+			if(playersReady[0] && playersReady[1] && playersReady[2] && playersReady[3]) { // TODO: add in functionality for less than 4 players
+//			if(playersReady[0] && playersReady[1]) { // TODO: add in functionality for less than 4 players
+				for(int i = 0; i < playersReady.length; i++) {
+					if(shipChoice[i] != -1) {
+						playersReady[i] = false;
+						
+					}
+					selectorBoxes.get(i).removeChildByID("player"+i+"Ready");
+				}
+//				selectorBoxes.get(0).removeChildByID("player"+0+"Ready");
+//				selectorBoxes.get(1).removeChildByID("player"+1+"Ready");
+//				selectorBoxes.get(2).removeChildByID("player"+2+"Ready");
+//				selectorBoxes.get(3).removeChildByID("player"+3+"Ready");
 
 				gameStart();
-				
 				return;
-				
 			}
 			
 			
 			for(int i = 0; i < controllers.size(); i++) {
-				Sprite currently_selected_ship = playerAvailableShips.get(i).get(shipChoice[i]);
 				Sprite selector = selectorBoxes.get(i);
+				
+				if(shipChoice[i] == -1 && controllers.get(i).isButtonPressed(GamePad.BUTTON_START)) {
+					shipChoice[i] = 0;
+					selector.setVisible(true);
+					Sprite ship = playerAvailableShips.get(i).get(shipChoice[i]);
+					playerAvailableShips.get(i).get(shipChoice[i]).setAlpha(1);
+					playerAvailableShips.get(i).get(shipChoice[i]).setPosition(ship.getParent().getWidth()/2 - ship.getWidth()/2, 
+							ship.getParent().getHeight()/2 - ship.getHeight()/2);
+					pressedButtonLastFrame[i] = true;
+					playersReady[i] = false;
+				} else if (shipChoice[i] == -1){
+					continue;
+				} 
+				Sprite currently_selected_ship = playerAvailableShips.get(i).get(shipChoice[i]);
+
 				if(controllers.get(i).getLeftStickXAxis() == -1 && !playersReady[i]) {
 					if(!pressedButtonLastFrame[i]){ 
 						pressedButtonLastFrame[i] = true;
@@ -176,7 +202,15 @@ public class Screens implements IEventListener {
 						playersReady[i] = false;
 						selector.removeChildByID("player"+i+"Ready");
 					}
-				}	
+				} else if(controllers.get(i).isButtonPressed(GamePad.BUTTON_SELECT) && i != 0 && !playersReady[i]) {
+					if(!pressedButtonLastFrame[i]) {
+						pressedButtonLastFrame[i] = true;
+						playersReady[i] = true;
+						selector.setVisible(false);
+						playerAvailableShips.get(i).get(shipChoice[i]).setAlpha(0);
+						shipChoice[i] = -1;
+					}
+				}
 				else pressedButtonLastFrame[i] = false;
 			}
 		}
@@ -196,6 +230,9 @@ public class Screens implements IEventListener {
 		playerNode.removeAll();
 		System.out.println(playersLivesBar.removeAll());
 		for(int i = 0; i<shipChoice.length; i++) {
+			if(shipChoice[i] == -1) {
+				continue;
+			}
 			// make and add player to display tree
 			System.out.println(playersLivesBar.getChildren().toString() + " Before " + i);
 			Ship player = new Ship(ShipType.valueOf(playerAvailableShips.get(i).get(shipChoice[i]).getId()), i);
@@ -225,8 +262,8 @@ public class Screens implements IEventListener {
 	}
 
 	public void makeGameScreen() {
-		gameScreen.addChild(playerNode);
 		gameScreen.addChild(levelNode);
+		gameScreen.addChild(playerNode);
 
 		// IDEA TODO: make a level builder class; this will also maybe help to make a level select screen
 		plat1 = new Sprite("plat1", "platformSpaceVertical.png");
