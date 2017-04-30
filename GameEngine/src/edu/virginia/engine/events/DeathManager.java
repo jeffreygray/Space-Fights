@@ -21,7 +21,8 @@ public class DeathManager implements IEventListener {
 			//System.out.println("IN COLLISION MANAGER");
 			
 			Ship player = (Ship) (event.getSource());
-			String[] booming = {"boom.png", "boom1.png"};
+//			String[] booming = {"boom.png", "boom1.png"};
+			String[] booming = {"bewm1.png", "bewm2.png", "bewm3.png", "bewm4.png"};
 			AnimatedSprite boom = new AnimatedSprite("boom", booming);
 			boom.setPivotPoint(player.getPivotPoint());
 			player.addChild(boom);
@@ -33,10 +34,12 @@ public class DeathManager implements IEventListener {
 		    Tween shipFade = new Tween(player);
 		    player.setDying(true);
 		    shipFade.animate(TweenableParam.ALPHA, 1, 0, deathTime, Function.LINEAR);
-			explosion.animate(TweenableParam.ALPHA, 0, 1, 1000, Function.LINEAR);
-			explosion.animate(TweenableParam.ROTATION, player.getRotation(), player.getRotation() + 180, 1000, Function.EASE_IN_OUT_QUAD);
-			explosion.animate(TweenableParam.SCALE_X, 0.1, 1, 1000, Function.LINEAR);
-			explosion.animate(TweenableParam.SCALE_Y, 0.1, 1, 1000, Function.LINEAR);
+			explosion.animate(TweenableParam.ALPHA, 0, 1, 500, Function.LINEAR);
+			explosion.animate(TweenableParam.ROTATION, player.getRotation(), player.getRotation() + 180, 500, Function.EASE_IN_OUT_QUAD);
+			explosion.animate(TweenableParam.SCALE_X, 0.4, 1, 500, Function.LINEAR);
+			explosion.animate(TweenableParam.SCALE_Y, 0.4, 1, 500, Function.LINEAR);
+//			explosion.animate(TweenableParam.X, player.getWidth()/2-boom.getWidth()/2, 0, 1000, Function.EASE_IN_OUT_QUAD);
+//			explosion.animate(TweenableParam.Y, player.getHeight()/2-boom.getHeight()/2, 0, 1000, Function.EASE_IN_OUT_QUAD);
 
 
 			

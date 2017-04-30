@@ -29,7 +29,7 @@ public class AnimatedSprite extends Sprite {
 		}
 		currFrame = startInd = 0;
 		endInd = spriteNames.size()-1;
-		speed = 5;
+		speed = 10;
 		count = 0;
 		playing = false;
 		this.setImage(spriteNames.get(startInd));
