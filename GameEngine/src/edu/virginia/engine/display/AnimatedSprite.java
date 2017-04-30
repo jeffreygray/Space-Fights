@@ -28,7 +28,7 @@ public class AnimatedSprite extends Sprite {
 			spriteNames.add(imageFileName[i]);
 		}
 		currFrame = startInd = 0;
-		endInd = 3;
+		endInd = spriteNames.size()-1;
 		speed = 5;
 		count = 0;
 		playing = false;
