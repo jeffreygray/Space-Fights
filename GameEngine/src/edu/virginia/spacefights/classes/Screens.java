@@ -144,7 +144,7 @@ public class Screens implements IEventListener {
 			
 			for(int i = 0; i < controllers.size(); i++) {
 				Sprite selector = selectorBoxes.get(i);
-				
+				//controllers.get(i).printButtonSummary();
 				if(shipChoice[i] == -1 && controllers.get(i).isButtonPressed(GamePad.BUTTON_START)) {
 					shipChoice[i] = 0;
 					selector.setVisible(true);
@@ -159,7 +159,7 @@ public class Screens implements IEventListener {
 				} 
 				Sprite currently_selected_ship = playerAvailableShips.get(i).get(shipChoice[i]);
 
-				if(controllers.get(i).getLeftStickXAxis() == -1 && !playersReady[i]) {
+				if((controllers.get(i).getLeftStickXAxis() == -1 || controllers.get(i).isDPadPressed(GamePad.DPAD_LEFT)) && !playersReady[i]) {
 					if(!pressedButtonLastFrame[i]){ 
 						pressedButtonLastFrame[i] = true;
 						Tween oldShipTween = new Tween(currently_selected_ship);
@@ -239,14 +239,12 @@ public class Screens implements IEventListener {
 		scene.addChild(gameScreen);
 		scene.addChild(playersLivesBar);
 		playerNode.removeAll();
-		System.out.println(playersLivesBar.removeAll());
+		playersLivesBar.removeAll();
 		for(int i = 0; i<shipChoice.length; i++) {
-			System.out.println("first flag" + i);
 			if(shipChoice[i] == -1) {
 				playersLivesBar.addChild(null);
 				continue;
 			}
-			System.out.println("second flag" + i);
 			// make and add player to display tree
 			System.out.println(playersLivesBar.getChildren().toString() + " Before " + i);
 			Ship player = new Ship(ShipType.valueOf(playerAvailableShips.get(i).get(shipChoice[i]).getId()), i);
@@ -372,9 +370,11 @@ public class Screens implements IEventListener {
 				Ship winner = players.get(0);
 				winner.removeEnergy();
 				Tween winnerDance = new Tween(winner);
-				winnerDance.animate(TweenableParam.X, 50, gameWidth, 6000, Function.EASE_IN_OUT_QUAD);
-				winnerDance.animate(TweenableParam.Y, 50, gameHeight, 6000, Function.LINEAR);
-				winnerDance.animate(TweenableParam.ROTATION, 90, 0, 6000, Function.LINEAR);
+				winnerDance.animate(TweenableParam.X, winner.getPosition().x, (winner.getPosition().x > gameWidth/2 ? -200 : gameWidth+100), 6000, Function.EASE_IN_OUT_QUAD);
+				winnerDance.animate(TweenableParam.Y, winner.getPosition().y, (winner.getPosition().y > gameHeight/2 ? -200 : gameHeight+100), 6000, Function.LINEAR);
+				winnerDance.animate(TweenableParam.ROTATION, 90, 180, 6000, Function.LINEAR);
+				winnerDance.animate(TweenableParam.SCALE_X, 1, 2, 6000, Function.EASE_IN_OUT_QUAD);
+				winnerDance.animate(TweenableParam.SCALE_Y, 1, 2, 6000, Function.EASE_IN_OUT_QUAD);
 				TweenJuggler.getInstance().add(winnerDance);
 				gameOver = new Sprite("gameOver", "gameOver.png");
 				scene.addChild(gameOver);
@@ -417,16 +417,16 @@ public class Screens implements IEventListener {
 						Rectangle otherHB = other.getHitbox();
 						Rectangle overlap = myHB.intersection(otherHB);
 						if (overlap.width < overlap.height) {
-							player.setNrg((int) (player.getNrg()-Ship.MOMENTUM_DAMAGE_RATIO*Math.abs(other.getXv()-player.getXv()) * other.getM()/(other.getM() + player.getM())));
-							other.setNrg((int) (other.getNrg()-Ship.MOMENTUM_DAMAGE_RATIO*Math.abs(player.getXv()-other.getXv()) * player.getM()/(player.getM() + other.getM())));
+							player.setNrg((int) (player.getNrg()-player.momentum_damage_ratio*Math.abs(other.getXv()-player.getXv()) * other.getM()/(other.getM() + player.getM())));
+							other.setNrg((int) (other.getNrg()-other.momentum_damage_ratio*Math.abs(player.getXv()-other.getXv()) * player.getM()/(player.getM() + other.getM())));
 							//System.out.println(player.getNrg());
 							// momentum formulae
 							double oldV1 = player.getXv();
 							player.setXv((elasticity*other.getM()*other.getXv() + player.getXv()*(player.getM()-elasticity*other.getM()))/(other.getM() + player.getM()));  
 							other.setXv((elasticity *player.getM()*oldV1 + other.getXv()*(other.getM()-elasticity*player.getM()))/(other.getM() + player.getM()));
 						} else {// coming from top or bottom
-							player.setNrg((int) (player.getNrg()-Ship.MOMENTUM_DAMAGE_RATIO*Math.abs(other.getYv()-player.getYv()) * other.getM()/(other.getM() + player.getM())));
-							other.setNrg((int) (other.getNrg()-Ship.MOMENTUM_DAMAGE_RATIO*Math.abs(player.getYv()-other.getYv()) * player.getM()/(player.getM() + other.getM())));
+							player.setNrg((int) (player.getNrg()-player.momentum_damage_ratio*Math.abs(other.getYv()-player.getYv()) * other.getM()/(other.getM() + player.getM())));
+							other.setNrg((int) (other.getNrg()-other.momentum_damage_ratio*Math.abs(player.getYv()-other.getYv()) * player.getM()/(player.getM() + other.getM())));
 							double oldV2 = player.getYv();
 							player.setYv((elasticity*other.getM()*other.getYv() + player.getYv()*(player.getM()-elasticity*other.getM()))/(other.getM() + player.getM()));  
 							other.setYv((elasticity*player.getM()*oldV2 + other.getYv()*(other.getM()-elasticity*player.getM()))/(other.getM() + player.getM()));
@@ -542,8 +542,6 @@ public class Screens implements IEventListener {
 		case CombatEvent.DEATH:
 			Ship s = (Ship) (event.getSource());
 			int sNum = s.getPlayerNum();
-			System.out.println(sNum);
-			System.out.println(((DisplayObjectContainer) ((DisplayObjectContainer) playersLivesBar.getChildren().get(sNum)).getChildren().get(s.getLives())).getChildren().get(0).getId());
 			((DisplayObjectContainer) ((DisplayObjectContainer) playersLivesBar.getChildren().get(sNum)).getChildren().get(s.getLives())).removeIndex(0);
 			
 			if(s.getLives() == 0) {
@@ -563,7 +561,6 @@ public class Screens implements IEventListener {
 			Tween tween = ((TweenEvent) event).getTween();
 			Ship deadShip = (Ship)tween.getObj();
 			int sNum1 = deadShip.getPlayerNum();
-			System.out.println("RemoveIndex :"+sNum1);
 			playerNode.removeChild(deadShip);
 			deadPlayers.add(deadShip);
 			

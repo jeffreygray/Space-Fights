@@ -13,7 +13,7 @@ import edu.virginia.engine.util.GameClock;
 import edu.virginia.engine.util.SoundManager;
 
 public class Ship extends PhysicsSprite {
-	public static final int MOMENTUM_DAMAGE_RATIO = 150;
+	public int momentum_damage_ratio;
 
 	private int nrg;
 	private int nrgCap;
@@ -60,9 +60,11 @@ public class Ship extends PhysicsSprite {
 		if(type.equals(ShipType.Rhino)) {
 			rotate_speed =3;
 			max_speed = 15;
+			momentum_damage_ratio = 130;
 		} else {
 			max_speed = 10;
 			rotate_speed = 5;
+			momentum_damage_ratio = 150;
 		}
 		
 		if(playerNumber == 0)
@@ -149,6 +151,7 @@ public class Ship extends PhysicsSprite {
 				switch(type) {
 				case Rhino:
 					thrust = 0.25;
+					rotate_speed = 1.5;
 					break;
 				case Vulture:	
 					projectiles.add(new Projectile(ProjectileType.Laser, x, y, this.getRotation()-90));
@@ -158,13 +161,9 @@ public class Ship extends PhysicsSprite {
 					projectiles.add(new Projectile(ProjectileType.FrostBullet, x, y, this.getRotation()-90));
 					SoundManager.playSoundEffect("freezesound.wav");
 				}
-				if(type.equals(ShipType.Rhino)) {
-					thrust = 0.25;
-				} else {
-					
-				}
 			} else if (type.equals(ShipType.Rhino)) {
 				thrust = ShipType.Rhino.getThrust();
+				rotate_speed = 3;
 			}
 		}
 		
