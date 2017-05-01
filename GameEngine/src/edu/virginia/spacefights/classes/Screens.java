@@ -239,9 +239,12 @@ public class Screens implements IEventListener {
 		playerNode.removeAll();
 		System.out.println(playersLivesBar.removeAll());
 		for(int i = 0; i<shipChoice.length; i++) {
+			System.out.println("first flag" + i);
 			if(shipChoice[i] == -1) {
+				playersLivesBar.addChild(null);
 				continue;
 			}
+			System.out.println("second flag" + i);
 			// make and add player to display tree
 			System.out.println(playersLivesBar.getChildren().toString() + " Before " + i);
 			Ship player = new Ship(ShipType.valueOf(playerAvailableShips.get(i).get(shipChoice[i]).getId()), i);
@@ -264,7 +267,7 @@ public class Screens implements IEventListener {
 				heart.setPosition(j/5.0*heart.getParent().getWidth(), heart.getParent().getHeight()/2 - heart.getHeight()/2);
 				heart.addChild(new Sprite("heart_"+j, "heart.png"));
 			}
-			playersLivesBar.addChildAtIndex(container, i);
+			playersLivesBar.addChild(container);
 			System.out.println(playersLivesBar.getChildren().toString()+ " after " + i);
 		}
 		sceneToUpdate = Screens.GAME_SCENE;

@@ -27,7 +27,9 @@ public class DisplayObjectContainer extends DisplayObject {
 		Graphics2D g2d = (Graphics2D) g;
 		this.applyTransformations(g2d);
 		for(DisplayObject child: children) {
-			child.draw(g);
+			if (child != null) {
+				child.draw(g);
+			}
 		}
 		this.reverseTransformations(g2d);
 	}
@@ -36,7 +38,9 @@ public class DisplayObjectContainer extends DisplayObject {
 	protected void update(ArrayList<String> pressedKeys, ArrayList<GamePad> controllers) {
 		super.update(pressedKeys, controllers);
 		for(DisplayObject child: children) {
-			child.update(pressedKeys, controllers);
+			if (child != null) {
+				child.update(pressedKeys, controllers);
+			}
 		}
 	}
 	
@@ -50,7 +54,9 @@ public class DisplayObjectContainer extends DisplayObject {
 	
 	public void addChild(DisplayObject d) {
 		children.add(d);
-		d.setParent(this);
+		if (d != null) {
+			d.setParent(this);
+		}
 	}
 	
 	public void addChildAtIndex(DisplayObject d, int i) {
@@ -78,7 +84,9 @@ public class DisplayObjectContainer extends DisplayObject {
 	
 	public boolean removeAll() {
 		for(int i = 0; i < children.size(); i++) {
-			((DisplayObjectContainer) children.get(i)).removeAll();
+			if (children.get(i) != null) {
+				((DisplayObjectContainer) children.get(i)).removeAll();
+			}
 		}
 		children.clear();
 		return children.isEmpty();
