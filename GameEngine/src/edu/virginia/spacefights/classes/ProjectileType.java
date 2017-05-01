@@ -4,7 +4,7 @@ public enum ProjectileType {
 	Bullet(15, 2000, 430, true, "bullet.png"), 
 	Laser(10, 1500, 10000, false, "laser.png"),
 	NoBounceBullet(15, 3000, 380, false, "bullet.png"),
-	FrostBullet(15, 2000, 0, true, "bullet.png");
+	FrostBullet(15, 2000, 0, true, "freeze_bullet.png");
 	private double muzzleVelocity, decayTime;
 	private int damage;
 	private boolean hasBounce;
