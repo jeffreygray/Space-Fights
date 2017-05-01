@@ -127,7 +127,14 @@ public class Ship extends PhysicsSprite {
 				lastShot.resetGameClock();
 				double x = this.getX() + this.getPivotPoint().x + Math.cos(rotationInRads)*this.getHeight()/2;
 				double y = this.getY() + this.getPivotPoint().y + Math.sin(rotationInRads)*this.getWidth()/2;
-				projectiles.add(new Projectile(ProjectileType.Bullet, x, y, this.getRotation()-90));
+				switch(type) {
+				case Lion:
+					projectiles.add(new Projectile(ProjectileType.Bullet, x, y, this.getRotation()-90));
+		
+					break;
+				default:
+					projectiles.add(new Projectile(ProjectileType.NoBounceBullet, x, y, this.getRotation()-90));
+				}
 			}
 
 			if(playerController.isButtonPressed(GamePad.BUTTON_B) && lastShot.getElapsedTime() >= type.getSpecialCD() && nrg > type.getSpecialCost()) {
@@ -219,8 +226,9 @@ public class Ship extends PhysicsSprite {
 				this.nrg = 1;
 				lives--;
 				this.dispatchEvent(new Event(CombatEvent.DEATH, this));
-			}
-			else 
+			} if(isDying) {
+				this.nrg=1;
+			} else 
 				this.nrg = energy;
 		}
 	}

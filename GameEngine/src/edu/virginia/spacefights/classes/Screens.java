@@ -39,7 +39,9 @@ public class Screens implements IEventListener {
 	static double dampen = -0.65;
 	int gameWidth, gameHeight;
 	private DisplayObjectContainer gameScreen, shipSelectScreen;
-	private Sprite scene, plat1, plat2, plat3, plat4, plat5, plat6, plat7, plat8, plat9, plat10, plat11, plat12, plat13, plat14, plat15, plat16;
+	//private Sprite scene, plat1, plat2, plat3, plat4, plat5, plat6, plat7, plat8, plat9, plat10, plat11, plat12, plat13, plat14, plat15, plat16;
+	private Sprite scene, plat1, plat2, plat3, plat4, plat13, plat14, plat15;
+
 
 	private ArrayList<Sprite> platforms = new ArrayList<Sprite>();
 	private ArrayList<Ship> players = new ArrayList<Ship>();	
@@ -284,14 +286,14 @@ public class Screens implements IEventListener {
 		plat2.setScaleY(.4);
 		plat3 = new Sprite("plat3", "platformSpaceVertical.png");
 		plat4 = new Sprite("plat4", "platformSpace.png");
-		plat5 = new Sprite("plat5", "platformSpace.png");
-		plat6 = new Sprite("plat6", "platformSpace.png");
-		plat7 = new Sprite("plat7", "platformSpace.png");
-		plat8 = new Sprite("plat8", "platformSpace.png");
-		plat9 = new Sprite("plat9", "platformSpace.png");
-		plat10 = new Sprite("plat10", "platformSpace.png");
-		plat11 = new Sprite("plat11", "platformSpace.png");
-		plat12 = new Sprite("plat12", "platformSpace.png");
+//		plat5 = new Sprite("plat5", "platformSpace.png");
+//		plat6 = new Sprite("plat6", "platformSpace.png");
+//		plat7 = new Sprite("plat7", "platformSpace.png");
+//		plat8 = new Sprite("plat8", "platformSpace.png");
+//		plat9 = new Sprite("plat9", "platformSpace.png");
+//		plat10 = new Sprite("plat10", "platformSpace.png");
+//		plat11 = new Sprite("plat11", "platformSpace.png");
+//		plat12 = new Sprite("plat12", "platformSpace.png");
 		plat13 = new Sprite("plat13", "platformSpaceVertical.png");
 		plat14 = new Sprite("plat14", "platformSpace.png");
 		plat15 = new Sprite("plat15", "platformSpaceVertical.png");
@@ -301,14 +303,14 @@ public class Screens implements IEventListener {
 		platforms.add(plat2);
 		platforms.add(plat3);
 		platforms.add(plat4);
-		platforms.add(plat5);
-		platforms.add(plat6);
-		platforms.add(plat7);
-		platforms.add(plat8);
-		platforms.add(plat9);
-		platforms.add(plat10);
-		platforms.add(plat11);
-		platforms.add(plat12);
+//		platforms.add(plat5);
+//		platforms.add(plat6);
+//		platforms.add(plat7);
+//		platforms.add(plat8);
+//		platforms.add(plat9);
+//		platforms.add(plat10);
+//		platforms.add(plat11);
+//		platforms.add(plat12);
 		platforms.add(plat13);
 		platforms.add(plat14);
 		platforms.add(plat15);
@@ -317,15 +319,16 @@ public class Screens implements IEventListener {
 		plat1.setPosition(400, 250);
 		plat2.setPosition(900, 300);
 		plat3.setPosition(1350, 470);
-		plat4.setPosition(0, 920);
-		plat5.setPosition(plat4.getWidth(), 925);
-		plat6.setPosition(plat4.getWidth() * 2, 925);
-		plat7.setPosition(plat4.getWidth() * 3, 925);
-		plat8.setPosition(plat4.getWidth() * 4, 925);
-		plat9.setPosition(plat4.getWidth() * 5, 925);
-		plat10.setPosition(plat4.getWidth() * 6, 925);
-		plat11.setPosition(plat4.getWidth() * 7, 925);
-		plat12.setPosition(plat4.getWidth() * 8, 925);
+		plat4.setPosition(0, 925);
+		plat4.setScaleX(10);
+//		plat5.setPosition(plat4.getWidth(), 925);
+//		plat6.setPosition(plat4.getWidth() * 2, 925);
+//		plat7.setPosition(plat4.getWidth() * 3, 925);
+//		plat8.setPosition(plat4.getWidth() * 4, 925);
+//		plat9.setPosition(plat4.getWidth() * 5, 925);
+//		plat10.setPosition(plat4.getWidth() * 6, 925);
+//		plat11.setPosition(plat4.getWidth() * 7, 925);
+//		plat12.setPosition(plat4.getWidth() * 8, 925);
 		plat13.setPosition(0,0);
 		plat13.setScaleY(10);
 		plat14.setPosition(1,0);
@@ -351,16 +354,20 @@ public class Screens implements IEventListener {
 				scene.addChild(shipSelectScreen);
 				sceneToUpdate = Screens.SELECT_SCENE;
 				deadPlayers.clear();
+				for(int i = 0; i < pressedButtonLastFrame.length; i++) {
+					pressedButtonLastFrame[i] = true;
+				}
 			}
 		}
 	}
+	Sprite gameOver;
 	
 	public void gameScreenUpdate(ArrayList<String> pressedKeys, ArrayList<GamePad> controllers) {
 		if (scene != null) { // makes sure we loaded everything
 			scene.update(pressedKeys, controllers);
 
 			// check if only 1 player is left on the screen
-			if(players.size() == 1) {
+			if(players.size() == 1  && !players.get(0).isDying()) {
 				// Display Game Over; players.get(0).getPlayerNum() wins
 				Ship winner = players.get(0);
 				winner.removeEnergy();
@@ -369,13 +376,13 @@ public class Screens implements IEventListener {
 				winnerDance.animate(TweenableParam.Y, 50, gameHeight, 6000, Function.LINEAR);
 				winnerDance.animate(TweenableParam.ROTATION, 90, 0, 6000, Function.LINEAR);
 				TweenJuggler.getInstance().add(winnerDance);
-				Sprite gameOver = new Sprite("gameOver", "gameOver.png");
+				gameOver = new Sprite("gameOver", "gameOver.png");
 				scene.addChild(gameOver);
 				gameOver.setPosition((SpaceFights.gameWidth/2)-(gameOver.getWidth()/2),200);
 				sceneToUpdate = Screens.GAME_OVER;
 				return;
 			} else if (players.size() == 0) {
-				Sprite gameOver = new Sprite("gameOver", "gameOverDOUBLE.png");
+				gameOver = new Sprite("gameOver", "gameOverDOUBLE.png");
 				scene.addChild(gameOver);
 				gameOver.setPosition((SpaceFights.gameWidth/2)-(gameOver.getWidth()/2),200);
 				sceneToUpdate = Screens.GAME_OVER;
