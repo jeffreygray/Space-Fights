@@ -76,7 +76,7 @@ public class Screens implements IEventListener {
 		makeGameScreen();
 
 		scene.addChild(shipSelectScreen);
-		SoundManager.playMusic("sound.wav");
+		SoundManager.playMusic("spacefights_low.wav");
 		TweenJuggler tj = new TweenJuggler();
 	}
 
@@ -109,7 +109,7 @@ public class Screens implements IEventListener {
 			selectorBoxes.add(selector);
 		}
 		Sprite blurb = new Sprite("blurb", "blurb.png");
-		blurb.setPosition(500,500);
+		blurb.setPosition((SpaceFights.gameWidth/2)-(blurb.getWidth()/2),500);
 		shipSelectScreen.addChild(blurb);
 
 		
@@ -251,8 +251,8 @@ public class Screens implements IEventListener {
 			player.addEventListener(collisionManager, CollisionEvent.PLATFORM);
 			player.addEventListener(deathManager, CombatEvent.DEATH);
 			player.addEventListener(this, CombatEvent.DEATH);
-			player.setScaleX(0.8);
-			player.setScaleY(0.65);
+			player.setScaleX(1);
+			player.setScaleY(1);
 			player.setPivotPoint(player.getWidth()/2, player.getHeight()/2);
 			playerNode.addChild(player);
 			players.add(player);
@@ -280,8 +280,8 @@ public class Screens implements IEventListener {
 		// IDEA TODO: make a level builder class; this will also maybe help to make a level select screen
 		plat1 = new Sprite("plat1", "platformSpaceVertical.png");
 		plat2 = new Sprite("plat2", "moon.png");
-		plat2.setScaleX(9);
-		plat2.setScaleY(9);
+		plat2.setScaleX(.4);
+		plat2.setScaleY(.4);
 		plat3 = new Sprite("plat3", "platformSpaceVertical.png");
 		plat4 = new Sprite("plat4", "platformSpace.png");
 		plat5 = new Sprite("plat5", "platformSpace.png");

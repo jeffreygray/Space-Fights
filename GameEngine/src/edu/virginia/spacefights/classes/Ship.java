@@ -131,7 +131,9 @@ public class Ship extends PhysicsSprite {
 			}
 
 			if(playerController.isButtonPressed(GamePad.BUTTON_B) && lastShot.getElapsedTime() >= type.getSpecialCD() && nrg > type.getSpecialCost()) {
-				SoundManager.playSoundEffect("laser.wav");
+//				if (type != ShipType.Rhino) {
+//					SoundManager.playSoundEffect("laser.wav");
+//				}
 				nrg = nrg-type.getSpecialCost();
 				lastShot.resetGameClock();
 
@@ -143,9 +145,11 @@ public class Ship extends PhysicsSprite {
 					break;
 				case Vulture:	
 					projectiles.add(new Projectile(ProjectileType.Laser, x, y, this.getRotation()-90));
+					SoundManager.playSoundEffect("laser.wav");
 					break;
 				case Lion:
 					projectiles.add(new Projectile(ProjectileType.FrostBullet, x, y, this.getRotation()-90));
+					SoundManager.playSoundEffect("freezesound.wav");
 				}
 				if(type.equals(ShipType.Rhino)) {
 					thrust = 0.25;
