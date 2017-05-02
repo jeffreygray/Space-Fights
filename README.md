@@ -1,5 +1,5 @@
 # Space Fights!
-an invigorating top down multiplayer space shooter that won best overall game at UVA's game expo in Spring 2017 by a panel of expert judges as well as students
+an invigorating multiplayer space shooter that won best overall game at UVA's game expo in Spring 2017 by a panel of expert judges and students
 
 Final Build: 05.01.2017
 
