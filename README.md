@@ -4,14 +4,15 @@ an invigorating multiplayer space shooter that won best overall game at UVA's ga
 Final Build: 05.01.2017
 
 
-Current Classes: 
+## Current Classes
 * Vulture (nimble ONE-shot assassin)
 * Lion (slothy bullet tank)
 * Rhino (physical damage focused ramming ship)
 
-Controller Requirements: Up, Down, Left, Right, A, B, Start
+## Controller Requirements: 
+Up, Down, Left, Right, A, B, Start
 
-## INTENDED TRIAD
+## CLASS TRIAD DYNAMIC
 RHINO BEATS VULTURE
 
 VULTURE BEATS LION
