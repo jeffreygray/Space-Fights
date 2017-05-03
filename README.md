@@ -1,7 +1,7 @@
 # Welcome!
 Space Fights is an invigorating multiplayer space shooter that won best overall game at UVA's game expo in Spring 2017 by a panel of expert judges and students.
 
-Programmers: Caleb Ziamba and Jeffrey Gray
+Developers: Caleb Ziamba and Jeffrey Gray
 
 Final Build: 05.01.2017
 
