@@ -16,6 +16,8 @@ Energy usage in Space Fights distinguishes it from other games in the genre. Mos
 ## Controller Requirements: 
 Up, Down, Left, Right, A, B, Start
 
+[Click here to see the controllers optimized for our game](https://www.amazon.com/gp/product/B01EUZEQLO/ref=od_aui_detailpages00?ie=UTF8&psc=1)
+
 ## Class Dynamics
 * RHINO BEATS VULTURE
 
