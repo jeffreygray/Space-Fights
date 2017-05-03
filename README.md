@@ -25,4 +25,4 @@ Up, Down, Left, Right, A, B, Start
 Energy usage in Space Fights distinguishes it from other games in the genre. Most people are typically used to separate weapon cooldowns, shields, health, and repair mechanics; however, Space Fights integrates all of this into one value. A blue bar above your ship indicates the current energy of the ship. This value decreases when using the Rhino’s thrust special (for a speed boost), firing a weapon, or receiving damage. This means that PvP is also a mind game where you don’t want to accidentally overshoot. Doing so would make you vulnerable to a 1-shot kill because your energy was drained by the gun. Each of the different ship classes has their own base energy balanced with respect to their combat abilities. 
 
 ## Acknowledgements
-special thanks to Carter Hall and Will Grayeski for helping out with the soundtrack and art
+Special thanks to Carter Hall and Will Grayeski for helping out with the soundtrack and art!
