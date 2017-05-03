@@ -16,9 +16,9 @@ Energy usage in Space Fights distinguishes it from other games in the genre. Mos
 ## Controller Requirements: 
 Up, Down, Left, Right, A, B, Start
 
-Note that you can configure whatever controllers you so desire for Space Fights; alternatively, you can simply remap the inputs to keyboard buttons. Simply edit the GamePad.java file to correspond with your desired interaction style.
-
 [Reccomended Controllers](https://www.amazon.com/gp/product/B01EUZEQLO/ref=od_aui_detailpages00?ie=UTF8&psc=1)
+
+Note that you can configure whatever controllers you so desire for Space Fights; alternatively, you can simply remap the inputs to keyboard buttons. Simply edit the GamePad.java file to correspond with your desired interaction style.
 
 ## Class Dynamics
 * RHINO BEATS VULTURE
