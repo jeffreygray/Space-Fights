@@ -30,4 +30,6 @@ Note that you can configure whatever controllers you so desire for Space Fights;
 ## Acknowledgements
 Special thanks to Carter Hall and Will Grayeski for helping out with the soundtrack and art!
 
+![Creative Commons License](https://i.creativecommons.org/l/by-nc-sa/4.0/88x31.png)
+
 Space Fights is licensed under a [Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License](https://creativecommons.org/licenses/by-nc-sa/4.0/).
