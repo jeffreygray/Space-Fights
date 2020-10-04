@@ -1,5 +1,5 @@
 # Welcome!!!!
-Space Fights is an invigorating multiplayer space shooter that won best overall game at UVA's game expo in Spring 2017 by a panel of expert judges and students.
+Space Fights is an invigorating multiplayer space shooter that won "Best Overall Game" at UVA's game expo in Spring 2017 by a panel of faculty judges with industry experience in Game design and the student body.
 
 ## Energy
 Energy usage in Space Fights distinguishes it from other games in the genre. Most gamers are accustomed to separate weapon cooldowns, shields, health, and repair mechanics; however, Space Fights integrates all of this into one attribute. A blue bar above your ship indicates the current energy of the ship. This value decreases when firing a weapon, receiving damage, or using the Rhino's speed boost. This renders PvP as a fast-paced mind game since you don’t want to accidentally overshoot. Doing so would make you vulnerable to a 1-shot kill because your energy drains by firing projectiles. Each of the different ship classes has their own base energy balanced with respect to their combat abilities.
